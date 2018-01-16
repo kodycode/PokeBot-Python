@@ -125,6 +125,9 @@ class PokemonFunctionality:
         Displays pokemon inventory
         """
         try:
+            if ctx.message.author.id not in self.trainer_data:
+                await self.bot.say("Trainer has nothing to display.")
+                return
             if page_number <= 1:
                 page_number = 1
             user = ctx.message.author.name
@@ -141,6 +144,9 @@ class PokemonFunctionality:
                 pinventory_count += int(pkmn[1])
                 count += 1
             max_pages = int(pinventory_count/20)
+            if page_number > max_pages:
+                await self.bot.say("Page number is invalid.")
+                return
             msg = ("__**{}'s Pokemon**__: Includes **{}** Pokemon. "
                    "[Page **{}/{}**]\n"
                    "".format(user, pinventory_count, page_number, max_pages)
@@ -270,7 +276,7 @@ class PokemonFunctionality:
                 self.trainer_data[user_id]["timer"] = False
             if not await self._check_cooldown(ctx, current_time):
                 shiny_rng = random.uniform(0, 1)
-                if shiny_rng < 1:
+                if shiny_rng < 0.02:
                     random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                     pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
                     is_shiny = True
