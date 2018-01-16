@@ -143,7 +143,9 @@ class PokemonFunctionality:
                     i += 1
                 pinventory_count += int(pkmn[1])
                 count += 1
-            max_pages = int(pinventory_count/20)
+            max_pages = ceil(pinventory_count/20)
+            if max_pages == 0:
+                max_pages = 1
             if page_number > max_pages:
                 await self.bot.say("Page number is invalid.")
                 return
