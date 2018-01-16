@@ -36,7 +36,7 @@ class PokemonCommands:
         await self.cmd_function.catch_pokemon(ctx)
 
     @commands.command(name='inventory', pass_context=True)
-    async def pinventory(self, ctx, page_number=1):
+    async def pinventory(self, ctx, page_number=0):
         """
         Displays the trainer's pokemon inventory
 
@@ -125,19 +125,22 @@ class PokemonFunctionality:
         Displays pokemon inventory
         """
         try:
+            if page_number <= 1:
+                page_number = 1
             user = ctx.message.author.name
             user_id = ctx.message.author.id
             pinventory = self.trainer_data[user_id]["pinventory"]
             pinventory_count = 0
             msg = ''
             i = (page_number-1)*20
-            for pkmn in pinventory.items():
-                if i >= 20*page_number:
-                    break
-                msg += "{} x{}\n".format(pkmn[0].title(), pkmn[1])
+            count = 0
+            for pkmn in sorted(pinventory.items()):
+                if i <= count and i < 20*page_number:
+                    msg += "{} x{}\n".format(pkmn[0].title(), pkmn[1])
+                    i += 1
                 pinventory_count += int(pkmn[1])
-                i += 1
-            max_pages = ceil(pinventory_count/20)
+                count += 1
+            max_pages = int(pinventory_count/20)
             msg = ("__**{}'s Pokemon**__: Includes **{}** Pokemon. "
                    "[Page **{}/{}**]\n"
                    "".format(user, pinventory_count, page_number, max_pages)
@@ -267,7 +270,7 @@ class PokemonFunctionality:
                 self.trainer_data[user_id]["timer"] = False
             if not await self._check_cooldown(ctx, current_time):
                 shiny_rng = random.uniform(0, 1)
-                if shiny_rng < 0.02:
+                if shiny_rng < 1:
                     random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                     pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
                     is_shiny = True
@@ -280,10 +283,17 @@ class PokemonFunctionality:
                 trainer_profile = self.trainer_data[user_id]
                 trainer_profile["timer"] = current_time
                 if random_pkmn not in trainer_profile["pinventory"]:
-                    trainer_profile["pinventory"][random_pkmn] = 1
+                    if is_shiny:
+                        trainer_profile["pinventory"][random_pkmn+"(Shiny)"] = 1
+                    else:
+                        trainer_profile["pinventory"][random_pkmn] = 1
                 else:
-                    pokemon_count = int(trainer_profile["pinventory"][random_pkmn])
-                    trainer_profile["pinventory"][random_pkmn] = pokemon_count+1
+                    if is_shiny:
+                        pokemon_count = int(trainer_profile["pinventory"][random_pkmn+"(Shiny)"])
+                        trainer_profile["pinventory"][random_pkmn+"(Shiny)"] = pokemon_count+1
+                    else:
+                        pokemon_count = int(trainer_profile["pinventory"][random_pkmn])
+                        trainer_profile["pinventory"][random_pkmn] = pokemon_count+1
                 self._save_trainer_file(self.trainer_data)
                 await self._post_pokemon_catch(ctx,
                                                user,
