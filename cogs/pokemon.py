@@ -51,6 +51,7 @@ class PokemonFunctionality:
     def __init__(self, bot):
         self.bot = bot
         self.nrml_pokemon = self._load_pokemon_imgs()
+        self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
         self.trainer_data = self._check_trainer_file()
         self._save_trainer_file(self.trainer_data, backup=True)
 
@@ -81,15 +82,19 @@ class PokemonFunctionality:
                       outfile,
                       indent=4)
 
-    def _load_pokemon_imgs(self):
+    def _load_pokemon_imgs(self, shiny=False):
         """
         Loads pokemon images within a folder
 
         Note: Make path universal
         """
         filedict = defaultdict(list)
-        folder_path = os.path.join('assets', 'nrml')
-        img_path = os.path.join('assets', 'nrml', '*.png')
+        if shiny:
+            folder_path = os.path.join('assets', 'shiny')
+            img_path = os.path.join('assets', 'shiny', '*.png')
+        else:
+            folder_path = os.path.join('assets', 'nrml')
+            img_path = os.path.join('assets', 'nrml', '*.png')
         for filename in glob.glob(img_path):
             result = re.match(r'([^\d]+)', filename)
             if result:
@@ -107,6 +112,7 @@ class PokemonFunctionality:
         """
         try:
             self.nrml_pokemon = self._load_pokemon_imgs()
+            self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
             self.trainer_data = self._check_trainer_file()
             await self.bot.say("Reload complete.")
         except Exception as e:
@@ -168,7 +174,7 @@ class PokemonFunctionality:
             await self.bot.say(msg)
             return True
 
-    async def _post_pokemon_catch(self, ctx, user, random_pkmn, pkmn_img_path, random_pkmnball):
+    async def _post_pokemon_catch(self, ctx, user, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny):
         """
         Posts the pokemon that was caught
         """
@@ -187,20 +193,66 @@ class PokemonFunctionality:
                 if legendary_channel is not None:
                     em = discord.Embed(description=msg,
                                        colour=0xFFFFFF)
+                    type_pkmn = re.search(r'\-.*$', random_pkmn)
+                    if type_pkmn is not None:
+                        base_pkmn = random_pkmn.replace(type_pkmn[0], '')
+                    else:
+                        base_pkmn = random_pkmn
+                    if is_shiny:
+                        em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
+                                             "pokesprite/master/icons/pokemon/shiny/"
+                                             "{}.png"
+                                             "".format(base_pkmn.replace('_', '-')))
+                        em.set_image(url="https://play.pokemonshowdown.com/sprites/"
+                                         "xyani-shiny/{}.gif"
+                                         "".format(base_pkmn.replace('_', '')))
+                    else:
+                        em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
+                                             "pokesprite/master/icons/pokemon/regular/"
+                                             "{}.png"
+                                             "".format(base_pkmn.replace('_', '-')))
+                        em.set_image(url="https://play.pokemonshowdown.com/sprites/"
+                                         "xyani/{}.gif"
+                                         "".format(base_pkmn.replace('_', '')))
+                    try:
+                        await self.bot.send_message(legendary_channel,
+                                                    embed=em)
+                    except:
+                        pass
+            if is_shiny:
+                type_pkmn = re.search(r'\-.*$', random_pkmn)
+                if type_pkmn is not None:
+                    base_pkmn = random_pkmn.replace(type_pkmn[0], '')
+                else:
+                    base_pkmn = random_pkmn
+                for channel in ctx.message.server.channels:
+                    if "shiny" == channel.name:
+                        shiny_channel = self.bot.get_channel(channel.id)
+                        break
+                if shiny_channel is not None:
+                    em = discord.Embed(description=msg,
+                                       colour=0xFFFFFF)
                     em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
-                                         "pokesprite/master/icons/pokemon/regular/"
+                                         "pokesprite/master/icons/pokemon/shiny/"
                                          "{}.png"
-                                         "".format(random_pkmn.replace('_', '-')))
+                                         "".format(base_pkmn.replace('_', '-')))
                     em.set_image(url="https://play.pokemonshowdown.com/sprites/"
-                                     "xyani/{}.gif"
-                                     "".format(random_pkmn.replace('_', '')))
-                    await self.bot.send_message(legendary_channel,
-                                                embed=em)
-            await self.bot.send_file(destination=ctx_channel,
-                                     fp=pkmn_img_path,
-                                     content=msg)
-        except:
-            pass
+                                     "xyani-shiny/{}.gif"
+                                     "".format(base_pkmn.replace('_', '')))
+                    try:
+                        await self.bot.send_message(shiny_channel,
+                                                    embed=em)
+                    except:
+                        pass
+            try:
+                await self.bot.send_file(destination=ctx_channel,
+                                         fp=pkmn_img_path,
+                                         content=msg)
+            except:
+                pass
+        except Exception as e:
+            print("An error has occured in posting catch. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
 
     async def catch_pokemon(self, ctx):
         """
@@ -214,9 +266,16 @@ class PokemonFunctionality:
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
             if not await self._check_cooldown(ctx, current_time):
-                random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
+                shiny_rng = random.uniform(0, 1)
+                if shiny_rng < 0.02:
+                    random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
+                    pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
+                    is_shiny = True
+                else:
+                    random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
+                    pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
+                    is_shiny = False
                 random_pkmnball = random.choice(list(POKEBALL_LIST))
-                pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
                 user = "**{}**".format(ctx.message.author.name)
                 trainer_profile = self.trainer_data[user_id]
                 trainer_profile["timer"] = current_time
@@ -230,7 +289,8 @@ class PokemonFunctionality:
                                                user,
                                                random_pkmn,
                                                pkmn_img_path,
-                                               random_pkmnball)
+                                               random_pkmnball,
+                                               is_shiny)
         except Exception as e:
             print("An error has occured in catching pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))
