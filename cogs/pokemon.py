@@ -178,22 +178,24 @@ class PokemonFunctionality:
                    "**{}**!".format(user,
                                     random_pkmnball,
                                     random_pkmn.replace('_', ' ').title()))
+            legendary_channel = None
             if random_pkmn in LEGENDARY_PKMN or random_pkmn in ULTRA_PKMN:
                 for channel in ctx.message.server.channels:
-                    if "legendary" in channel.name:
+                    if "legendary" == channel.name:
                         legendary_channel = self.bot.get_channel(channel.id)
                         break
-                em = discord.Embed(description=msg,
-                                   colour=0xFFFFFF)
-                em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
-                                     "pokesprite/master/icons/pokemon/regular/"
-                                     "{}.png"
-                                     "".format(random_pkmn.replace('_', '-')))
-                em.set_image(url="https://play.pokemonshowdown.com/sprites/"
-                                 "xyani/{}.gif"
-                                 "".format(random_pkmn.replace('_', '')))
-                await self.bot.send_message(legendary_channel,
-                                            embed=em)
+                if legendary_channel is not None:
+                    em = discord.Embed(description=msg,
+                                       colour=0xFFFFFF)
+                    em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
+                                         "pokesprite/master/icons/pokemon/regular/"
+                                         "{}.png"
+                                         "".format(random_pkmn.replace('_', '-')))
+                    em.set_image(url="https://play.pokemonshowdown.com/sprites/"
+                                     "xyani/{}.gif"
+                                     "".format(random_pkmn.replace('_', '')))
+                    await self.bot.send_message(legendary_channel,
+                                                embed=em)
             await self.bot.send_file(destination=ctx_channel,
                                      fp=pkmn_img_path,
                                      content=msg)
