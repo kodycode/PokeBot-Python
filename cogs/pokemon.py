@@ -178,7 +178,7 @@ class PokemonFunctionality:
                    "**{}**!".format(user,
                                     random_pkmnball,
                                     random_pkmn.replace('_', ' ').title()))
-            if random_pkmn in LEGENDARY_PKMN:
+            if random_pkmn in LEGENDARY_PKMN or random_pkmn in ULTRA_PKMN:
                 for channel in ctx.message.server.channels:
                     if "legendary" in channel.name:
                         legendary_channel = self.bot.get_channel(channel.id)
@@ -187,9 +187,11 @@ class PokemonFunctionality:
                                    colour=0xFFFFFF)
                 em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
                                      "pokesprite/master/icons/pokemon/regular/"
-                                     "{}.png".format(random_pkmn))
+                                     "{}.png"
+                                     "".format(random_pkmn.replace('_', '-')))
                 em.set_image(url="https://play.pokemonshowdown.com/sprites/"
-                                 "xyani/{}.gif".format(random_pkmn))
+                                 "xyani/{}.gif"
+                                 "".format(random_pkmn.replace('_', '')))
                 await self.bot.send_message(legendary_channel,
                                             embed=em)
             await self.bot.send_file(destination=ctx_channel,
@@ -210,12 +212,14 @@ class PokemonFunctionality:
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
             if not await self._check_cooldown(ctx, current_time):
-                random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
+                # random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
+                random_pkmn = "tapu_koko"
                 random_pkmnball = random.choice(list(POKEBALL_LIST))
                 pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
                 user = "**{}**".format(ctx.message.author.name)
                 trainer_profile = self.trainer_data[user_id]
-                trainer_profile["timer"] = current_time
+                # trainer_profile["timer"] = current_time
+                trainer_profile["timer"] = 0
                 if random_pkmn not in trainer_profile["pinventory"]:
                     trainer_profile["pinventory"][random_pkmn] = 1
                 else:
