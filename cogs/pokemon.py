@@ -3,6 +3,8 @@ from collections import defaultdict
 from discord.ext import commands
 from math import ceil
 from pokeball import POKEBALL_LIST
+from legendary import LEGENDARY_PKMN, ULTRA_PKMN
+import discord
 import glob
 import json
 import os
@@ -16,6 +18,13 @@ class PokemonCommands:
 
     def __init__(self, bot):
         self.cmd_function = PokemonFunctionality(bot)
+
+    @commands.command(name='reload', hidden=True)
+    async def reload(self):
+        """
+        Reloads pokemon data
+        """
+        await self.cmd_function.reload_data()
 
     @commands.command(name='pokemon', pass_context=True)
     async def pokemon(self, ctx):
@@ -87,10 +96,23 @@ class PokemonFunctionality:
                 pkmn_name = filename
                 pkmn_name = pkmn_name.replace(folder_path, "")
                 pkmn_name = pkmn_name.replace('/', "")
-                pkmn_name = pkmn_name.replace('\'', "")
+                pkmn_name = pkmn_name.replace('\\', "")
                 pkmn_name = pkmn_name.replace('.png', "")
                 filedict[pkmn_name].append(filename)
         return filedict
+
+    async def reload_data(self):
+        """
+        Reloads cog manager
+        """
+        try:
+            self.nrml_pokemon = self._load_pokemon_imgs()
+            self.trainer_data = self._check_trainer_file()
+            await self.bot.say("Reload complete.")
+        except Exception as e:
+            error_msg = 'Failed to reload: {}'.format(str(e))
+            print(error_msg)
+            logger.error(error_msg)
 
     async def display_pinventory(self, ctx, page_number):
         """
@@ -100,16 +122,20 @@ class PokemonFunctionality:
             user = ctx.message.author.name
             user_id = ctx.message.author.id
             pinventory = self.trainer_data[user_id]["pinventory"]
-            max_pages = ceil(len(pinventory)/20)
-            msg = ("__**{}'s Pokemon**__: Includes **{}** Pokemon. "
-                   "[Page **{}/{}**]\n"
-                   "".format(user, len(pinventory), page_number, max_pages))
+            pinventory_count = 0
+            msg = ''
             i = (page_number-1)*20
             for pkmn in pinventory.items():
                 if i >= 20*page_number:
                     break
                 msg += "{} x{}\n".format(pkmn[0].title(), pkmn[1])
+                pinventory_count += int(pkmn[1])
                 i += 1
+            max_pages = ceil(pinventory_count/20)
+            msg = ("__**{}'s Pokemon**__: Includes **{}** Pokemon. "
+                   "[Page **{}/{}**]\n"
+                   "".format(user, pinventory_count, page_number, max_pages)
+                   + msg)
             try:
                 await self.bot.say(msg)
             except:
@@ -142,6 +168,36 @@ class PokemonFunctionality:
             await self.bot.say(msg)
             return True
 
+    async def _post_pokemon_catch(self, ctx, user, random_pkmn, pkmn_img_path, random_pkmnball):
+        """
+        Posts the pokemon that was caught
+        """
+        try:
+            ctx_channel = ctx.message.channel
+            msg = ("{}, {} you've caught a "
+                   "**{}**!".format(user,
+                                    random_pkmnball,
+                                    random_pkmn.replace('_', ' ').title()))
+            if random_pkmn in LEGENDARY_PKMN:
+                for channel in ctx.message.server.channels:
+                    if "legendary" in channel.name:
+                        legendary_channel = self.bot.get_channel(channel.id)
+                        break
+                em = discord.Embed(description=msg,
+                                   colour=0xFFFFFF)
+                em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
+                                     "pokesprite/master/icons/pokemon/regular/"
+                                     "{}.png".format(random_pkmn))
+                em.set_image(url="https://play.pokemonshowdown.com/sprites/"
+                                 "xyani/{}.gif".format(random_pkmn))
+                await self.bot.send_message(legendary_channel,
+                                            embed=em)
+            await self.bot.send_file(destination=ctx_channel,
+                                     fp=pkmn_img_path,
+                                     content=msg)
+        except:
+            pass
+
     async def catch_pokemon(self, ctx):
         """
         Generates a random pokemon to be caught
@@ -156,26 +212,21 @@ class PokemonFunctionality:
             if not await self._check_cooldown(ctx, current_time):
                 random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
                 random_pkmnball = random.choice(list(POKEBALL_LIST))
-                channel = ctx.message.channel
                 pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
                 user = "**{}**".format(ctx.message.author.name)
-                user_settings = self.trainer_data[user_id]
-                user_settings["timer"] = current_time
-                if random_pkmn not in user_settings["pinventory"]:
-                    user_settings["pinventory"][random_pkmn] = 1
+                trainer_profile = self.trainer_data[user_id]
+                trainer_profile["timer"] = current_time
+                if random_pkmn not in trainer_profile["pinventory"]:
+                    trainer_profile["pinventory"][random_pkmn] = 1
                 else:
-                    pokemon_count = int(user_settings["pinventory"][random_pkmn])
-                    user_settings["pinventory"][random_pkmn] = pokemon_count+1
+                    pokemon_count = int(trainer_profile["pinventory"][random_pkmn])
+                    trainer_profile["pinventory"][random_pkmn] = pokemon_count+1
                 self._save_trainer_file(self.trainer_data)
-                try:
-                    await self.bot.send_file(destination=channel,
-                                             fp=pkmn_img_path,
-                                             content="{}, {} you've caught a "
-                                             "**{}**!".format(user,
-                                                              random_pkmnball,
-                                                              random_pkmn.title()))
-                except:
-                    pass
+                await self._post_pokemon_catch(ctx,
+                                               user,
+                                               random_pkmn,
+                                               pkmn_img_path,
+                                               random_pkmnball)
         except Exception as e:
             print("An error has occured in catching pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))

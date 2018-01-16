@@ -1,4 +1,5 @@
 __pycache__
+.vimrc
 trainers.json
 trainers_backup.json
 error.log
