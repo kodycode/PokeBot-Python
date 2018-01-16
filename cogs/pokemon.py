@@ -214,14 +214,12 @@ class PokemonFunctionality:
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
             if not await self._check_cooldown(ctx, current_time):
-                # random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
-                random_pkmn = "tapu_koko"
+                random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
                 random_pkmnball = random.choice(list(POKEBALL_LIST))
                 pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
                 user = "**{}**".format(ctx.message.author.name)
                 trainer_profile = self.trainer_data[user_id]
-                # trainer_profile["timer"] = current_time
-                trainer_profile["timer"] = 0
+                trainer_profile["timer"] = current_time
                 if random_pkmn not in trainer_profile["pinventory"]:
                     trainer_profile["pinventory"][random_pkmn] = 1
                 else:
