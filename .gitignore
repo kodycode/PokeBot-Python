@@ -1,0 +1,5 @@
+__pycache__
+trainers.json
+trainers_backup.json
+error.log
+config.json

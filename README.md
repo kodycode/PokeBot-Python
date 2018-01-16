@@ -1,0 +1,2 @@
+# Disclaimer
+**This in no way is meant to compete with the official [PokeBot](https://discordbots.org/bot/330488924449275916?utm_source=widget). This renedition is purely made for my own benefit and for my own server only. I will not show you how to set it up. Pokemon assets belong to Wonder & Toast and can be found [here](https://github.com/Wonder-Toast/Pokemon-PNG). Pokeball assets that were not included in this repo, can be found [here](https://github.com/msikma/pokesprite).**
