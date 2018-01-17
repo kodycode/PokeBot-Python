@@ -3,6 +3,7 @@ from collections import defaultdict
 from math import ceil
 from pokeball import POKEBALL_LIST
 from legendary import LEGENDARY_PKMN, ULTRA_PKMN
+from operator import itemgetter
 import discord
 import glob
 import json
@@ -130,7 +131,7 @@ class PokemonFunctionality:
             rank_num = 0
             count = 0
             for trainer in sorted(trainer_profile.items(),
-                                  key=lambda x: x[1],
+                                  key=itemgetter(1),
                                   reverse=True):
                 if count >= 10:
                     break
