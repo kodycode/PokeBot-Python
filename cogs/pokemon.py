@@ -42,3 +42,10 @@ class PokemonCommands:
         @param shiny - specify if pkmn is shiny or not
         """
         await self.cmd_function.display_gif(pkmn_name, shiny)
+
+    @commands.command(name='profile')
+    async def profile(self, trainer):
+        """
+        Obtains the profile of a trainer specified
+        """
+        await self.cmd_function.display_trainer_profile(trainer)

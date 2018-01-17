@@ -191,6 +191,55 @@ class PokemonFunctionality:
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
+    async def display_trainer_profile(self, trainer):
+        """
+        Gets trainer profile of a trainer specified
+
+        @param trainer - trainer to look up
+        """
+        try:
+            trainer_id = re.search(r'\d+', trainer)[0]
+            user_obj = await self.bot.get_user_info(str(trainer_id))
+            if user_obj is None:
+                await self.bot.say("Failed to find the trainer profile for "
+                                   "the trainer specified.")
+                return
+            legendary_pkmn_count = 0
+            ultra_pkmn_count = 0
+            shiny_pkmn_count = 0
+            total_pkmn_count = 0
+            if trainer_id in self.trainer_data:
+                pinventory = self.trainer_data[trainer_id]["pinventory"]
+                for pkmn in pinventory:
+                    for legend in LEGENDARY_PKMN:
+                        if legend in pkmn:
+                            legendary_pkmn_count += pinventory[pkmn]
+                    if pkmn in ULTRA_PKMN:
+                        ultra_pkmn_count += pinventory[pkmn]
+                    if "Shiny" in pkmn:
+                        shiny_pkmn_count += pinventory[pkmn]
+                    total_pkmn_count += pinventory[pkmn]
+            else:
+                await self.bot.say("Trainer hasn't set off on his journey to "
+                                   "catch 'em all yet.")
+                return
+            em = discord.Embed()
+            em.set_author(name=user_obj)
+            em.set_thumbnail(url=user_obj.avatar_url)
+            em.add_field(name="Legendary Pokémon caught",
+                         value=legendary_pkmn_count)
+            em.add_field(name="Ultra Pokémon caught",
+                         value=ultra_pkmn_count)
+            em.add_field(name="Shiny Pokémon caught︀",
+                         value=shiny_pkmn_count)
+            em.add_field(name="Total Pokémon caught",
+                         value=total_pkmn_count)
+            await self.bot.say(embed=em)
+        except Exception as e:
+            print("An error has occured in displaying trainer profile. "
+                  "See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
     async def _check_cooldown(self, ctx, current_time):
         """
         Checks if cooldown has passed
