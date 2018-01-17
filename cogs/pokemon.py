@@ -49,3 +49,10 @@ class PokemonCommands:
         Obtains the profile of a trainer specified
         """
         await self.cmd_function.display_trainer_profile(trainer)
+
+    @commands.command(name='ranking')
+    async def ranking(self, option="t"):
+        """
+        Displays ranking of all the trainers
+        """
+        await self.cmd_function.display_ranking(option)

@@ -116,6 +116,39 @@ class PokemonFunctionality:
             print(error_msg)
             logger.error(error_msg)
 
+    async def display_ranking(self, option):
+        """
+        Displays the top 10 trainer rankings
+        """
+        try:
+            trainer_profile = {}
+            msg = ''
+            for trainer in self.trainer_data:
+                pinventory = self.trainer_data[trainer]["pinventory"]
+                if option == "t":
+                    trainer_profile[trainer] = len(pinventory)
+            rank_num = 0
+            count = 0
+            for value in sorted(trainer_profile.items(),
+                                key=trainer_profile.get,
+                                reverse=True):
+                if count >= 10:
+                    break
+                count += 1
+                rank_num += 1
+                user_obj = await self.bot.get_user_info(trainer)
+                msg += "{}. **{}** ({} caught)".format(rank_num,
+                                                       user_obj.name,
+                                                       len(pinventory))
+            em = discord.Embed(title="Ranking (Total Pokémon)",
+                               description=msg,
+                               colour=0xFFDF00)
+            await self.bot.say(embed=em)
+        except Exception as e:
+            error_msg = 'Failed to display ranking: {}'.format(str(e))
+            print(error_msg)
+            logger.error(error_msg)
+
     async def display_pinventory(self, ctx, page_number):
         """
         Displays pokemon inventory
