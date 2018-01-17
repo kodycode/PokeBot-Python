@@ -4,6 +4,7 @@ from math import ceil
 from pokeball import POKEBALL_LIST
 from legendary import LEGENDARY_PKMN, ULTRA_PKMN
 from operator import itemgetter
+import asyncio
 import discord
 import glob
 import json
@@ -18,10 +19,12 @@ class PokemonFunctionality:
 
     def __init__(self, bot):
         self.bot = bot
+        self.trainer_cache = {}
         self.nrml_pokemon = self._load_pokemon_imgs()
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
         self.trainer_data = self._check_trainer_file()
         self._save_trainer_file(self.trainer_data, backup=True)
+        self.bot.loop.create_task(self._update_cache())
         self.bot.loop.create_task(self._display_total_pokemon_caught())
 
     async def update_game_status(self, total_pkmn_count):
@@ -35,6 +38,28 @@ class PokemonFunctionality:
         except Exception as e:
             print("Failed to update game status. See error.log.")
             logger.error("Exception: {}".format(str(e)))
+
+    async def _cache_users(self):
+        """
+        Caches user
+        """
+        try:
+            trainer_cache = {}
+            for trainer in self.trainer_data:
+                user_obj = await self.bot.get_user_info(str(trainer))
+                trainer_cache[trainer] = user_obj
+            self.trainer_cache = trainer_cache
+        except Exception as e:
+            print("Failed to cache trainer object. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    async def _update_cache(self):
+        """
+        Calls function to cache user objects every hour
+        """
+        while True:
+            await self._cache_users()
+            await asyncio.sleep(3600)
 
     async def _display_total_pokemon_caught(self):
         """
@@ -137,7 +162,7 @@ class PokemonFunctionality:
                     break
                 count += 1
                 rank_num += 1
-                user_obj = await self.bot.get_user_info(trainer[0])
+                user_obj = self.trainer_cache[trainer[0]]
                 msg += "{}. **{}** ({} caught)\n".format(rank_num,
                                                          user_obj.name,
                                                          trainer[1])
@@ -234,11 +259,12 @@ class PokemonFunctionality:
         try:
             trainer_id = re.search(r'\d+', trainer)
             trainer_id = trainer_id.group(0)
-            user_obj = await self.bot.get_user_info(str(trainer_id))
-            if user_obj is None:
+            if trainer_id not in self.trainer_cache:
                 await self.bot.say("Failed to find the trainer profile for "
                                    "the trainer specified.")
                 return
+            else:
+                user_obj = self.trainer_cache[trainer_id]
             legendary_pkmn_count = 0
             ultra_pkmn_count = 0
             shiny_pkmn_count = 0
@@ -385,9 +411,11 @@ class PokemonFunctionality:
             current_time = time.time()
             user_id = ctx.message.author.id
             if user_id not in self.trainer_data:
+                user_obj = self.bot.get_user_info(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
+                self.trainer_cache[user_id] = user_obj
             if not await self._check_cooldown(ctx, current_time):
                 shiny_rng = random.uniform(0, 1)
                 if shiny_rng < 0.0002:
