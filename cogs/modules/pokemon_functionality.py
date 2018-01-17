@@ -198,7 +198,8 @@ class PokemonFunctionality:
         @param trainer - trainer to look up
         """
         try:
-            trainer_id = re.search(r'\d+', trainer)[0]
+            trainer_id = re.search(r'\d+', trainer)
+            trainer_id = trainer_id.group(0)
             user_obj = await self.bot.get_user_info(str(trainer_id))
             if user_obj is None:
                 await self.bot.say("Failed to find the trainer profile for "
