@@ -147,6 +147,10 @@ class PokemonFunctionality:
         Displays the top 10 trainer rankings
         """
         try:
+            if not self.trainer_cache:
+                await self.bot.say("Trainer data is still loading. "
+                                   "Please wait and try again later.")
+                return
             trainer_profile = {}
             msg = ''
             for trainer in self.trainer_data:
@@ -162,7 +166,7 @@ class PokemonFunctionality:
                     break
                 count += 1
                 rank_num += 1
-                user_obj = self.trainer_cache[trainer[0]]
+                user_obj = self.trainer_cache[str(trainer[0])]
                 msg += "{}. **{}** ({} caught)\n".format(rank_num,
                                                          user_obj.name,
                                                          trainer[1])
@@ -257,6 +261,10 @@ class PokemonFunctionality:
         @param trainer - trainer to look up
         """
         try:
+            if not self.trainer_cache:
+                await self.bot.say("Trainer data is still loading. "
+                                   "Please wait and try again later.")
+                return
             trainer_id = re.search(r'\d+', trainer)
             trainer_id = trainer_id.group(0)
             if trainer_id not in self.trainer_cache:
