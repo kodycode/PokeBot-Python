@@ -129,9 +129,9 @@ class PokemonFunctionality:
                     trainer_profile[trainer] = len(pinventory)
             rank_num = 0
             count = 0
-            for value in sorted(trainer_profile.items(),
-                                key=trainer_profile.get,
-                                reverse=True):
+            for trainer in sorted(trainer_profile.items(),
+                                  key=trainer_profile.get,
+                                  reverse=True):
                 if count >= 10:
                     break
                 count += 1
