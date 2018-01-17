@@ -26,5 +26,5 @@ ULTRA_PKMN = [
     "lunala", "nihilego", "buzzwole",
     "pheromosa", "xurkitree", "celesteela",
     "kartana", "guzzlord", "necrozma",
-    "magearna", "marshadow"
+    "magearna", "marshadow", "tapu_bulu"
 ]

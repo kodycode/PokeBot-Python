@@ -135,7 +135,18 @@ class PokemonFunctionality:
             count = 0
             for pkmn in sorted(pinventory.items()):
                 if i <= count and i < 20*page_number:
-                    msg += "{} x{}\n".format(pkmn[0].title(), pkmn[1])
+                    pkmn_result = ''
+                    for legend in LEGENDARY_PKMN:
+                        if legend in pkmn[0]:
+                            pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
+                                                                pkmn[1])
+                    if pkmn[0] in ULTRA_PKMN:
+                        pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
+                                                            pkmn[1])
+                    if pkmn_result == '':
+                        msg += "{} x{}\n".format(pkmn[0].title(), pkmn[1])
+                    else:
+                        msg += pkmn_result
                     i += 1
                 pinventory_count += int(pkmn[1])
                 count += 1
