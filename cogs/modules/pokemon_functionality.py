@@ -130,16 +130,16 @@ class PokemonFunctionality:
             rank_num = 0
             count = 0
             for trainer in sorted(trainer_profile.items(),
-                                  key=trainer_profile.get,
+                                  key=lambda x: x[1],
                                   reverse=True):
                 if count >= 10:
                     break
                 count += 1
                 rank_num += 1
-                user_obj = await self.bot.get_user_info(trainer)
+                user_obj = await self.bot.get_user_info(trainer[0])
                 msg += "{}. **{}** ({} caught)".format(rank_num,
                                                        user_obj.name,
-                                                       len(pinventory))
+                                                       trainer[1])
             em = discord.Embed(title="Ranking (Total Pokémon)",
                                description=msg,
                                colour=0xFFDF00)
