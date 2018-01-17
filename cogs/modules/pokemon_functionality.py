@@ -21,6 +21,35 @@ class PokemonFunctionality:
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
         self.trainer_data = self._check_trainer_file()
         self._save_trainer_file(self.trainer_data, backup=True)
+        self.bot.loop.create_task(self._display_total_pokemon_caught())
+
+    async def update_game_status(self, total_pkmn_count):
+        """
+        Updates the game status of the bot
+        """
+        try:
+            game_status = discord.Game(name="{} Pokémon caught"
+                                            "".format(total_pkmn_count))
+            await self.bot.change_presence(game=game_status)
+        except Exception as e:
+            print("Failed to update game status. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    async def _display_total_pokemon_caught(self):
+        """
+        Iterates over trainer profiles and gets the total
+        number of pokemon caught
+        """
+        try:
+            total_pokemon_caught = 0
+            for trainer in self.trainer_data:
+                pinventory = self.trainer_data[trainer]["pinventory"]
+                for pkmn in pinventory:
+                    total_pokemon_caught += pinventory[pkmn]
+            await self.update_game_status(total_pokemon_caught)
+        except Exception as e:
+            print("Failed to get total pokemon caught. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
 
     def _check_trainer_file(self):
         """
@@ -291,6 +320,7 @@ class PokemonFunctionality:
                         pokemon_count = int(trainer_profile["pinventory"][random_pkmn])
                         trainer_profile["pinventory"][random_pkmn] = pokemon_count+1
                 self._save_trainer_file(self.trainer_data)
+                await self._display_total_pokemon_caught()
                 await self._post_pokemon_catch(ctx,
                                                user,
                                                random_pkmn,
