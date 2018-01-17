@@ -44,6 +44,16 @@ class PokemonCommands:
         """
         await self.cmd_function.display_pinventory(ctx, page_number)
 
+    @commands.command(name='gif')
+    async def gif(self, pkmn_name: str, shiny=None):
+        """
+        Display a gif of the pokemon
+
+        @param pkmn_name - name of the pokemon to find a gif of
+        @param shiny - specify if pkmn is shiny or not
+        """
+        await self.cmd_function.display_gif(pkmn_name, shiny)
+
 
 class PokemonFunctionality:
     """Handles Pokemon Command Functionality"""
@@ -159,6 +169,28 @@ class PokemonFunctionality:
                 pass
         except Exception as e:
             print("An error has occured in displaying inventory. "
+                  "See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    async def display_gif(self, pkmn_name, shiny):
+        """
+        Displays a gif of the pokemon
+
+        @param pkmn_name - name of the pokemon to find a gif of
+        """
+        try:
+            em = discord.Embed()
+            if shiny == "shiny" or shiny == "s":
+                em.set_image(url="https://play.pokemonshowdown.com/sprites/"
+                                 "xyani-shiny/{}.gif"
+                                 "".format(pkmn_name))
+            else:
+                em.set_image(url="https://play.pokemonshowdown.com/sprites/"
+                                 "xyani/{}.gif"
+                                 "".format(pkmn_name))
+            await self.bot.say(embed=em)
+        except Exception as e:
+            print("An error has occured in displaying a gif. "
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
