@@ -137,9 +137,9 @@ class PokemonFunctionality:
                 count += 1
                 rank_num += 1
                 user_obj = await self.bot.get_user_info(trainer[0])
-                msg += "{}. **{}** ({} caught)".format(rank_num,
-                                                       user_obj.name,
-                                                       trainer[1])
+                msg += "{}. **{}** ({} caught)\n".format(rank_num,
+                                                         user_obj.name,
+                                                         trainer[1])
             em = discord.Embed(title="Ranking (Total Pokémon)",
                                description=msg,
                                colour=0xFFDF00)
