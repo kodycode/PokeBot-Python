@@ -227,8 +227,12 @@ class PokemonFunctionality:
                    "**{}**!".format(user,
                                     random_pkmnball,
                                     random_pkmn.replace('_', ' ').title()))
+            legendary = False
             legendary_channel = None
-            if random_pkmn in LEGENDARY_PKMN or random_pkmn in ULTRA_PKMN:
+            for legend in LEGENDARY_PKMN:
+                if legend in random_pkmn:
+                    legendary = True
+            if legendary or random_pkmn in ULTRA_PKMN:
                 for channel in ctx.message.server.channels:
                     if "legendary" == channel.name:
                         legendary_channel = self.bot.get_channel(channel.id)
@@ -236,27 +240,22 @@ class PokemonFunctionality:
                 if legendary_channel is not None:
                     em = discord.Embed(description=msg,
                                        colour=0xFFFFFF)
-                    type_pkmn = re.search(r'\-.*$', random_pkmn)
-                    if type_pkmn is not None:
-                        base_pkmn = random_pkmn.replace(type_pkmn[0], '')
-                    else:
-                        base_pkmn = random_pkmn
                     if is_shiny:
                         em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
                                              "pokesprite/master/icons/pokemon/shiny/"
                                              "{}.png"
-                                             "".format(base_pkmn.replace('_', '-')))
+                                             "".format(random_pkmn.replace('_', '-')))
                         em.set_image(url="https://play.pokemonshowdown.com/sprites/"
                                          "xyani-shiny/{}.gif"
-                                         "".format(base_pkmn.replace('_', '')))
+                                         "".format(random_pkmn.replace('_', '')))
                     else:
                         em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
                                              "pokesprite/master/icons/pokemon/regular/"
                                              "{}.png"
-                                             "".format(base_pkmn.replace('_', '-')))
+                                             "".format(random_pkmn.replace('_', '-')))
                         em.set_image(url="https://play.pokemonshowdown.com/sprites/"
                                          "xyani/{}.gif"
-                                         "".format(base_pkmn.replace('_', '')))
+                                         "".format(random_pkmn.replace('_', '')))
                     try:
                         await self.bot.send_message(legendary_channel,
                                                     embed=em)
