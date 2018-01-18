@@ -214,6 +214,10 @@ class PokemonFunctionality:
         Releases a pokemon from the trainer's inventory
         """
         try:
+            if not self.trainer_cache:
+                await self.bot.say("Trainer data is still loading. "
+                                   "Please wait and try again later.")
+                return
             user_id = ctx.message.author.id
             if user_id not in self.trainer_data:
                 await self.bot.say("Trainer hasn't set off on his journey to "
@@ -227,8 +231,10 @@ class PokemonFunctionality:
                     if pinventory[pkmn] < 1:
                         pinventory.pop(pkmn)
                     self._save_trainer_file(self.trainer_data)
-                    await self.bot.say("**{}** has been released"
-                                       "".format(pkmn.title()))
+                    await self.bot.say("**{}** released **{} {}**"
+                                       "".format(self.trainer_cache[user_id].name,
+                                                 quantity,
+                                                 pkmn.title()))
         except Exception as e:
             error_msg = 'Failed to release pokemon: {}'.format(str(e))
             print(error_msg)
