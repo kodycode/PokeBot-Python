@@ -1,10 +1,12 @@
 from bot_logger import logger
+from cogs.modules.pokemon_event import PokemonEvent
 from collections import defaultdict
 from math import ceil
 from pokeball import POKEBALL_LIST
 from legendary import LEGENDARY_PKMN, ULTRA_PKMN
 from operator import itemgetter
 import asyncio
+import datetime
 import discord
 import glob
 import json
@@ -20,12 +22,15 @@ class PokemonFunctionality:
     def __init__(self, bot):
         self.bot = bot
         self.trainer_cache = {}
+        self.cooldown_minutes = 10
+        self.event = PokemonEvent(bot)
         self.nrml_pokemon = self._load_pokemon_imgs()
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
         self.trainer_data = self._check_trainer_file()
         self._save_trainer_file(self.trainer_data, backup=True)
         self.bot.loop.create_task(self._update_cache())
         self.bot.loop.create_task(self._display_total_pokemon_caught())
+        self.bot.loop.create_task(self._check_event())
 
     async def update_game_status(self, total_pkmn_count):
         """
@@ -76,6 +81,18 @@ class PokemonFunctionality:
         except Exception as e:
             print("Failed to get total pokemon caught. See error.log.")
             logger.error("Exception: {}".format(str(e)))
+
+    async def _check_event(self):
+        """
+        Checks if it's time for an event
+        """
+        while True:
+            hour = int(datetime.datetime.now().hour)
+            if hour == 20:
+                self.cooldown_minutes = await self.event.activate_happy_hour(self.cooldown_minutes)
+                await asyncio.sleep(3600)
+                self.cooldown_minutes = await self.event.deactivate_happy_hour()
+            await asyncio.sleep(60)
 
     def _check_trainer_file(self):
         """
@@ -384,11 +401,11 @@ class PokemonFunctionality:
         hours = int(cooldown_time // 3600)
         minutes = int((cooldown_time % 3600) // 60)
         seconds = int(cooldown_time % 60)
-        if minutes >= 10 or hours >= 1:
+        if minutes >= self.cooldown_minutes or hours >= 1:
             return False
         else:
             msg = ":no_entry_sign:**{}**, you need to wait another ".format(user)
-            msg += "**{} minutes &** ".format(str(9-minutes))
+            msg += "**{} minutes &** ".format(str((self.cooldown_minutes - 1)-minutes))
             msg += "**{} seconds** ".format(str(60-seconds))
             msg += "before catching another pokemon."
             await self.bot.say(msg)
