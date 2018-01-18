@@ -481,7 +481,7 @@ class PokemonFunctionality:
             current_time = time.time()
             user_id = ctx.message.author.id
             if user_id not in self.trainer_data:
-                user_obj = self.bot.get_user_info(user_id)
+                user_obj = await self.bot.get_user_info(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
