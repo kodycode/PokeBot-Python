@@ -152,11 +152,40 @@ class PokemonFunctionality:
                                    "Please wait and try again later.")
                 return
             trainer_profile = {}
+            header = ''
             msg = ''
+            legendary_count = 0
             for trainer in self.trainer_data:
                 pinventory = self.trainer_data[trainer]["pinventory"]
-                if option == "t":
+                if option == "l":
+                    header = "Legendary Pokémon"
+                    for pkmn in pinventory:
+                        for legendary in LEGENDARY_PKMN:
+                            if legendary in pkmn:
+                                legendary_count += pinventory[pkmn]
+                    trainer_profile[trainer] = legendary_count
+                elif option == "s":
+                    header = "Shiny Pokémon"
+                    for pkmn in pinventory:
+                        if "Shiny" in pkmn:
+                            trainer_profile[trainer] = len(pinventory)
+                elif option == "t":
+                    header = "Total Pokémon"
                     trainer_profile[trainer] = len(pinventory)
+                elif option == "u":
+                    header = "Ultra Pokémon"
+                    for pkmn in pinventory:
+                        if pkmn in ULTRA_PKMN:
+                            trainer_profile[trainer] = len(pinventory)
+                else:
+                    await self.bot.say("`{}` is not a valid option. The options"
+                                       " are:\n"
+                                       "**l** - legendary\n"
+                                       "**s** - shiny\n"
+                                       "**t** - total (default)\n"
+                                       "**u** - ultra\n"
+                                       "".format(option))
+                    return
             rank_num = 0
             count = 0
             for trainer in sorted(trainer_profile.items(),
@@ -170,7 +199,7 @@ class PokemonFunctionality:
                 msg += "{}. **{}** ({} caught)\n".format(rank_num,
                                                          user_obj.name,
                                                          trainer[1])
-            em = discord.Embed(title="Ranking (Total Pokémon)",
+            em = discord.Embed(title="Ranking ({})".format(header),
                                description=msg,
                                colour=0xFFDF00)
             await self.bot.say(embed=em)
