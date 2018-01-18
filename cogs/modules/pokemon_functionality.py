@@ -91,10 +91,12 @@ class PokemonFunctionality:
         """
         while True:
             hour = int(datetime.datetime.now().hour)
-            if hour == 20:
-                self.cooldown_minutes = await self.event.activate_happy_hour(self.cooldown_minutes)
-                await asyncio.sleep(3600)
-                self.cooldown_minutes = await self.event.deactivate_happy_hour()
+            happy_hour_event = self.event.event_data["happy_hour_event"]
+            if happy_hour_event["event"]:
+                if hour == happy_hour_event["event_start_hour"]:
+                    self.cooldown_minutes = await self.event.activate_happy_hour(self.cooldown_minutes)
+                    await asyncio.sleep(happy_hour_event["duration"])
+                    self.cooldown_minutes = await self.event.deactivate_happy_hour(self.cooldown_minutes)
             await asyncio.sleep(60)
 
     def _check_trainer_file(self):
@@ -156,6 +158,7 @@ class PokemonFunctionality:
             self.nrml_pokemon = self._load_pokemon_imgs()
             self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
             self.trainer_data = self._check_trainer_file()
+            self.event.event_data = self.event.check_event_file()
             await self.bot.say("Reload complete.")
         except Exception as e:
             error_msg = 'Failed to reload: {}'.format(str(e))
