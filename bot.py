@@ -27,6 +27,7 @@ class PokeBot:
 
     @bot.event
     async def on_message(message):
+        message.content = message.content.lower()
         if not message.author.bot:
             await bot.process_commands(message)
 
