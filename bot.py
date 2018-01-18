@@ -30,6 +30,29 @@ class PokeBot:
         if not message.author.bot:
             await bot.process_commands(message)
 
+    @bot.event
+    async def on_command_error(error, ctx):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await send_cmd_help(ctx)
+        if isinstance(error, commands.errors.BadArgument):
+            await send_cmd_help(ctx)
+
+
+async def send_cmd_help(ctx):
+    if ctx.invoked_subcommand:
+        pages = bot.formatter.format_help_for(ctx, ctx.invoked_subcommand)
+        for page in pages:
+            await bot.send_message(ctx.message.channel,
+                                   "Please make sure you're entering a valid"
+                                   "command:\n{}".format(page))
+    else:
+        pages = bot.formatter.format_help_for(ctx, ctx.command)
+        for page in pages:
+            await bot.send_message(ctx.message.channel,
+                                   "Command failed. Please make sure you're "
+                                   "entering the correct arguments to the "
+                                   "command:\n{}".format(page))
+
 
 def main():
     try:

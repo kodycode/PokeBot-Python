@@ -30,6 +30,7 @@ class PokemonCommands:
         Displays the trainer's pokemon inventory
 
         @param ctx - context of the command sent
+        @param page_number - page number in inventory
         """
         await self.cmd_function.display_pinventory(ctx, page_number)
 
@@ -47,6 +48,8 @@ class PokemonCommands:
     async def profile(self, trainer):
         """
         Obtains the profile of a trainer specified
+
+        @param trainer - trainer profile to search for
         """
         await self.cmd_function.display_trainer_profile(trainer)
 
@@ -54,5 +57,11 @@ class PokemonCommands:
     async def ranking(self, option="t"):
         """
         Displays ranking of all the trainers
+
+        @param option - options are:
+                        l - legendary
+                        s - shiny
+                        t - total (default)
+                        u - ultra
         """
         await self.cmd_function.display_ranking(option)
