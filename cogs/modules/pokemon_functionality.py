@@ -164,6 +164,7 @@ class PokemonFunctionality:
                             if legendary in pkmn:
                                 legendary_count += pinventory[pkmn]
                     trainer_profile[trainer] = legendary_count
+                    legendary_count = 0
                 elif option == "s":
                     header = "Shiny Pokémon"
                     for pkmn in pinventory:
