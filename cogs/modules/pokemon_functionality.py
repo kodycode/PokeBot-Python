@@ -209,6 +209,32 @@ class PokemonFunctionality:
             print(error_msg)
             logger.error(error_msg)
 
+    async def release_pokemon(self, ctx, pkmn, quantity):
+        """
+        Releases a pokemon from the trainer's inventory
+        """
+        try:
+            user_id = ctx.message.author.id
+            if user_id not in self.trainer_data:
+                await self.bot.say("Trainer hasn't set off on his journey to "
+                                   "catch 'em all yet.")
+            else:
+                pinventory = self.trainer_data[user_id]["pinventory"]
+                if pkmn not in pinventory:
+                    await self.bot.say("Pokémon doesn't exist in the inventory")
+                else:
+                    if pinventory[pkmn] <= 1:
+                        pinventory.pop(pkmn)
+                    elif pinventory[pkmn] > 1:
+                        pinventory[pkmn] -= 1
+                    self._save_trainer_file(self.trainer_data)
+                    await self.bot.say("**{}** has been released"
+                                       "".format(pkmn.title()))
+        except Exception as e:
+            error_msg = 'Failed to release pokemon: {}'.format(str(e))
+            print(error_msg)
+            logger.error(error_msg)
+
     async def display_pinventory(self, ctx, page_number):
         """
         Displays pokemon inventory
@@ -249,7 +275,7 @@ class PokemonFunctionality:
             if page_number > max_pages:
                 await self.bot.say("Page number is invalid.")
                 return
-            msg = ("__**{}'s Pokemon**__: Includes **{}** Pokemon. "
+            msg = ("__**{}'s Pokémon**__: Includes **{}** Pokémon. "
                    "[Page **{}/{}**]\n"
                    "".format(user, pinventory_count, page_number, max_pages)
                    + msg)
