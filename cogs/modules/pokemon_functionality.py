@@ -15,6 +15,9 @@ import random
 import re
 import time
 
+SHINY_RATE = 0.0002
+SHINY_HATCH_MULTIPLIER = 6
+
 
 class PokemonFunctionality:
     """Handles Pokemon Command Functionality"""
@@ -411,15 +414,18 @@ class PokemonFunctionality:
             await self.bot.say(msg)
             return True
 
-    async def _post_pokemon_catch(self, ctx, user, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny):
+    async def _post_pokemon_catch(self, ctx, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny, hatched=False):
         """
         Posts the pokemon that was caught
         """
         try:
             ctx_channel = ctx.message.channel
-            msg = ("{}, {} you've caught a "
+            user = "**{}**".format(ctx.message.author.name)
+            catch_condition = "caught" if not hatched else "hatched"
+            msg = ("{}, {} you've {} a "
                    "**{}**!".format(user,
                                     random_pkmnball,
+                                    catch_condition,
                                     random_pkmn.replace('_', ' ').title()))
             legendary = False
             legendary_channel = None
@@ -505,7 +511,7 @@ class PokemonFunctionality:
                 self.trainer_cache[user_id] = user_obj
             if not await self._check_cooldown(ctx, current_time):
                 shiny_rng = random.uniform(0, 1)
-                if shiny_rng < 0.0002:
+                if shiny_rng < SHINY_RATE:
                     random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                     pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
                     is_shiny = True
@@ -514,7 +520,6 @@ class PokemonFunctionality:
                     pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
                     is_shiny = False
                 random_pkmnball = random.choice(list(POKEBALL_LIST))
-                user = "**{}**".format(ctx.message.author.name)
                 trainer_profile = self.trainer_data[user_id]
                 trainer_profile["timer"] = current_time
                 if random_pkmn not in trainer_profile["pinventory"]:
@@ -532,11 +537,95 @@ class PokemonFunctionality:
                 self._save_trainer_file(self.trainer_data)
                 await self._display_total_pokemon_caught()
                 await self._post_pokemon_catch(ctx,
-                                               user,
                                                random_pkmn,
                                                pkmn_img_path,
                                                random_pkmnball,
                                                is_shiny)
         except Exception as e:
             print("An error has occured in catching pokemon. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    async def _check_hatched_pokemon(self, pinventory, pkmn):
+        """
+        Checks if the hatched pokemon is valid
+
+        @param pinventory - the trainer's pokemon inventory
+        @param pkmn - pkmn to check
+        @return - True if pkmn is not a legendary/ultra beast
+                  False if pkmn is a legendary/ultra beast
+        """
+        for legend in LEGENDARY_PKMN:
+            if legend in pkmn:
+                return False
+        if pkmn in ULTRA_PKMN:
+            return False
+        return True
+
+    async def hatch_egg(self, ctx):
+        """
+        Hatches an egg from the trainer's inventory
+
+        @param ctx - context of the command
+        @param egg - egg to hatch
+        """
+        try:
+            egg = "egg"
+            egg_manaphy = "egg-manaphy"
+            user_id = ctx.message.author.id
+            if user_id in self.trainer_data:
+                pinventory = self.trainer_data[user_id]["pinventory"]
+                if egg in pinventory:
+                    shiny_rng = random.uniform(0, 1)
+                    if shiny_rng < SHINY_RATE*SHINY_HATCH_MULTIPLIER:
+                        random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
+                        valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                       random_pkmn)
+                        while not valid_pkmn:
+                            random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
+                            valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                           random_pkmn)
+                        pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
+                        is_shiny = True
+                    else:
+                        random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
+                        valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                       random_pkmn)
+                        while not valid_pkmn:
+                            random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
+                            valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                           random_pkmn)
+                        pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
+                        is_shiny = False
+                    pinventory[egg] -= 1
+                    if pinventory[egg] < 1:
+                        pinventory.pop(egg)
+                elif egg_manaphy in pinventory:
+                    shiny_rng = random.uniform(0, 1)
+                    random_pkmn = "manaphy"
+                    if shiny_rng < SHINY_RATE*SHINY_HATCH_MULTIPLIER:
+                        pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
+                        is_shiny = True
+                    else:
+                        pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
+                        is_shiny = False
+                    pinventory[egg_manaphy] -= 1
+                    if pinventory[egg_manaphy] < 1:
+                        pinventory.pop(egg_manaphy)
+                else:
+                    await self.bot.say("There are no eggs in the trainer's "
+                                       "inventory.")
+                    return
+                random_pkmnball = random.choice(list(POKEBALL_LIST))
+                self._save_trainer_file(self.trainer_data)
+                await self._post_pokemon_catch(ctx,
+                                               random_pkmn,
+                                               pkmn_img_path,
+                                               random_pkmnball,
+                                               is_shiny,
+                                               hatched=True)
+            else:
+                await self.bot.say("Trainer hasn't set off on his journey to "
+                                   "catch 'em all yet.")
+        except Exception as e:
+            print("An error has occured in hatching egg. See error.log.")
             logger.error("Exception: {}".format(str(e)))

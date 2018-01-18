@@ -74,3 +74,12 @@ class PokemonCommands:
         @param pkmn - pkmn to be released
         """
         await self.cmd_function.release_pokemon(ctx, pkmn, quantity)
+
+    @commands.command(name='hatch', pass_context=True)
+    async def hatch(self, ctx):
+        """
+        Releases a pokemon from your inventory
+
+        @param pkmn - pkmn to be released
+        """
+        await self.cmd_function.hatch_egg(ctx)
