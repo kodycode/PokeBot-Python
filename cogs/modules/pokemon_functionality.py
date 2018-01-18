@@ -168,7 +168,7 @@ class PokemonFunctionality:
                     header = "Shiny Pokémon"
                     for pkmn in pinventory:
                         if "Shiny" in pkmn:
-                            trainer_profile[trainer] = len(pinventory)
+                            trainer_profile[trainer] = pinventory[pkmn]
                 elif option == "t":
                     header = "Total Pokémon"
                     trainer_profile[trainer] = len(pinventory)
@@ -176,7 +176,7 @@ class PokemonFunctionality:
                     header = "Ultra Pokémon"
                     for pkmn in pinventory:
                         if pkmn in ULTRA_PKMN:
-                            trainer_profile[trainer] = len(pinventory)
+                            trainer_profile[trainer] = pinventory[pkmn]
                 else:
                     await self.bot.say("`{}` is not a valid option. The options"
                                        " are:\n"
