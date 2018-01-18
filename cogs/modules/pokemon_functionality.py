@@ -223,10 +223,9 @@ class PokemonFunctionality:
                 if pkmn not in pinventory:
                     await self.bot.say("Pokémon doesn't exist in the inventory")
                 else:
-                    if pinventory[pkmn] <= 1:
+                    pinventory[pkmn] -= quantity
+                    if pinventory[pkmn] < 1:
                         pinventory.pop(pkmn)
-                    elif pinventory[pkmn] > 1:
-                        pinventory[pkmn] -= 1
                     self._save_trainer_file(self.trainer_data)
                     await self.bot.say("**{}** has been released"
                                        "".format(pkmn.title()))
