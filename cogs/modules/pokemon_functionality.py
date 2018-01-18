@@ -235,6 +235,7 @@ class PokemonFunctionality:
                                        "".format(self.trainer_cache[user_id].name,
                                                  quantity,
                                                  pkmn.title()))
+                    await self._display_total_pokemon_caught()
         except Exception as e:
             error_msg = 'Failed to release pokemon: {}'.format(str(e))
             print(error_msg)
