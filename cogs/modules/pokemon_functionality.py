@@ -15,9 +15,6 @@ import random
 import re
 import time
 
-SHINY_RATE = 0.0002
-SHINY_HATCH_MULTIPLIER = 6
-
 
 class PokemonFunctionality:
     """Handles Pokemon Command Functionality"""
@@ -25,7 +22,10 @@ class PokemonFunctionality:
     def __init__(self, bot):
         self.bot = bot
         self.trainer_cache = {}
-        self.cooldown_minutes = 10
+        self.config_data = self._check_config_file()
+        self.cooldown_minutes = self.config_data["cooldown_minutes"]
+        self.shiny_rate = self.config_data["shiny_rate"]
+        self.shiny_hatch_multiplier = self.config_data["shiny_hatch_multiplier"]
         self.event = PokemonEvent(bot)
         self.nrml_pokemon = self._load_pokemon_imgs()
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
@@ -98,6 +98,21 @@ class PokemonFunctionality:
                     await asyncio.sleep(happy_hour_event["duration"])
                     self.cooldown_minutes = await self.event.deactivate_happy_hour(self.cooldown_minutes)
             await asyncio.sleep(60)
+
+    def _check_config_file(self):
+        """
+        Checks to see if there's a valid config.json file
+        """
+        try:
+            with open('config.json') as config:
+                return json.load(config)
+        except FileNotFoundError:
+            msg = "FileNotFoundError: 'config.json' file not found"
+            print(msg)
+            logger.error(msg)
+        except Exception as e:
+            print("An error has occured. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
 
     def _check_trainer_file(self):
         """
@@ -522,7 +537,7 @@ class PokemonFunctionality:
                 self.trainer_cache[user_id] = user_obj
             if not await self._check_cooldown(ctx, current_time):
                 shiny_rng = random.uniform(0, 1)
-                if shiny_rng < SHINY_RATE:
+                if shiny_rng < self.shiny_rate:
                     random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                     pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
                     is_shiny = True
@@ -587,7 +602,7 @@ class PokemonFunctionality:
                 pinventory = self.trainer_data[user_id]["pinventory"]
                 if egg in pinventory:
                     shiny_rng = random.uniform(0, 1)
-                    if shiny_rng < SHINY_RATE*SHINY_HATCH_MULTIPLIER:
+                    if shiny_rng < self.shiny_rate*self.shiny_hatch_multiplier:
                         random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                         valid_pkmn = await self._check_hatched_pokemon(pinventory,
                                                                        random_pkmn)
@@ -613,7 +628,7 @@ class PokemonFunctionality:
                 elif egg_manaphy in pinventory:
                     shiny_rng = random.uniform(0, 1)
                     random_pkmn = "manaphy"
-                    if shiny_rng < SHINY_RATE*SHINY_HATCH_MULTIPLIER:
+                    if shiny_rng < self.shiny_rate*self.shiny_hatch_multiplier:
                         pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
                         is_shiny = True
                     else:

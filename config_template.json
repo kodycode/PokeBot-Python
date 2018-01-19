@@ -1,5 +1,7 @@
 {
-		"cmd_prefix": "p.",
-		"token": "",
-		"catch_cooldown": 600
+	"cmd_prefix": "p.",
+	"token": "",
+	"cooldown_minutes": 10,
+	"shiny_rate": 0.0002,
+	"shiny_hatch_multiplier": 6
 }
