@@ -219,6 +219,9 @@ class PokemonFunctionality:
             self.nrml_pokemon = self._load_pokemon_imgs()
             self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
             self.trainer_data = self._check_trainer_file()
+            self.legendary_pkmn = self._check_legendary_file()
+            self.ultra_pkmn = self._check_ultra_file()
+            self.pokeball = self._check_pokeball_file()
             self.event.event_data = self.event.check_event_file()
             await self.bot.say("Reload complete.")
         except Exception as e:
