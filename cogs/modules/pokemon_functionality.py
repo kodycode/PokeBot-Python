@@ -485,7 +485,7 @@ class PokemonFunctionality:
             time_left = str(converted_cooldown).split(':')
             msg = "<@{}>, you have ".format(user_id)
             if int(time_left[0]) > 0:
-                msg += "**{} hours,** ".format(int(time_left[0]))
+                msg += "**{} hour(s),** ".format(int(time_left[0]))
             msg += "**{} minutes and** ".format(int(time_left[1]))
             msg += "**{} seconds** ".format(int(float(time_left[2])))
             msg += "left before you can catch another pokémon."
