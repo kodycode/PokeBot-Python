@@ -41,16 +41,19 @@ class PokemonEvent:
         pokemon_channel_obj = self.bot.get_channel(pokemon_channel)
         msg = ("**Happy hour has started! During happy "
                "hour, the catch cooldown has "
-               "been cut in half. Good luck trainers!**")
-        em = discord.Embed(description=msg,
+               "been cut in half. Good luck @everyone!**")
+        em = discord.Embed(title="Event Started",
+                           description=msg,
                            colour=0x00FF00)
         await self.bot.send_message(pokemon_channel_obj,
                                     embed=em)
-        return original_cooldown/cooldown_divider
+        return int(original_cooldown/cooldown_divider)
 
     async def deactivate_happy_hour(self, original_cooldown):
         """
         Deactivates happy hour event
+
+        @param original_cooldown - original cooldown set
         """
         pokemon_channel = ''
         happy_hour_event = self.event_data["happy_hour_event"]
@@ -60,8 +63,9 @@ class PokemonEvent:
                 pokemon_channel = channel.id
         pokemon_channel_obj = self.bot.get_channel(pokemon_channel)
         msg = "**Happy hour has ended.**"
-        em = discord.Embed(description=msg,
+        em = discord.Embed(title="Event Ended",
+                           description=msg,
                            colour=0xFF0000)
         await self.bot.send_message(pokemon_channel_obj,
                                     embed=em)
-        return original_cooldown*cooldown_divider
+        return int(original_cooldown*cooldown_divider)
