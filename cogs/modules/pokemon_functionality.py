@@ -2,8 +2,6 @@ from bot_logger import logger
 from cogs.modules.pokemon_event import PokemonEvent
 from collections import defaultdict
 from math import ceil
-from pokeball import POKEBALL_LIST
-from legendary import LEGENDARY_PKMN, ULTRA_PKMN
 from operator import itemgetter
 import asyncio
 import datetime
@@ -23,6 +21,9 @@ class PokemonFunctionality:
         self.bot = bot
         self.trainer_cache = {}
         self.config_data = self._check_config_file()
+        self.legendary_pkmn = self._check_legendary_file()
+        self.ultra_pkmn = self._check_ultra_file()
+        self.pokeball = self._check_pokeball_file()
         self.cooldown_minutes = self.config_data["cooldown_minutes"]
         self.shiny_rate = self.config_data["shiny_rate"]
         self.shiny_hatch_multiplier = self.config_data["shiny_hatch_multiplier"]
@@ -114,6 +115,51 @@ class PokemonFunctionality:
             print("An error has occured. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
+    def _check_legendary_file(self):
+        """
+        Checks to see if there's a valid legendary_pkmn.json file
+        """
+        try:
+            with open('legendary_pkmn.json') as legendaries:
+                return json.load(legendaries)
+        except FileNotFoundError:
+            msg = "FileNotFoundError: 'legendary_pkmn.json' file not found"
+            print(msg)
+            logger.error(msg)
+        except Exception as e:
+            print("An error has occured. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    def _check_ultra_file(self):
+        """
+        Checks to see if there's a valid ultra_pkmn.json file
+        """
+        try:
+            with open('ultra_pkmn.json') as ultras:
+                return json.load(ultras)
+        except FileNotFoundError:
+            msg = "FileNotFoundError: 'ultra_pkmn.json' file not found"
+            print(msg)
+            logger.error(msg)
+        except Exception as e:
+            print("An error has occured. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    def _check_pokeball_file(self):
+        """
+        Checks to see if there's a valid pokeballs.json file
+        """
+        try:
+            with open('pokeballs.json') as pokeballs:
+                return json.load(pokeballs)
+        except FileNotFoundError:
+            msg = "FileNotFoundError: 'pokeballs.json' file not found"
+            print(msg)
+            logger.error(msg)
+        except Exception as e:
+            print("An error has occured. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
     def _check_trainer_file(self):
         """
         Checks to see if there's a valid trainers.json file
@@ -198,7 +244,7 @@ class PokemonFunctionality:
                 if option == "l":
                     header = "Legendary Pokémon"
                     for pkmn in pinventory:
-                        for legendary in LEGENDARY_PKMN:
+                        for legendary in self.legendary_pkmn:
                             if legendary in pkmn:
                                 legendary_count += pinventory[pkmn]
                     trainer_profile[trainer] = legendary_count
@@ -214,7 +260,7 @@ class PokemonFunctionality:
                 elif option == "u":
                     header = "Ultra Pokémon"
                     for pkmn in pinventory:
-                        if pkmn in ULTRA_PKMN:
+                        if pkmn in self.ultra_pkmn:
                             trainer_profile[trainer] = pinventory[pkmn]
                 else:
                     await self.bot.say("`{}` is not a valid option. The options"
@@ -299,11 +345,11 @@ class PokemonFunctionality:
             for pkmn in sorted(pinventory.items()):
                 if i <= count and i < 20*page_number:
                     pkmn_result = ''
-                    for legend in LEGENDARY_PKMN:
+                    for legend in self.legendary_pkmn:
                         if legend in pkmn[0]:
                             pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
                                                                 pkmn[1])
-                    if pkmn[0] in ULTRA_PKMN:
+                    if pkmn[0] in self.ultra_pkmn:
                         pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
                                                             pkmn[1])
                     if pkmn_result == '':
@@ -381,10 +427,10 @@ class PokemonFunctionality:
             if trainer_id in self.trainer_data:
                 pinventory = self.trainer_data[trainer_id]["pinventory"]
                 for pkmn in pinventory:
-                    for legend in LEGENDARY_PKMN:
+                    for legend in self.legendary_pkmn:
                         if legend in pkmn:
                             legendary_pkmn_count += pinventory[pkmn]
-                    if pkmn in ULTRA_PKMN:
+                    if pkmn in self.ultra_pkmn:
                         ultra_pkmn_count += pinventory[pkmn]
                     if "Shiny" in pkmn:
                         shiny_pkmn_count += pinventory[pkmn]
@@ -449,12 +495,12 @@ class PokemonFunctionality:
                              random_pkmn.replace('_', ' ').title()))
             legendary = False
             special_channel = None
-            for legend in LEGENDARY_PKMN:
+            for legend in self.legendary_pkmn:
                 if random_pkmn is EGG_MANAPHY:
                     break
                 if legend in random_pkmn:
                     legendary = True
-            if legendary or random_pkmn in ULTRA_PKMN:
+            if legendary or random_pkmn in self.ultra_pkmn:
                 for channel in ctx.message.server.channels:
                     if legendary:
                         if "legendary" == channel.name:
@@ -546,7 +592,7 @@ class PokemonFunctionality:
                     random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
                     pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
                     is_shiny = False
-                random_pkmnball = random.choice(list(POKEBALL_LIST))
+                random_pkmnball = random.choice(list(self.pokeball))
                 trainer_profile = self.trainer_data[user_id]
                 trainer_profile["timer"] = current_time
                 if random_pkmn not in trainer_profile["pinventory"]:
@@ -581,10 +627,10 @@ class PokemonFunctionality:
         @return - True if pkmn is not a legendary/ultra beast
                   False if pkmn is a legendary/ultra beast
         """
-        for legend in LEGENDARY_PKMN:
+        for legend in self.legendary_pkmn:
             if legend in pkmn:
                 return False
-        if pkmn in ULTRA_PKMN:
+        if pkmn in self.ultra_pkmn:
             return False
         return True
 
@@ -642,7 +688,7 @@ class PokemonFunctionality:
                     await self.bot.say("There are no eggs in the trainer's "
                                        "inventory.")
                     return
-                random_pkmnball = random.choice(list(POKEBALL_LIST))
+                random_pkmnball = random.choice(list(self.pokeball))
                 self._save_trainer_file(self.trainer_data)
                 await self._post_pokemon_catch(ctx,
                                                random_pkmn,
