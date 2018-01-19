@@ -597,7 +597,11 @@ class PokemonFunctionality:
                 self.trainer_cache[user_id] = user_obj
             if not await self._check_cooldown(ctx, current_time):
                 shiny_rng = random.uniform(0, 1)
-                if shiny_rng < self.shiny_rate:
+                shiny_rate = self.shiny_rate
+                if self.event.happy_hour:
+                    happy_hour_event = self.event.event_data["happy_hour_event"]
+                    shiny_rate *= happy_hour_event["shiny_rate_multiplier"]
+                if shiny_rng < shiny_rate:
                     random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                     pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
                     is_shiny = True

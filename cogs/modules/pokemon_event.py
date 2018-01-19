@@ -38,7 +38,8 @@ class PokemonEvent:
         pokemon_channel_obj = self.bot.get_channel(pokemon_channel)
         msg = ("**Happy hour has started! During happy "
                "hour, the catch cooldown has "
-               "been cut in half. Good luck @everyone!**")
+               "been cut in half, and the shiny rate is 3x higher. "
+               "Good luck @everyone!**")
         em = discord.Embed(title="Event Started",
                            description=msg,
                            colour=0x00FF00)

@@ -3,6 +3,7 @@
     "event": true,
     "event_start_hour": 20,
     "duration": 3600,
-    "cooldown_divider": 2
+    "cooldown_divider": 2,
+    "shiny_rate_multiplier": 3
   }
 }
