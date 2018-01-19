@@ -27,7 +27,7 @@ class PokemonCommands:
     @commands.command(name='c', pass_context=True, hidden=True)
     async def c(self, ctx):
         """
-        Catches a random pokemon
+        Shortcut to catch a random pokemon
 
         @param ctx - context of the command sent
         """
@@ -37,6 +37,16 @@ class PokemonCommands:
     async def pinventory(self, ctx, page_number=0):
         """
         Displays the trainer's pokemon inventory
+
+        @param ctx - context of the command sent
+        @param page_number - page number in inventory
+        """
+        await self.cmd_function.display_pinventory(ctx, page_number)
+
+    @commands.command(name='i', pass_context=True, hidden=True)
+    async def i(self, ctx, page_number=0):
+        """
+        Shortcut to display inventory
 
         @param ctx - context of the command sent
         @param page_number - page number in inventory
@@ -87,7 +97,16 @@ class PokemonCommands:
     @commands.command(name='hatch', pass_context=True)
     async def hatch(self, ctx):
         """
-        Hatches a pokemon from your inventory
+        Hatches an egg from your inventory
+
+        @param pkmn - pkmn to be released
+        """
+        await self.cmd_function.hatch_egg(ctx)
+
+    @commands.command(name='h', pass_context=True)
+    async def h(self, ctx):
+        """
+        Shortcut to hatch an egg from your invertory
 
         @param pkmn - pkmn to be released
         """
