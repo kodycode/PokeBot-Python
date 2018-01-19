@@ -50,7 +50,7 @@ class PokemonFunctionality:
 
     async def _cache_users(self):
         """
-        Caches user
+        Caches user data based on the trainers in trainers.json
         """
         try:
             trainer_cache = {}
