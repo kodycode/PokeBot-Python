@@ -284,14 +284,14 @@ class PokemonFunctionality:
         Displays pokemon inventory
         """
         try:
+            trainer_id = ctx.message.author.id
             if ctx.message.author.id not in self.trainer_data:
                 await self.bot.say("Trainer has nothing to display.")
                 return
             if page_number <= 1:
                 page_number = 1
             user = ctx.message.author.name
-            user_id = ctx.message.author.id
-            pinventory = self.trainer_data[user_id]["pinventory"]
+            pinventory = self.trainer_data[trainer_id]["pinventory"]
             pinventory_count = 0
             msg = ''
             i = (page_number-1)*20
@@ -313,18 +313,19 @@ class PokemonFunctionality:
                     i += 1
                 pinventory_count += int(pkmn[1])
                 count += 1
-            max_pages = ceil(len(pinventory)/20)
-            if max_pages == 0:
-                max_pages = 1
+            max_pages = ceil(len(pinventory)/20) if len(pinventory) != 0 else 1
             if page_number > max_pages:
                 await self.bot.say("Page number is invalid.")
                 return
-            msg = ("__**{}'s Pokémon**__: Includes **{}** Pokémon. "
-                   "[Page **{}/{}**]\n"
-                   "".format(user, pinventory_count, page_number, max_pages)
+            msg = ("__**{}** Pokémon total. "
+                   "(Page **{} of {}**)__\n"
+                   "".format(pinventory_count, page_number, max_pages)
                    + msg)
+            em = discord.Embed(title="{}'s Inventory".format(user),
+                               description=msg,
+                               colour=0xff0000)
             try:
-                await self.bot.say(msg)
+                await self.bot.say(embed=em)
             except:
                 pass
         except Exception as e:
@@ -441,11 +442,11 @@ class PokemonFunctionality:
             ctx_channel = ctx.message.channel
             user = "**{}**".format(ctx.message.author.name)
             catch_condition = "caught" if not hatched else "hatched"
-            msg = ("{}, {} you've {} a "
-                   "**{}**!".format(user,
-                                    random_pkmnball,
-                                    catch_condition,
-                                    random_pkmn.replace('_', ' ').title()))
+            msg = ("{} {} a {}**{}**!"
+                   "".format(user,
+                             catch_condition,
+                             random_pkmnball,
+                             random_pkmn.replace('_', ' ').title()))
             legendary = False
             special_channel = None
             for legend in LEGENDARY_PKMN:
