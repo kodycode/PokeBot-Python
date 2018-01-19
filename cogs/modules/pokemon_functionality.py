@@ -422,6 +422,7 @@ class PokemonFunctionality:
         Posts the pokemon that was caught
         """
         try:
+            EGG_MANAPHY = "egg-manaphy"
             ctx_channel = ctx.message.channel
             user = "**{}**".format(ctx.message.author.name)
             catch_condition = "caught" if not hatched else "hatched"
@@ -433,6 +434,8 @@ class PokemonFunctionality:
             legendary = False
             legendary_channel = None
             for legend in LEGENDARY_PKMN:
+                if random_pkmn is EGG_MANAPHY:
+                    break
                 if legend in random_pkmn:
                     legendary = True
             if legendary or random_pkmn in ULTRA_PKMN:
