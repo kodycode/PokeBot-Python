@@ -432,7 +432,7 @@ class PokemonFunctionality:
                                     catch_condition,
                                     random_pkmn.replace('_', ' ').title()))
             legendary = False
-            legendary_channel = None
+            special_channel = None
             for legend in LEGENDARY_PKMN:
                 if random_pkmn is EGG_MANAPHY:
                     break
@@ -440,10 +440,15 @@ class PokemonFunctionality:
                     legendary = True
             if legendary or random_pkmn in ULTRA_PKMN:
                 for channel in ctx.message.server.channels:
-                    if "legendary" == channel.name:
-                        legendary_channel = self.bot.get_channel(channel.id)
-                        break
-                if legendary_channel is not None:
+                    if legendary:
+                        if "legendary" == channel.name:
+                            special_channel = self.bot.get_channel(channel.id)
+                            break
+                    else:
+                        if "ultra" == channel.name:
+                            special_channel = self.bot.get_channel(channel.id)
+                            break
+                if special_channel is not None:
                     em = discord.Embed(description=msg,
                                        colour=0xFFFFFF)
                     if is_shiny:
@@ -463,7 +468,7 @@ class PokemonFunctionality:
                                          "xyani/{}.gif"
                                          "".format(random_pkmn.replace('_', '')))
                     try:
-                        await self.bot.send_message(legendary_channel,
+                        await self.bot.send_message(special_channel,
                                                     embed=em)
                     except:
                         pass
