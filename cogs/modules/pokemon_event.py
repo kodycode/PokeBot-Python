@@ -32,14 +32,16 @@ class PokemonEvent:
         Activates happy hour event
         """
         pokemon_channel = ''
+        happy_hour_event = self.event_data["happy_hour_event"]
         for channel in self.bot.get_all_channels():
             if channel.name == "pokemon":
                 pokemon_channel = channel.id
         pokemon_channel_obj = self.bot.get_channel(pokemon_channel)
         msg = ("**Happy hour has started! During happy "
                "hour, the catch cooldown has "
-               "been cut in half, and the shiny rate is 3x higher. "
-               "Good luck @everyone!**")
+               "been cut in half, and the shiny rate is {}x higher. "
+               "Good luck @everyone!**"
+               "".format(happy_hour_event["shiny_rate_multiplier"]))
         em = discord.Embed(title="Event Started",
                            description=msg,
                            colour=0x00FF00)
