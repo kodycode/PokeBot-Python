@@ -265,7 +265,7 @@ class PokemonFunctionality:
                     header = "Total Pokémon"
                     trainer_profile[trainer] = len(pinventory)
                 elif option == "u":
-                    header = "Ultra Pokémon"
+                    header = "Ultra Beasts"
                     for pkmn in pinventory:
                         if pkmn in self.ultra_pkmn:
                             trainer_profile[trainer] = pinventory[pkmn]
@@ -451,7 +451,7 @@ class PokemonFunctionality:
             em.set_thumbnail(url=user_obj.avatar_url)
             em.add_field(name="Legendary Pokémon caught",
                          value=legendary_pkmn_count)
-            em.add_field(name="Ultra Pokémon caught",
+            em.add_field(name="Ultra Beasts caught",
                          value=ultra_pkmn_count)
             em.add_field(name="Shiny Pokémon caught︀",
                          value=shiny_pkmn_count)
