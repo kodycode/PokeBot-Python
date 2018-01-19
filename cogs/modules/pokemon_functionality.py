@@ -24,7 +24,7 @@ class PokemonFunctionality:
         self.legendary_pkmn = self._check_legendary_file()
         self.ultra_pkmn = self._check_ultra_file()
         self.pokeball = self._check_pokeball_file()
-        self.cooldown_minutes = self.config_data["cooldown_minutes"]
+        self.cooldown_seconds = self.config_data["cooldown_seconds"]
         self.shiny_rate = self.config_data["shiny_rate"]
         self.shiny_hatch_multiplier = self.config_data["shiny_hatch_multiplier"]
         self.event = PokemonEvent(bot)
@@ -95,9 +95,9 @@ class PokemonFunctionality:
             happy_hour_event = self.event.event_data["happy_hour_event"]
             if happy_hour_event["event"]:
                 if hour == happy_hour_event["event_start_hour"]:
-                    self.cooldown_minutes = await self.event.activate_happy_hour(self.cooldown_minutes)
+                    await self.event.activate_happy_hour()
                     await asyncio.sleep(happy_hour_event["duration"])
-                    self.cooldown_minutes = await self.event.deactivate_happy_hour(self.cooldown_minutes)
+                    await self.event.deactivate_happy_hour()
             await asyncio.sleep(60)
 
     def _check_config_file(self):
@@ -219,6 +219,10 @@ class PokemonFunctionality:
             self.nrml_pokemon = self._load_pokemon_imgs()
             self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
             self.trainer_data = self._check_trainer_file()
+            self.config_data = self._check_config_file()
+            self.cooldown_seconds = self.config_data["cooldown_seconds"]
+            self.shiny_rate = self.config_data["shiny_rate"]
+            self.shiny_hatch_multiplier = self.config_data["shiny_hatch_multiplier"]
             self.legendary_pkmn = self._check_legendary_file()
             self.ultra_pkmn = self._check_ultra_file()
             self.pokeball = self._check_pokeball_file()
@@ -465,20 +469,26 @@ class PokemonFunctionality:
         True if cooldown is still active
         False if cooldown is not active
         """
-        user = ctx.message.author.name
         user_id = ctx.message.author.id
         timer = float(self.trainer_data[user_id]["timer"])
-        cooldown_time = time.time() - timer
-        hours = int(cooldown_time // 3600)
-        minutes = int((cooldown_time % 3600) // 60)
-        seconds = int(cooldown_time % 60)
-        if minutes >= self.cooldown_minutes or hours >= 1:
+        happy_hour_event = self.event.event_data["happy_hour_event"]
+        cooldown_limit = datetime.timedelta(seconds=self.cooldown_seconds)
+        time_passed = datetime.timedelta(seconds=time.time()-timer)
+        current_cooldown = cooldown_limit.total_seconds() - time_passed.total_seconds()
+        converted_cooldown = datetime.timedelta(seconds=current_cooldown)
+        if self.event.happy_hour:
+            converted_cooldown_seconds = converted_cooldown.total_seconds()/happy_hour_event["cooldown_divider"]
+            converted_cooldown = datetime.timedelta(seconds=converted_cooldown_seconds)
+        if converted_cooldown.total_seconds() <= 0:
             return False
         else:
-            msg = ":no_entry_sign:**{}**, you need to wait another ".format(user)
-            msg += "**{} minutes &** ".format(str((self.cooldown_minutes - 1)-minutes))
-            msg += "**{} seconds** ".format(str(60-seconds))
-            msg += "before catching another pokemon."
+            time_left = str(converted_cooldown).split(':')
+            msg = "<@{}>, you have ".format(user_id)
+            if int(time_left[0]) > 0:
+                msg += "**{} hours,** ".format(int(time_left[0]))
+            msg += "**{} minutes and** ".format(int(time_left[1]))
+            msg += "**{} seconds** ".format(int(float(time_left[2])))
+            msg += "left before you can catch another pokémon."
             await self.bot.say(msg)
             return True
 

@@ -8,6 +8,7 @@ class PokemonEvent:
 
     def __init__(self, bot):
         self.bot = bot
+        self.happy_hour = False
         self.event_data = self.check_event_file()
 
     def check_event_file(self):
@@ -26,15 +27,11 @@ class PokemonEvent:
             print("An error has occured. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
-    async def activate_happy_hour(self, original_cooldown):
+    async def activate_happy_hour(self):
         """
         Activates happy hour event
-
-        @param original_cooldown - original cooldown set
         """
         pokemon_channel = ''
-        happy_hour_event = self.event_data["happy_hour_event"]
-        cooldown_divider = happy_hour_event["cooldown_divider"]
         for channel in self.bot.get_all_channels():
             if channel.name == "pokemon":
                 pokemon_channel = channel.id
@@ -47,17 +44,13 @@ class PokemonEvent:
                            colour=0x00FF00)
         await self.bot.send_message(pokemon_channel_obj,
                                     embed=em)
-        return int(original_cooldown/cooldown_divider)
+        self.happy_hour = True
 
-    async def deactivate_happy_hour(self, original_cooldown):
+    async def deactivate_happy_hour(self):
         """
         Deactivates happy hour event
-
-        @param original_cooldown - original cooldown set
         """
         pokemon_channel = ''
-        happy_hour_event = self.event_data["happy_hour_event"]
-        cooldown_divider = happy_hour_event["cooldown_divider"]
         for channel in self.bot.get_all_channels():
             if channel.name == "pokemon":
                 pokemon_channel = channel.id
@@ -68,4 +61,4 @@ class PokemonEvent:
                            colour=0xFF0000)
         await self.bot.send_message(pokemon_channel_obj,
                                     embed=em)
-        return int(original_cooldown*cooldown_divider)
+        self.happy_hour = False
