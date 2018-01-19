@@ -17,7 +17,7 @@ LEGENDARY_PKMN = [
     "meloetta", "genesect", "xerneas",
     "yveltal", "zygarde", "diancie",
     "hoopa", "volcanion", "typenull",
-    "silvally"
+    "silvally", "phione"
 ]
 
 ULTRA_PKMN = [
