@@ -15,8 +15,8 @@ class PokemonCommands:
         """
         await self.cmd_function.reload_data()
 
-    @commands.command(name='pokemon', pass_context=True)
-    async def pokemon(self, ctx):
+    @commands.command(name='catch', pass_context=True)
+    async def catch(self, ctx):
         """
         Catches a random pokemon
 
@@ -78,7 +78,7 @@ class PokemonCommands:
     @commands.command(name='hatch', pass_context=True)
     async def hatch(self, ctx):
         """
-        Releases a pokemon from your inventory
+        Hatches a pokemon from your inventory
 
         @param pkmn - pkmn to be released
         """

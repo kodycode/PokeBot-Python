@@ -7,7 +7,7 @@ COG_MANAGER = "cogs.cog_manager"
 with open('config.json') as config:
     config_data = json.load(config)
 bot = commands.Bot(command_prefix=config_data["cmd_prefix"],
-                   description="Kody's renedition of PokeBot")
+                   description="Renedition of PokeBot")
 
 
 class PokeBot:
