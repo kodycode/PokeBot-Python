@@ -24,6 +24,15 @@ class PokemonCommands:
         """
         await self.cmd_function.catch_pokemon(ctx)
 
+    @commands.command(name='c', pass_context=True, hidden=True)
+    async def c(self, ctx):
+        """
+        Catches a random pokemon
+
+        @param ctx - context of the command sent
+        """
+        await self.cmd_function.catch_pokemon(ctx)
+
     @commands.command(name='inventory', pass_context=True)
     async def pinventory(self, ctx, page_number=0):
         """
