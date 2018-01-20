@@ -409,10 +409,15 @@ class PokemonFunctionality:
             if "lootbox" not in self.trainer_data[trainer_id]:
                 self.trainer_data[trainer_id]["lootbox"] = {}
                 lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
-                lootbox_inv["bronze"] = 0
-                lootbox_inv["silver"] = 0
-                lootbox_inv["gold"] = 0
-                lootbox_inv["legendary"] = 0
+                if BRONZE not in lootbox_inv:
+                    lootbox_inv["bronze"] = 0
+                if SILVER not in lootbox_inv:
+                    lootbox_inv["silver"] = 0
+                if GOLD not in lootbox_inv:
+                    lootbox_inv["gold"] = 0
+                if LEGEND not in lootbox_inv:
+                    lootbox_inv["legendary"] = 0
+                self._save_trainer_file(self.trainer_data)
             msg = ''
             for lootbox in lootbox_inv.items():
                 msg += "**{}:** **{}**\n".format(lootbox[0].title(),
