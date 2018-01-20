@@ -172,7 +172,7 @@ class PokemonCommands:
         """
         await self.cmd_function.display_lootbox_inventory(ctx)
 
-    @commands.command(name='l', pass_context=True)
+    @commands.command(name='l', pass_context=True, hidden=True)
     async def l(self, ctx):
         """
         Shortcut to display the number of lootboxes the trainer has
