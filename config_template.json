@@ -3,5 +3,6 @@
 	"token": "",
 	"cooldown_seconds": 3600,
 	"shiny_rate": 0.0002,
-	"shiny_hatch_multiplier": 6
+	"shiny_hatch_multiplier": 6,
+	"shiny_exchange_multiplier": 5
 }

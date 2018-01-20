@@ -251,9 +251,8 @@ class PokemonFunctionality:
                 if option == "l":
                     header = "Legendary Pokémon"
                     for pkmn in pinventory:
-                        for legendary in self.legendary_pkmn:
-                            if legendary in pkmn:
-                                legendary_count += pinventory[pkmn]
+                        if pkmn in self.legendary_pkmn:
+                            legendary_count += pinventory[pkmn]
                     trainer_profile[trainer] = legendary_count
                     legendary_count = 0
                 elif option == "s":
@@ -363,10 +362,9 @@ class PokemonFunctionality:
             for pkmn in sorted(pinventory.items()):
                 if i <= count and i < 20*page_number:
                     pkmn_result = ''
-                    for legend in self.legendary_pkmn:
-                        if legend in pkmn[0]:
-                            pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
-                                                                pkmn[1])
+                    if pkmn[0] in self.legendary_pkmn:
+                        pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
+                                                            pkmn[1])
                     if pkmn[0] in self.ultra_beasts:
                         pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
                                                             pkmn[1])
@@ -447,9 +445,8 @@ class PokemonFunctionality:
             if trainer_id in self.trainer_data:
                 pinventory = self.trainer_data[trainer_id]["pinventory"]
                 for pkmn in pinventory:
-                    for legend in self.legendary_pkmn:
-                        if legend in pkmn:
-                            legendary_pkmn_count += pinventory[pkmn]
+                    if pkmn in self.legendary_pkmn:
+                        legendary_pkmn_count += pinventory[pkmn]
                     if pkmn in self.ultra_beasts:
                         ultra_beasts_count += pinventory[pkmn]
                     if "Shiny" in pkmn:
@@ -510,7 +507,6 @@ class PokemonFunctionality:
         Posts the pokemon that was caught
         """
         try:
-            EGG_MANAPHY = "egg-manaphy"
             ctx_channel = ctx.message.channel
             user = "**{}**".format(ctx.message.author.name)
             msg = ("{} {} a {}**{}**!"
@@ -520,11 +516,8 @@ class PokemonFunctionality:
                              random_pkmn.replace('_', ' ').title()))
             legendary = False
             special_channel = None
-            for legend in self.legendary_pkmn:
-                if random_pkmn is EGG_MANAPHY:
-                    break
-                if legend in random_pkmn:
-                    legendary = True
+            if random_pkmn in self.legendary_pkmn:
+                legendary = True
             if legendary or random_pkmn in self.ultra_beasts:
                 for channel in ctx.message.server.channels:
                     if legendary:
@@ -594,12 +587,14 @@ class PokemonFunctionality:
             print("An error has occured in posting catch. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
-    def _generate_random_pokemon(self):
+    def _generate_random_pokemon(self, shiny_rate_multiplier=None):
         """
         Generates a random pokemon
         """
         shiny_rng = random.uniform(0, 1)
         shiny_rate = self.shiny_rate
+        if shiny_rate_multiplier is not None:
+            shiny_rate *= shiny_rate_multiplier
         if self.event.happy_hour:
             happy_hour_event = self.event.event_data["happy_hour_event"]
             shiny_rate *= happy_hour_event["shiny_rate_multiplier"]
@@ -663,7 +658,7 @@ class PokemonFunctionality:
             print("An error has occured in catching pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
-    async def _load_hatched_pokemon(self, pinventory, pkmn):
+    async def _check_hatched_pokemon(self, pinventory, pkmn):
         """
         Checks if the hatched pokemon is valid
 
@@ -672,10 +667,15 @@ class PokemonFunctionality:
         @return - True if pkmn is not a legendary/ultra beast
                   False if pkmn is a legendary/ultra beast
         """
-        for legend in self.legendary_pkmn:
-            if legend in pkmn:
-                return False
+        egg = "egg"
+        egg_manaphy = "egg-manaphy"
+        if pkmn in self.legendary_pkmn:
+            return False
         if pkmn in self.ultra_beasts:
+            return False
+        if egg == pkmn:
+            return False
+        if egg_manaphy == pkmn:
             return False
         return True
 
@@ -696,22 +696,22 @@ class PokemonFunctionality:
                     shiny_rng = random.uniform(0, 1)
                     if shiny_rng < self.shiny_rate*self.shiny_hatch_multiplier:
                         random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
-                        valid_pkmn = await self._load_hatched_pokemon(pinventory,
-                                                                      random_pkmn)
+                        valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                       random_pkmn)
                         while not valid_pkmn:
                             random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
-                            valid_pkmn = await self._load_hatched_pokemon(pinventory,
-                                                                          random_pkmn)
+                            valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                           random_pkmn)
                         pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
                         is_shiny = True
                     else:
                         random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
-                        valid_pkmn = await self._load_hatched_pokemon(pinventory,
-                                                                      random_pkmn)
+                        valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                       random_pkmn)
                         while not valid_pkmn:
                             random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
-                            valid_pkmn = await self._load_hatched_pokemon(pinventory,
-                                                                          random_pkmn)
+                            valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                           random_pkmn)
                         pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
                         is_shiny = False
                     pinventory[egg] -= 1
@@ -769,7 +769,8 @@ class PokemonFunctionality:
                     if not successful:
                         self.trainer_data = self._load_trainer_file()
                         return
-                random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon()
+                shiny_exchange_multiplier = self.config_data["shiny_exchange_multiplier"]
+                random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_exchange_multiplier)
                 random_pkmnball = random.choice(list(self.pokeball))
                 trainer_profile = self.trainer_data[user_id]
                 self._move_pokemon_to_inventory(trainer_profile,
