@@ -138,3 +138,29 @@ class PokemonCommands:
         @param pkmn - pkmn to be released
         """
         await self.cmd_function.exchange_pokemon(ctx, args)
+
+    @commands.command(name='open', pass_context=True)
+    async def open(self, ctx, lootbox: str):
+        """
+        Opens a lootbox in the inventory
+
+        @param lootbox - choices are:
+                         b - bronze
+                         s - silver
+                         g - gold
+                         l - legendary
+        """
+        await self.cmd_function.open_lootbox(ctx, lootbox)
+
+    @commands.command(name='o', pass_context=True, hidden=True)
+    async def o(self, ctx, lootbox: str):
+        """
+        Shortcut to open a lootbox in the inventory
+
+        @param lootbox - choices are:
+                         b - bronze
+                         s - silver
+                         g - gold
+                         l - legendary
+        """
+        await self.cmd_function.open_lootbox(ctx, lootbox)

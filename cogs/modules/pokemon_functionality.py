@@ -13,6 +13,11 @@ import random
 import re
 import time
 
+BRONZE = "bronze"
+SILVER = "silver"
+GOLD = "gold"
+LEGEND = "legendary"
+
 
 class PokemonFunctionality:
     """Handles Pokemon Command Functionality"""
@@ -502,18 +507,19 @@ class PokemonFunctionality:
             await self.bot.say(msg)
             return True
 
-    async def _post_pokemon_catch(self, ctx, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny, catch_condition):
+    async def _post_pokemon_catch(self, ctx, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny, catch_condition, lootbox):
         """
         Posts the pokemon that was caught
         """
         try:
             ctx_channel = ctx.message.channel
             user = "**{}**".format(ctx.message.author.name)
-            msg = ("{} {} a {}**{}**!"
+            msg = ("{} {} a {}**{}**"
                    "".format(user,
                              catch_condition,
                              random_pkmnball,
                              random_pkmn.replace('_', ' ').title()))
+            msg += " and got a **{}** lootbox!".format(lootbox.title()) if lootbox is not None else "!"
             legendary = False
             special_channel = None
             if random_pkmn in self.legendary_pkmn:
@@ -595,7 +601,7 @@ class PokemonFunctionality:
         shiny_rate = self.shiny_rate
         if shiny_rate_multiplier is not None:
             shiny_rate *= shiny_rate_multiplier
-        if self.event.happy_hour:
+        elif self.event.happy_hour:
             happy_hour_event = self.event.event_data["happy_hour_event"]
             shiny_rate *= happy_hour_event["shiny_rate_multiplier"]
         if shiny_rng < shiny_rate:
@@ -619,11 +625,57 @@ class PokemonFunctionality:
                 trainer_profile["pinventory"][random_pkmn] = 1
         else:
             if is_shiny:
-                pokemon_count = int(trainer_profile["pinventory"][random_pkmn+"(Shiny)"])
-                trainer_profile["pinventory"][random_pkmn+"(Shiny)"] = pokemon_count+1
+                trainer_profile["pinventory"][random_pkmn+"(Shiny)"] += 1
             else:
-                pokemon_count = int(trainer_profile["pinventory"][random_pkmn])
-                trainer_profile["pinventory"][random_pkmn] = pokemon_count+1
+                trainer_profile["pinventory"][random_pkmn] += 1
+
+    def _move_lootbox_to_inventory(self, trainer_profile, **kwargs):
+        """
+        Moves lootbox to lootbox inventory
+
+        @param trainer_profile - trainer profile
+        @param **kwargs - type of lootbox
+        """
+        generated_lootbox = ''
+        for box in kwargs.items():
+            if box[0] is BRONZE:
+                generated_lootbox = BRONZE
+            elif box[0] is SILVER:
+                generated_lootbox = SILVER
+            elif box[0] is GOLD:
+                generated_lootbox = GOLD
+            elif box[0] is LEGEND:
+                generated_lootbox = LEGEND
+        if "lootbox" not in trainer_profile:
+            trainer_profile["lootbox"] = {}
+        if generated_lootbox not in trainer_profile["lootbox"]:
+            trainer_profile["lootbox"][generated_lootbox] = 0
+        trainer_profile["lootbox"][generated_lootbox] += 1
+
+    def _generate_lootbox(self, trainer_profile):
+        """
+        Generates a lootbox depending on rng
+
+        @param trainer_profile - trainer profile
+        """
+        lootbox_rng = random.uniform(0, 1)
+        lootbox_bronze_rate = self.config_data["lootbox_bronze_rate"]
+        lootbox_silver_rate = self.config_data["lootbox_silver_rate"]
+        lootbox_gold_rate = self.config_data["lootbox_gold_rate"]
+        lootbox_legendary_rate = self.config_data["lootbox_legendary_rate"]
+        if lootbox_rng < lootbox_legendary_rate:
+            self._move_lootbox_to_inventory(trainer_profile, legendary=True)
+            return "legendary"
+        elif lootbox_rng < lootbox_gold_rate:
+            self._move_lootbox_to_inventory(trainer_profile, gold=True)
+            return "gold"
+        elif lootbox_rng < lootbox_silver_rate:
+            self._move_lootbox_to_inventory(trainer_profile, silver=True)
+            return "silver"
+        elif lootbox_rng < lootbox_bronze_rate:
+            self._move_lootbox_to_inventory(trainer_profile, bronze=True)
+            return "bronze"
+        return None
 
     async def catch_pokemon(self, ctx):
         """
@@ -643,6 +695,7 @@ class PokemonFunctionality:
                 random_pkmnball = random.choice(list(self.pokeball))
                 trainer_profile = self.trainer_data[user_id]
                 trainer_profile["timer"] = current_time
+                lootbox = self._generate_lootbox(trainer_profile)
                 self._move_pokemon_to_inventory(trainer_profile,
                                                 random_pkmn,
                                                 is_shiny)
@@ -653,7 +706,8 @@ class PokemonFunctionality:
                                                pkmn_img_path,
                                                random_pkmnball,
                                                is_shiny,
-                                               "caught")
+                                               "caught",
+                                               lootbox)
         except Exception as e:
             print("An error has occured in catching pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))
@@ -752,11 +806,11 @@ class PokemonFunctionality:
         """
         Exchanges 5 pokemon for 1 with a 5x shiny chance
 
-        @param *args - 5 pokemon to trade
+        @param *args - 5 pokemon to exchange
         """
         try:
             if len(pokemon_list) != 5:
-                await self.bot.say("Please enter only 5 pokemon to trade.")
+                await self.bot.say("Please enter only 5 pokemon to exchange.")
                 return
             user_id = ctx.message.author.id
             if user_id in self.trainer_data:
@@ -788,4 +842,120 @@ class PokemonFunctionality:
                                    "catch 'em all yet.")
         except Exception as e:
             print("Failed to exchange pokemon. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    async def _generate_lootbox_pokemon(self, ctx, trainer_profile, lootbox):
+        """
+        Generates pokemon from the lootbox opened and displays what you got
+        """
+        lootbox_pokemon_limit = self.config_data["lootbox_pokemon_limit"]
+        shiny_lootbox_multiplier = self.config_data["shiny_lootbox_multiplier"]
+        pokemon_obtained = {}
+        i = 0
+        if lootbox is BRONZE:
+            while i < lootbox_pokemon_limit:
+                pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
+                is_shiny = pkmn[2]
+                pkmn = pkmn[0]
+                while pkmn in self.legendary_pkmn or pkmn in self.ultra_beasts:
+                    pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
+                    is_shiny = pkmn[2]
+                    pkmn = pkmn[0]
+                pokemon_obtained[pkmn] = is_shiny
+                i += 1
+            thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
+                             "icons/pokeball/poke.png?raw=true")
+        elif lootbox is SILVER:
+            while i < lootbox_pokemon_limit:
+                pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
+                is_shiny = pkmn[2]
+                pkmn = pkmn[0]
+                while pkmn in self.ultra_beasts:
+                    pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
+                    is_shiny = pkmn[2]
+                    pkmn = pkmn[0]
+                pokemon_obtained[pkmn] = is_shiny
+                i += 1
+            thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
+                             "icons/pokeball/great.png?raw=true")
+        elif lootbox is GOLD:
+            while i < lootbox_pokemon_limit:
+                pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
+                is_shiny = pkmn[2]
+                pkmn = pkmn[0]
+                pokemon_obtained[pkmn] = is_shiny
+                i += 1
+            thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
+                             "icons/pokeball/ultra.png?raw=true")
+        elif lootbox is LEGEND:
+            while i < lootbox_pokemon_limit:
+                pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
+                is_shiny = pkmn[2]
+                pkmn = pkmn[0]
+                while pkmn not in self.legendary_pkmn and pkmn not in self.ultra_beasts:
+                    pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
+                    is_shiny = pkmn[2]
+                    pkmn = pkmn[0]
+                pokemon_obtained[pkmn] = is_shiny
+                i += 1
+            thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
+                             "icons/pokeball/master.png?raw=true")
+        else:
+            await self.bot.say("Lootbox failed to open: {}".format(lootbox))
+            return
+        msg = "**{}** opened the **{}** lootbox and obtained:\n".format(ctx.message.author.name,
+                                                                        lootbox.title())
+        for pkmn in pokemon_obtained.items():
+            self._move_pokemon_to_inventory(trainer_profile,
+                                            pkmn[0],
+                                            pkmn[1])
+            if pkmn[1]:
+                msg += "**{}(Shiny)**\n".format(pkmn[0].title())
+            else:
+                msg += "**{}**\n".format(pkmn[0].title())
+        em = discord.Embed(title="Lootbox",
+                           description=msg,
+                           colour=0xFF9900)
+        em.set_thumbnail(url=thumbnail_url)
+        await self.bot.say(embed=em)
+
+    async def open_lootbox(self, ctx, lootbox):
+        """
+        Opens a lootbox from the trainer's inventory based on
+        the trainer's specified choice
+
+        @param lootbox - lootbox to open
+        """
+        try:
+            if lootbox is 'b':
+                lootbox = BRONZE
+            elif lootbox is 's':
+                lootbox = SILVER
+            elif lootbox is 'g':
+                lootbox = GOLD
+            elif lootbox is 'l':
+                lootbox = LEGEND
+            user_id = ctx.message.author.id
+            trainer_profile = self.trainer_data[user_id]
+            if user_id in self.trainer_data:
+                if "lootbox" in trainer_profile:
+                    if lootbox in trainer_profile["lootbox"]:
+                        if trainer_profile["lootbox"][lootbox] > 0:
+                            await self._generate_lootbox_pokemon(ctx, trainer_profile, lootbox)
+                            trainer_profile["lootbox"][lootbox] -= 1
+                            self._save_trainer_file(self.trainer_data)
+                        else:
+                            await self.bot.say("<@{}> don't have any {} "
+                                               "lootboxes.".format(user_id,
+                                                                   lootbox))
+                    else:
+                        await self.bot.say("Lootbox does not exist or has not "
+                                           "been obtained yet.")
+                else:
+                    await self.bot.say("Trainer does not have a lootbox.")
+            else:
+                await self.bot.say("Trainer hasn't set off on his journey to "
+                                   "catch 'em all yet.")
+        except Exception as e:
+            print("Failed to open a lootbox. See error.log.")
             logger.error("Exception: {}".format(str(e)))
