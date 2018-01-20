@@ -389,7 +389,9 @@ class PokemonFunctionality:
                                description=msg,
                                colour=0xff0000)
             try:
-                await self.bot.say(embed=em)
+                user_obj = await self.bot.get_user_info(ctx.message.author.id)
+                await self.bot.send_message(user_obj,
+                                            embed=em)
             except:
                 pass
         except Exception as e:
