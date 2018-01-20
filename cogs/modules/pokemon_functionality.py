@@ -406,7 +406,6 @@ class PokemonFunctionality:
                 await self.bot.say("Trainer has nothing to display.")
                 return
             user = ctx.message.author.name
-            lootbox_inv = ''
             if "lootbox" not in self.trainer_data[trainer_id]:
                 self.trainer_data[trainer_id]["lootbox"] = {}
                 lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
@@ -420,6 +419,7 @@ class PokemonFunctionality:
                     lootbox_inv["legendary"] = 0
                 self._save_trainer_file(self.trainer_data)
             msg = ''
+            lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
             for lootbox in lootbox_inv.items():
                 msg += "**{}:** **{}**\n".format(lootbox[0].title(),
                                                  lootbox[1])
