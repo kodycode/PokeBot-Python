@@ -472,13 +472,13 @@ class PokemonFunctionality:
         user_id = ctx.message.author.id
         timer = float(self.trainer_data[user_id]["timer"])
         happy_hour_event = self.event.event_data["happy_hour_event"]
-        cooldown_limit = datetime.timedelta(seconds=self.cooldown_seconds)
+        cooldown_seconds = self.cooldown_seconds
+        if self.event.happy_hour:
+            cooldown_seconds //= happy_hour_event["cooldown_divider"]
+        cooldown_limit = datetime.timedelta(seconds=cooldown_seconds)
         time_passed = datetime.timedelta(seconds=time.time()-timer)
         current_cooldown = cooldown_limit.total_seconds() - time_passed.total_seconds()
         converted_cooldown = datetime.timedelta(seconds=current_cooldown)
-        if self.event.happy_hour:
-            converted_cooldown_seconds = converted_cooldown.total_seconds()/happy_hour_event["cooldown_divider"]
-            converted_cooldown = datetime.timedelta(seconds=converted_cooldown_seconds)
         if converted_cooldown.total_seconds() <= 0:
             return False
         else:
