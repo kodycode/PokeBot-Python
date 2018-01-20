@@ -406,20 +406,26 @@ class PokemonFunctionality:
                 await self.bot.say("Trainer has nothing to display.")
                 return
             user = ctx.message.author.name
+            file_changed = False
             if "lootbox" not in self.trainer_data[trainer_id]:
                 self.trainer_data[trainer_id]["lootbox"] = {}
-                lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
-                if BRONZE not in lootbox_inv:
-                    lootbox_inv["bronze"] = 0
-                if SILVER not in lootbox_inv:
-                    lootbox_inv["silver"] = 0
-                if GOLD not in lootbox_inv:
-                    lootbox_inv["gold"] = 0
-                if LEGEND not in lootbox_inv:
-                    lootbox_inv["legendary"] = 0
+                file_changed = True
+            lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
+            if BRONZE not in lootbox_inv:
+                lootbox_inv["bronze"] = 0
+                file_changed = True
+            if SILVER not in lootbox_inv:
+                lootbox_inv["silver"] = 0
+                file_changed = True
+            if GOLD not in lootbox_inv:
+                lootbox_inv["gold"] = 0
+                file_changed = True
+            if LEGEND not in lootbox_inv:
+                lootbox_inv["legendary"] = 0
+                file_changed = True
+            if file_changed:
                 self._save_trainer_file(self.trainer_data)
             msg = ''
-            lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
             for lootbox in lootbox_inv.items():
                 msg += "**{}:** **{}**\n".format(lootbox[0].title(),
                                                  lootbox[1])
