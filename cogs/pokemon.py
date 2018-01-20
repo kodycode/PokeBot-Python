@@ -94,6 +94,15 @@ class PokemonCommands:
         """
         await self.cmd_function.release_pokemon(ctx, pkmn, quantity)
 
+    @commands.command(name='r', pass_context=True, hidden=True)
+    async def r(self, ctx, pkmn: str, quantity=1):
+        """
+        Shortcut to release pokemon from your inventory
+
+        @param pkmn - pkmn to be released
+        """
+        await self.cmd_function.release_pokemon(ctx, pkmn, quantity)
+
     @commands.command(name='hatch', pass_context=True)
     async def hatch(self, ctx):
         """
@@ -103,7 +112,7 @@ class PokemonCommands:
         """
         await self.cmd_function.hatch_egg(ctx)
 
-    @commands.command(name='h', pass_context=True)
+    @commands.command(name='h', pass_context=True, hidden=True)
     async def h(self, ctx):
         """
         Shortcut to hatch an egg from your invertory
@@ -111,3 +120,21 @@ class PokemonCommands:
         @param pkmn - pkmn to be released
         """
         await self.cmd_function.hatch_egg(ctx)
+
+    @commands.command(name='exchange', pass_context=True)
+    async def exchange(self, ctx, *args):
+        """
+        Exchanges 5 pokemon for a pokemon with a 5x shiny chance
+
+        @param pkmn - pkmn to be released
+        """
+        await self.cmd_function.exchange_pokemon(ctx, args)
+
+    @commands.command(name='e', pass_context=True, hidden=True)
+    async def e(self, ctx, *args):
+        """
+        Shortcut to exchange 5 pokemon for a pokemon with a 5x shiny chance
+
+        @param pkmn - pkmn to be released
+        """
+        await self.cmd_function.exchange_pokemon(ctx, args)

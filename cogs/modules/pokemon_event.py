@@ -9,11 +9,11 @@ class PokemonEvent:
     def __init__(self, bot):
         self.bot = bot
         self.happy_hour = False
-        self.event_data = self.check_event_file()
+        self.event_data = self.load_event_file()
 
-    def check_event_file(self):
+    def load_event_file(self):
         """
-        Checks to see if there's a valid events.json file
+        Checks to see if there's a valid events.json file and loads it
         """
         try:
             with open('events.json') as events:
