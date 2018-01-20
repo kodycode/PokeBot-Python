@@ -29,9 +29,6 @@ class PokemonFunctionality:
         self.legendary_pkmn = self._load_legendary_file()
         self.ultra_beasts = self._load_ultra_file()
         self.pokeball = self._load_pokeball_file()
-        self.cooldown_seconds = self.config_data["cooldown_seconds"]
-        self.shiny_rate = self.config_data["shiny_rate"]
-        self.shiny_hatch_multiplier = self.config_data["shiny_hatch_multiplier"]
         self.event = PokemonEvent(bot)
         self.nrml_pokemon = self._load_pokemon_imgs()
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
@@ -225,9 +222,6 @@ class PokemonFunctionality:
             self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
             self.trainer_data = self._load_trainer_file()
             self.config_data = self._load_config_file()
-            self.cooldown_seconds = self.config_data["cooldown_seconds"]
-            self.shiny_rate = self.config_data["shiny_rate"]
-            self.shiny_hatch_multiplier = self.config_data["shiny_hatch_multiplier"]
             self.legendary_pkmn = self._load_legendary_file()
             self.ultra_beasts = self._load_ultra_file()
             self.pokeball = self._load_pokeball_file()
@@ -487,7 +481,7 @@ class PokemonFunctionality:
         user_id = ctx.message.author.id
         timer = float(self.trainer_data[user_id]["timer"])
         happy_hour_event = self.event.event_data["happy_hour_event"]
-        cooldown_seconds = self.cooldown_seconds
+        cooldown_seconds = self.config_data["cooldown_seconds"]
         if self.event.happy_hour:
             cooldown_seconds //= happy_hour_event["cooldown_divider"]
         cooldown_limit = datetime.timedelta(seconds=cooldown_seconds)
@@ -598,7 +592,7 @@ class PokemonFunctionality:
         Generates a random pokemon
         """
         shiny_rng = random.uniform(0, 1)
-        shiny_rate = self.shiny_rate
+        shiny_rate = self.config_data["shiny_rate"]
         if shiny_rate_multiplier is not None:
             shiny_rate *= shiny_rate_multiplier
         elif self.event.happy_hour:
@@ -748,7 +742,7 @@ class PokemonFunctionality:
                 pinventory = self.trainer_data[user_id]["pinventory"]
                 if egg in pinventory:
                     shiny_rng = random.uniform(0, 1)
-                    if shiny_rng < self.shiny_rate*self.shiny_hatch_multiplier:
+                    if shiny_rng < self.config_data["shiny_rate"]*self.config_data["shiny_hatch_multiplier"]:
                         random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                         valid_pkmn = await self._check_hatched_pokemon(pinventory,
                                                                        random_pkmn)
@@ -774,7 +768,7 @@ class PokemonFunctionality:
                 elif egg_manaphy in pinventory:
                     shiny_rng = random.uniform(0, 1)
                     random_pkmn = "manaphy"
-                    if shiny_rng < self.shiny_rate*self.shiny_hatch_multiplier:
+                    if shiny_rng < self.config_data["shiny_rate"]*self.config_data["shiny_hatch_multiplier"]:
                         pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
                         is_shiny = True
                     else:
