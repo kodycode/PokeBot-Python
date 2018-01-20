@@ -22,7 +22,7 @@ class PokemonFunctionality:
         self.trainer_cache = {}
         self.config_data = self._check_config_file()
         self.legendary_pkmn = self._check_legendary_file()
-        self.ultra_pkmn = self._check_ultra_file()
+        self.ultra_beasts = self._check_ultra_file()
         self.pokeball = self._check_pokeball_file()
         self.cooldown_seconds = self.config_data["cooldown_seconds"]
         self.shiny_rate = self.config_data["shiny_rate"]
@@ -132,13 +132,13 @@ class PokemonFunctionality:
 
     def _check_ultra_file(self):
         """
-        Checks to see if there's a valid ultra_pkmn.json file
+        Checks to see if there's a valid ultra_beasts.json file
         """
         try:
-            with open('ultra_pkmn.json') as ultras:
+            with open('ultra_beasts.json') as ultras:
                 return json.load(ultras)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'ultra_pkmn.json' file not found"
+            msg = "FileNotFoundError: 'ultra_beasts.json' file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -224,7 +224,7 @@ class PokemonFunctionality:
             self.shiny_rate = self.config_data["shiny_rate"]
             self.shiny_hatch_multiplier = self.config_data["shiny_hatch_multiplier"]
             self.legendary_pkmn = self._check_legendary_file()
-            self.ultra_pkmn = self._check_ultra_file()
+            self.ultra_beasts = self._check_ultra_file()
             self.pokeball = self._check_pokeball_file()
             self.event.event_data = self.event.check_event_file()
             await self.bot.say("Reload complete.")
@@ -267,7 +267,7 @@ class PokemonFunctionality:
                 elif option == "u":
                     header = "Ultra Beasts"
                     for pkmn in pinventory:
-                        if pkmn in self.ultra_pkmn:
+                        if pkmn in self.ultra_beasts:
                             trainer_profile[trainer] = pinventory[pkmn]
                 else:
                     await self.bot.say("`{}` is not a valid option. The options"
@@ -361,7 +361,7 @@ class PokemonFunctionality:
                         if legend in pkmn[0]:
                             pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
                                                                 pkmn[1])
-                    if pkmn[0] in self.ultra_pkmn:
+                    if pkmn[0] in self.ultra_beasts:
                         pkmn_result = "**{}** x{}\n".format(pkmn[0].title(),
                                                             pkmn[1])
                     if pkmn_result == '':
@@ -433,7 +433,7 @@ class PokemonFunctionality:
             else:
                 user_obj = self.trainer_cache[trainer_id]
             legendary_pkmn_count = 0
-            ultra_pkmn_count = 0
+            ultra_beasts_count = 0
             shiny_pkmn_count = 0
             total_pkmn_count = 0
             if trainer_id in self.trainer_data:
@@ -442,8 +442,8 @@ class PokemonFunctionality:
                     for legend in self.legendary_pkmn:
                         if legend in pkmn:
                             legendary_pkmn_count += pinventory[pkmn]
-                    if pkmn in self.ultra_pkmn:
-                        ultra_pkmn_count += pinventory[pkmn]
+                    if pkmn in self.ultra_beasts:
+                        ultra_beasts_count += pinventory[pkmn]
                     if "Shiny" in pkmn:
                         shiny_pkmn_count += pinventory[pkmn]
                     total_pkmn_count += pinventory[pkmn]
@@ -457,7 +457,7 @@ class PokemonFunctionality:
             em.add_field(name="Legendary Pokémon caught",
                          value=legendary_pkmn_count)
             em.add_field(name="Ultra Beasts caught",
-                         value=ultra_pkmn_count)
+                         value=ultra_beasts_count)
             em.add_field(name="Shiny Pokémon caught︀",
                          value=shiny_pkmn_count)
             em.add_field(name="Total Pokémon caught",
@@ -518,7 +518,7 @@ class PokemonFunctionality:
                     break
                 if legend in random_pkmn:
                     legendary = True
-            if legendary or random_pkmn in self.ultra_pkmn:
+            if legendary or random_pkmn in self.ultra_beasts:
                 for channel in ctx.message.server.channels:
                     if legendary:
                         if "legendary" == channel.name:
@@ -652,7 +652,7 @@ class PokemonFunctionality:
         for legend in self.legendary_pkmn:
             if legend in pkmn:
                 return False
-        if pkmn in self.ultra_pkmn:
+        if pkmn in self.ultra_beasts:
             return False
         return True
 
