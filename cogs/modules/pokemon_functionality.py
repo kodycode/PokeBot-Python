@@ -893,6 +893,7 @@ class PokemonFunctionality:
         shiny_lootbox_multiplier = self.config_data["shiny_lootbox_multiplier"]
         pokemon_obtained = {}
         i = 0
+        lootbox_color = ''
         if lootbox is BRONZE:
             while i < lootbox_pokemon_limit:
                 pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
@@ -906,6 +907,7 @@ class PokemonFunctionality:
                 i += 1
             thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
                              "icons/pokeball/poke.png?raw=true")
+            lootbox_color = 0xCD7F32
         elif lootbox is SILVER:
             while i < lootbox_pokemon_limit:
                 pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
@@ -919,6 +921,7 @@ class PokemonFunctionality:
                 i += 1
             thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
                              "icons/pokeball/great.png?raw=true")
+            lootbox_color = 0xC0C0C0
         elif lootbox is GOLD:
             while i < lootbox_pokemon_limit:
                 pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
@@ -928,6 +931,7 @@ class PokemonFunctionality:
                 i += 1
             thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
                              "icons/pokeball/ultra.png?raw=true")
+            lootbox_color = 0xFFDF00
         elif lootbox is LEGEND:
             while i < lootbox_pokemon_limit:
                 pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
@@ -941,6 +945,7 @@ class PokemonFunctionality:
                 i += 1
             thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
                              "icons/pokeball/master.png?raw=true")
+            lootbox_color = 0xFF9900
         else:
             await self.bot.say("Lootbox failed to open: {}".format(lootbox))
             return
@@ -956,7 +961,7 @@ class PokemonFunctionality:
                 msg += "**{}**\n".format(pkmn[0].title())
         em = discord.Embed(title="Lootbox",
                            description=msg,
-                           colour=0xFF9900)
+                           colour=lootbox_color)
         em.set_thumbnail(url=thumbnail_url)
         await self.bot.say(embed=em)
 
@@ -982,7 +987,9 @@ class PokemonFunctionality:
                 if "lootbox" in trainer_profile:
                     if lootbox in trainer_profile["lootbox"]:
                         if trainer_profile["lootbox"][lootbox] > 0:
-                            await self._generate_lootbox_pokemon(ctx, trainer_profile, lootbox)
+                            await self._generate_lootbox_pokemon(ctx,
+                                                                 trainer_profile,
+                                                                 lootbox)
                             trainer_profile["lootbox"][lootbox] -= 1
                             self._save_trainer_file(self.trainer_data)
                         else:
