@@ -318,6 +318,11 @@ class PokemonFunctionality:
                 if pkmn not in pinventory:
                     await self.bot.say("Pokémon doesn't exist in the inventory")
                 else:
+                    if quantity > pinventory[pkmn]:
+                        await self.bot.say("Can't release more than what you "
+                                           "own. (Max quantity: **{}**)"
+                                           "".format(pinventory[pkmn]))
+                        return
                     pinventory[pkmn] -= quantity
                     if pinventory[pkmn] < 1:
                         pinventory.pop(pkmn)
