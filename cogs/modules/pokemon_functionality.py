@@ -396,6 +396,40 @@ class PokemonFunctionality:
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
+    async def display_lootbox_inventory(self, ctx):
+        """
+        Displays pokemon inventory
+        """
+        try:
+            trainer_id = ctx.message.author.id
+            if ctx.message.author.id not in self.trainer_data:
+                await self.bot.say("Trainer has nothing to display.")
+                return
+            user = ctx.message.author.name
+            if "lootbox" not in self.trainer_data[trainer_id]:
+                await self.bot.say("Trainer doesn't have any lootboxes.")
+                return
+            elif not self.trainer_data[trainer_id]["lootbox"]:
+                await self.bot.say("Trainer doesn't have any lootboxes.")
+                return
+            lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
+            msg = ''
+            for lootbox in lootbox_inv.items():
+                msg += "**{}:** **{}**\n".format(lootbox[0].title(),
+                                                 lootbox[1])
+            em = discord.Embed(title="{}'s Lootboxes".format(user),
+                               description=msg,
+                               colour=0xFF9900)
+            try:
+                await self.bot.send_message(ctx.message.channel,
+                                            embed=em)
+            except:
+                pass
+        except Exception as e:
+            print("An error has occured in displaying inventory. "
+                  "See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
     async def display_gif(self, pkmn_name, shiny):
         """
         Displays a gif of the pokemon
@@ -898,8 +932,8 @@ class PokemonFunctionality:
         else:
             await self.bot.say("Lootbox failed to open: {}".format(lootbox))
             return
-        msg = "**{}** opened the **{}** lootbox and obtained:\n".format(ctx.message.author.name,
-                                                                        lootbox.title())
+        msg = ("**{}** opened the **{}** lootbox and obtained:\n"
+               "".format(ctx.message.author.name, lootbox.title()))
         for pkmn in pokemon_obtained.items():
             self._move_pokemon_to_inventory(trainer_profile,
                                             pkmn[0],

@@ -164,3 +164,17 @@ class PokemonCommands:
                          l - legendary
         """
         await self.cmd_function.open_lootbox(ctx, lootbox)
+
+    @commands.command(name='loot', pass_context=True)
+    async def loot(self, ctx):
+        """
+        Displays the number of lootboxes the trainer has
+        """
+        await self.cmd_function.display_lootbox_inventory(ctx)
+
+    @commands.command(name='l', pass_context=True)
+    async def l(self, ctx):
+        """
+        Shortcut to display the number of lootboxes the trainer has
+        """
+        await self.cmd_function.display_lootbox_inventory(ctx)
