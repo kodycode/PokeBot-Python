@@ -407,12 +407,12 @@ class PokemonFunctionality:
                 return
             user = ctx.message.author.name
             if "lootbox" not in self.trainer_data[trainer_id]:
-                await self.bot.say("Trainer doesn't have any lootboxes.")
-                return
-            elif not self.trainer_data[trainer_id]["lootbox"]:
-                await self.bot.say("Trainer doesn't have any lootboxes.")
-                return
-            lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
+                self.trainer_data[trainer_id]["lootbox"] = {}
+                lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
+                lootbox_inv["bronze"] = 0
+                lootbox_inv["silver"] = 0
+                lootbox_inv["gold"] = 0
+                lootbox_inv["legendary"] = 0
             msg = ''
             for lootbox in lootbox_inv.items():
                 msg += "**{}:** **{}**\n".format(lootbox[0].title(),
