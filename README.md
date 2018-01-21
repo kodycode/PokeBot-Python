@@ -1,2 +1,24 @@
+# Description
+
+Made with Python 3.6 and the [Python Discord API Wrapper](https://github.com/Rapptz/discord.py).
+
+This bot focuses on the catching aspect that was developed by the original [PokéBot](https://discordbots.org/bot/330488924449275916?utm_source=widget). While it contains the similar style of catching pokemon from the original, I've added more tweaks of my own. You can hatch and exchange pokemon, and even get lootboxes containing pokemon. You can also customize the bot to have events.
+
+To read more on the bot's features, see the command page [here](https://github.com/kodycode/PokeBot-Python/wiki/Command-Page).
+
+For information on events, see [here](https://github.com/kodycode/PokeBot-Python/wiki/Events)
+
+# Installation
+
+To setup the bot,
+
+1. Rename config_template.json to config.json
+
+2. Rename events_template.json to events.json
+
+3. Enter your discord bot token into the `token` field of config.json
+
+4. Run the bot with `python bot.py` or `python3 bot.py`
+
 # Disclaimer
-**This in no way is meant to compete with the official [PokéBot](https://discordbots.org/bot/330488924449275916?utm_source=widget). This renedition is purely made for my own benefit and for my own server only. I will not show you how to set it up. Pokémon assets belong to Wonder & Toast and can be found [here](https://github.com/Wonder-Toast/Pokemon-PNG). Pokéball assets that were not included in this repo, can be found [here](https://github.com/msikma/pokesprite).**
+**This in no way is meant to compete with the official [PokéBot](https://discordbots.org/bot/330488924449275916?utm_source=widget). This renedition was purely made for my own benefit and for my own server only. Pokémon assets belong to Wonder & Toast and can be found [here](https://github.com/Wonder-Toast/Pokemon-PNG). Pokéball assets that were not included in this repo, can be found [here](https://github.com/msikma/pokesprite).**
