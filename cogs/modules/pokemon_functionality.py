@@ -834,7 +834,8 @@ class PokemonFunctionality:
                                                pkmn_img_path,
                                                random_pkmnball,
                                                is_shiny,
-                                               "hatched")
+                                               "hatched",
+                                               None)
             else:
                 await self.bot.say("Trainer hasn't set off on his journey to "
                                    "catch 'em all yet.")
