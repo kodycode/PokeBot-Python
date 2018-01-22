@@ -20,5 +20,9 @@ To setup the bot,
 
 4. Run the bot with `python bot.py` or `python3 bot.py`
 
+# Pull Requests
+
+If you think have a feature that's worthy of being on the main branch, I'd suggest you make a pull request and explain what this feature is. I'd prefer my bot to be the way it is and for others to modify the bot however they'd like for their own server, however I'm open to having more features.
+
 # Disclaimer
-**This in no way is meant to compete with the official [PokéBot](https://discordbots.org/bot/330488924449275916?utm_source=widget). This renedition was purely made for my own benefit and for my own server only. Pokémon assets belong to Wonder & Toast and can be found [here](https://github.com/Wonder-Toast/Pokemon-PNG). Pokéball assets that were not included in this repo, can be found [here](https://github.com/msikma/pokesprite).**
+**This in no way is meant to compete with the official [PokéBot](https://discordbots.org/bot/330488924449275916?utm_source=widget). This renedition was purely made for my own benefit and for my own server. Pokémon assets belong to Wonder & Toast and can be found [here](https://github.com/Wonder-Toast/Pokemon-PNG). Pokéball assets that were not included in this repo, can be found [here](https://github.com/msikma/pokesprite).**
