@@ -864,10 +864,11 @@ class PokemonFunctionality:
                 trainer_profile = self.trainer_data[user_id]
                 for p in pkmn_forms:
                     if p not in trainer_profile["pinventory"]:
-                        msg += "**{}**\n".format(p)
+                        msg += "**{}**\n".format(p.title())
                 if msg != '':
-                    await self.bot.say("Trainer is missing the current forms:\n"
-                                       "{}".format(msg))
+                    await self.bot.say("**{}** is missing the following forms to "
+                                       "fuse:\n{}".format(ctx.message.author.name,
+                                                          msg))
                     return
                 for p in pkmn_forms:
                     await self.release_pokemon(ctx, p, 1, False, False)
