@@ -636,6 +636,9 @@ class PokemonFunctionality:
     def _generate_random_pokemon(self, shiny_rate_multiplier=None):
         """
         Generates a random pokemon
+
+        @param shiny_rate_multiplier - number to multiply the current
+                                       shiny rate by
         """
         shiny_rng = random.uniform(0, 1)
         shiny_rate = self.config_data["shiny_rate"]
@@ -900,7 +903,8 @@ class PokemonFunctionality:
                 pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
                 is_shiny = pkmn[2]
                 pkmn = pkmn[0]
-                while pkmn in self.legendary_pkmn or pkmn in self.ultra_beasts:
+                while (pkmn in self.legendary_pkmn or pkmn in self.ultra_beasts
+                       or pkmn in pokemon_obtained):
                     pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
                     is_shiny = pkmn[2]
                     pkmn = pkmn[0]
@@ -914,7 +918,7 @@ class PokemonFunctionality:
                 pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
                 is_shiny = pkmn[2]
                 pkmn = pkmn[0]
-                while pkmn in self.ultra_beasts:
+                while pkmn in self.ultra_beasts or pkmn in pokemon_obtained:
                     pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
                     is_shiny = pkmn[2]
                     pkmn = pkmn[0]
@@ -928,6 +932,10 @@ class PokemonFunctionality:
                 pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
                 is_shiny = pkmn[2]
                 pkmn = pkmn[0]
+                while pkmn in pokemon_obtained:
+                    pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
+                    is_shiny = pkmn[2]
+                    pkmn = pkmn[0]
                 pokemon_obtained[pkmn] = is_shiny
                 i += 1
             thumbnail_url = ("https://github.com/msikma/pokesprite/blob/master/"
@@ -938,7 +946,8 @@ class PokemonFunctionality:
                 pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
                 is_shiny = pkmn[2]
                 pkmn = pkmn[0]
-                while pkmn not in self.legendary_pkmn and pkmn not in self.ultra_beasts:
+                while (pkmn not in self.legendary_pkmn and pkmn not in self.ultra_beasts
+                       or pkmn in pokemon_obtained):
                     pkmn = self._generate_random_pokemon(shiny_lootbox_multiplier)
                     is_shiny = pkmn[2]
                     pkmn = pkmn[0]
