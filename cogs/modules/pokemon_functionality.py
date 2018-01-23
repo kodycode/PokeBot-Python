@@ -857,9 +857,9 @@ class PokemonFunctionality:
             if pkmn in self.nrml_pokemon.keys():
                 regex_pkmn = pkmn+'-'
                 pkmn_forms = [p for p in self.nrml_pokemon.keys() if regex_pkmn in p]
-                if not pkmn_forms:
-                    await self.bot.say("There are no forms to fuse for this "
-                                       "pokemon.")
+                if not pkmn_forms or len(pkmn_forms) == 1:
+                    await self.bot.say("There are no multiple forms to fuse "
+                                       "for this pokemon.")
                     return
                 trainer_profile = self.trainer_data[user_id]
                 for p in pkmn_forms:
