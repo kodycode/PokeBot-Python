@@ -661,16 +661,12 @@ class PokemonFunctionality:
         """
         Moves the pokemon to the trainer's inventory
         """
+        if is_shiny:
+            random_pkmn += "(Shiny)"
         if random_pkmn not in trainer_profile["pinventory"]:
-            if is_shiny:
-                trainer_profile["pinventory"][random_pkmn+"(Shiny)"] = 1
-            else:
-                trainer_profile["pinventory"][random_pkmn] = 1
+            trainer_profile["pinventory"][random_pkmn] = 1
         else:
-            if is_shiny:
-                trainer_profile["pinventory"][random_pkmn+"(Shiny)"] += 1
-            else:
-                trainer_profile["pinventory"][random_pkmn] += 1
+            trainer_profile["pinventory"][random_pkmn] += 1
 
     def _move_lootbox_to_inventory(self, trainer_profile, **kwargs):
         """
@@ -889,12 +885,14 @@ class PokemonFunctionality:
             print("Failed to exchange pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
-    async def _generate_lootbox_pokemon(self, ctx, trainer_profile, lootbox):
+    async def _generate_lootbox_pokemon(self, ctx, lootbox):
         """
         Generates pokemon from the lootbox opened and displays what you got
         """
+        user_id = ctx.message.author.id
         lootbox_pokemon_limit = self.config_data["lootbox_pokemon_limit"]
         shiny_lootbox_multiplier = self.config_data["shiny_lootbox_multiplier"]
+        trainer_profile = self.trainer_data[user_id]
         pokemon_obtained = {}
         i = 0
         lootbox_color = ''
@@ -999,7 +997,6 @@ class PokemonFunctionality:
                     if lootbox in trainer_profile["lootbox"]:
                         if trainer_profile["lootbox"][lootbox] > 0:
                             success = await self._generate_lootbox_pokemon(ctx,
-                                                                           trainer_profile,
                                                                            lootbox)
                             if success:
                                 trainer_profile["lootbox"][lootbox] -= 1
