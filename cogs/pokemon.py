@@ -121,6 +121,15 @@ class PokemonCommands:
         """
         await self.cmd_function.hatch_egg(ctx)
 
+    @commands.command(name='fuse', pass_context=True)
+    async def fuse(self, ctx, pkmn):
+        """
+        Fuses all type-specific forms of a pokemon to get the original
+
+        @param pkmn - pokemon to fuse into
+        """
+        await self.cmd_function.fuse_pokemon(ctx, pkmn)
+
     @commands.command(name='exchange', pass_context=True)
     async def exchange(self, ctx, *args):
         """

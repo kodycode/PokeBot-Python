@@ -627,7 +627,8 @@ class PokemonFunctionality:
                 await self.bot.send_file(destination=ctx_channel,
                                          fp=pkmn_img_path,
                                          content=msg)
-            except:
+            except Exception as e:
+                print(e)
                 pass
         except Exception as e:
             print("An error has occured in posting catch. See error.log.")
@@ -842,11 +843,59 @@ class PokemonFunctionality:
             print("An error has occured in hatching egg. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
+    async def fuse_pokemon(self, ctx, pkmn):
+        """
+        Retrieves all type-specific forms of a pokemon and fuses them to
+        get the original
+
+        @param ctx - context of the command
+        @param pkmn - pokemon to fuse into
+        """
+        try:
+            msg = ''
+            user_id = ctx.message.author.id
+            if pkmn in self.nrml_pokemon.keys():
+                regex_pkmn = pkmn+'-'
+                pkmn_forms = [p for p in self.nrml_pokemon.keys() if regex_pkmn in p]
+                if not pkmn_forms:
+                    await self.bot.say("There are no forms to fuse for this"
+                                       "pokemon.")
+                    return
+                trainer_profile = self.trainer_data[user_id]
+                for p in pkmn_forms:
+                    if p not in trainer_profile["pinventory"]:
+                        msg += "**{}**\n".format(p)
+                if msg != '':
+                    await self.bot.say("Trainer is missing the current forms:\n"
+                                       "{}".format(msg))
+                    return
+                for p in pkmn_forms:
+                    await self.release_pokemon(ctx, p, 1, False, False)
+                self._move_pokemon_to_inventory(trainer_profile,
+                                                pkmn,
+                                                False)
+                self._save_trainer_file(self.trainer_data)
+                random_pkmnball = random.choice(list(self.pokeball))
+                await self._post_pokemon_catch(ctx,
+                                               pkmn,
+                                               self.nrml_pokemon[pkmn][0],
+                                               random_pkmnball,
+                                               False,
+                                               "fused for",
+                                               None)
+            else:
+                await self.bot.say("Not a valid pokemon: **{}**"
+                                   "".format(pkmn.title()))
+        except Exception as e:
+            print("An error has occured in fusing pokemon. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
     async def exchange_pokemon(self, ctx, pokemon_list):
         """
         Exchanges 5 pokemon for 1 with a 5x shiny chance
 
-        @param *args - 5 pokemon to exchange
+        @param ctx - context of the command
+        @param pokemon_list - 5 pokemon to exchange
         """
         try:
             if len(pokemon_list) != 5:
