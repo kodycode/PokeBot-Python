@@ -1151,10 +1151,12 @@ class PokemonFunctionality:
                 t_pkmn_list += '**{}**\n'.format(t_pkmn.title())
             if self.vendor_sales[user_id]["shiny"]:
                 pkmn += "(Shiny)"
-            await self.bot.say("**{}** has re-rolled the vendor's trade. The "
-                               "**Night Vendor** wants to trade **{}** for the "
+            await self.bot.say("**{}** has re-rolled the vendor's trade (**{}**"
+                               " re-rolls remaining). The **Night Vendor** "
+                               "wants to trade **{}** for the "
                                "following pokemon:\n{}"
                                "".format(ctx.message.author.name,
+                                         trainer_profile["reroll_count"],
                                          pkmn.title(),
                                          t_pkmn_list))
         else:
