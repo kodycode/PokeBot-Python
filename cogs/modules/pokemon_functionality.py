@@ -1137,12 +1137,22 @@ class PokemonFunctionality:
             self.vendor_sales.pop(user_id)
         if user_id in self.vendor_trade_list:
             self.vendor_trade_list.pop(user_id)
-        self._vendor_roll(ctx)
         if trainer_profile["reroll_count"] > 0:
+            t_pkmn_list = ''
+            self._vendor_roll(ctx)
             trainer_profile["reroll_count"] -= 1
             self._save_trainer_file(self.trainer_data)
-            await self.bot.say("**{}** has re-rolled the vendor's trade."
-                               "".format(ctx.message.author.name))
+            pkmn = self.vendor_sales[user_id]["pkmn"]
+            for t_pkmn in self.vendor_trade_list[user_id]:
+                t_pkmn_list += '**{}**\n'.format(t_pkmn.title())
+            if self.vendor_sales[user_id]["shiny"]:
+                pkmn += "(Shiny)"
+            await self.bot.say("**{}** has re-rolled the vendor's trade. The "
+                               "**Night Vendor** wants to trade **{}** for the "
+                               "following pokemon:\n{}"
+                               "".format(ctx.message.author.name,
+                                         pkmn.title(),
+                                         t_pkmn_list))
         else:
             await self.bot.say("<@{}>, you don't have anymore rolls."
                                "".format(user_id))
