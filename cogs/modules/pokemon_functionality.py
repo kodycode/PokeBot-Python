@@ -1096,7 +1096,8 @@ class PokemonFunctionality:
         if user_id not in self.vendor_sales:
             shiny_rate_multiplier = night_vendor_event["shiny_rate_multiplier"]
             random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_rate_multiplier)
-            while egg in random_pkmn or egg_manaphy in random_pkmn:
+            while (egg in random_pkmn or egg_manaphy in random_pkmn
+                   or "-" in random_pkmn):
                 random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_rate_multiplier)
             self.vendor_sales[user_id] = {}
             self.vendor_sales[user_id]["pkmn"] = random_pkmn
@@ -1106,6 +1107,9 @@ class PokemonFunctionality:
             num_pkmn_to_trade = night_vendor_event["num_pkmn_to_trade"]
             while i < num_pkmn_to_trade:
                 t_pkmn = self._generate_random_pokemon(0)[0]
+                while (egg in random_pkmn or egg_manaphy in t_pkmn
+                       or "-" in t_pkmn):
+                    t_pkmn = self._generate_random_pokemon(0)[0]
                 self.vendor_trade_list[user_id].append(t_pkmn)
                 i += 1
 
