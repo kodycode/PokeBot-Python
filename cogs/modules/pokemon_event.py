@@ -89,11 +89,11 @@ class PokemonEvent:
         Activates night vendor event
         """
         self.night_vendor = True
-        msg = ("The **Night Vendor** has arrived! Use the `{0}vendor i` "
+        msg = ("**The Night Vendor has arrived! Use the `{0}vendor i` "
                "command for info on what's he's trading. If you're "
                "interested in the trade, type `{0}vendor t` to make. "
                "the trade. If you don't like the roll, type `{0}vendor r` "
-               "to re-roll what the vendor has for sale."
+               "to re-roll what the vendor has for sale.**"
                "".format(self.config_data["cmd_prefix"]))
         await self._send_event_start_msg(msg)
 
@@ -102,5 +102,5 @@ class PokemonEvent:
         Deactivates night vendor event
         """
         self.night_vendor = False
-        msg = ("The night vendor has vanished.")
+        msg = ("**The night vendor has vanished.**")
         await self._send_event_end_msg(msg)
