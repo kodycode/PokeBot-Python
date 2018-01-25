@@ -1107,7 +1107,7 @@ class PokemonFunctionality:
             num_pkmn_to_trade = night_vendor_event["num_pkmn_to_trade"]
             while i < num_pkmn_to_trade:
                 t_pkmn = self._generate_random_pokemon(0)[0]
-                while (egg in random_pkmn or egg_manaphy in t_pkmn
+                while (egg in t_pkmn or egg_manaphy in t_pkmn
                        or "-" in t_pkmn):
                     t_pkmn = self._generate_random_pokemon(0)[0]
                 self.vendor_trade_list[user_id].append(t_pkmn)
