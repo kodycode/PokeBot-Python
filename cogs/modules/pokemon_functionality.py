@@ -1125,7 +1125,7 @@ class PokemonFunctionality:
         if self.vendor_sales[user_id]["shiny"]:
             pkmn += "(Shiny)"
         await self.bot.say('The **Night Vendor** wants to trade '
-                           '**{}** a **{}** for the following '
+                           '**{}** a **{}** for **all** of the following '
                            'pokemon:\n**{}**'
                            ''.format(ctx.message.author.name,
                                      pkmn.title(),
@@ -1153,7 +1153,7 @@ class PokemonFunctionality:
                 pkmn += "(Shiny)"
             await self.bot.say("**{}** has re-rolled the vendor's trade (**{}**"
                                " re-rolls remaining). The **Night Vendor** "
-                               "wants to trade **{}** for the "
+                               "wants to trade **{}** for **all** of the "
                                "following pokemon:\n{}"
                                "".format(ctx.message.author.name,
                                          trainer_profile["reroll_count"],
