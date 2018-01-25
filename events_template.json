@@ -5,5 +5,14 @@
     "duration": 3600,
     "cooldown_divider": 2,
     "shiny_rate_multiplier": 3
+  },
+  "night_vendor_event": {
+    "event": true,
+    "event_start_hour": 21,
+    "duration": 21600,
+    "shiny_rate_multiplier": 250,
+    "trade_limit": 1,
+    "reroll_count": 3,
+    "num_pkmn_to_trade": 10
   }
 }

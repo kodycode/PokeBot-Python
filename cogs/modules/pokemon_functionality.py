@@ -25,11 +25,13 @@ class PokemonFunctionality:
     def __init__(self, bot):
         self.bot = bot
         self.trainer_cache = {}
+        self.vendor_sales = {}
+        self.vendor_trade_list = defaultdict(list)
         self.config_data = self._load_config_file()
         self.legendary_pkmn = self._load_legendary_file()
         self.ultra_beasts = self._load_ultra_file()
         self.pokeball = self._load_pokeball_file()
-        self.event = PokemonEvent(bot)
+        self.event = PokemonEvent(bot, self.config_data)
         self.nrml_pokemon = self._load_pokemon_imgs()
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
         self.trainer_data = self._load_trainer_file()
@@ -95,11 +97,24 @@ class PokemonFunctionality:
         while True:
             hour = int(datetime.datetime.now().hour)
             happy_hour_event = self.event.event_data["happy_hour_event"]
+            night_vendor_event = self.event.event_data["night_vendor_event"]
             if happy_hour_event["event"]:
                 if hour == happy_hour_event["event_start_hour"]:
                     await self.event.activate_happy_hour()
                     await asyncio.sleep(happy_hour_event["duration"])
                     await self.event.deactivate_happy_hour()
+            if night_vendor_event["event"]:
+                if hour == night_vendor_event["event_start_hour"]:
+                    reroll_count = night_vendor_event["reroll_count"]
+                    for trainer in self.trainer_data:
+                        trainer_profile = self.trainer_data[trainer]
+                        trainer_profile["reroll_count"] = reroll_count
+                    self._save_trainer_file(self.trainer_data)
+                    await self.event.activate_night_vendor()
+                    await asyncio.sleep(night_vendor_event["duration"])
+                    await self.event.deactivate_night_vendor()
+                    self.vendor_sales.clear()
+                    self.vendor_trade_list.clear()
             await asyncio.sleep(60)
 
     def _load_config_file(self):
@@ -315,8 +330,10 @@ class PokemonFunctionality:
             else:
                 pinventory = self.trainer_data[user_id]["pinventory"]
                 if pkmn not in pinventory:
-                    await self.bot.say("Pokémon doesn't exist in the inventory:"
-                                       " {}".format(pkmn))
+                    await self.bot.say("Pokémon doesn't exist in the inventory"
+                                       " ({}). Please make sure there's a "
+                                       "valid quantity of this pokemon"
+                                       "".format(pkmn))
                     return False
                 else:
                     if quantity > pinventory[pkmn]:
@@ -1065,4 +1082,149 @@ class PokemonFunctionality:
                                    "catch 'em all yet.")
         except Exception as e:
             print("Failed to open a lootbox. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    def _vendor_roll(self, ctx):
+        """
+        Rolls the trade that the vendor wants to make
+        """
+        i = 0
+        egg = "egg"
+        egg_manaphy = "egg-manaphy"
+        user_id = ctx.message.author.id
+        night_vendor_event = self.event.event_data["night_vendor_event"]
+        if user_id not in self.vendor_sales:
+            shiny_rate_multiplier = night_vendor_event["shiny_rate_multiplier"]
+            random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_rate_multiplier)
+            while egg in random_pkmn or egg_manaphy in random_pkmn:
+                random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_rate_multiplier)
+            self.vendor_sales[user_id] = {}
+            self.vendor_sales[user_id]["pkmn"] = random_pkmn
+            self.vendor_sales[user_id]["pkmn_img_path"] = pkmn_img_path
+            self.vendor_sales[user_id]["shiny"] = is_shiny
+        if not self.vendor_trade_list[user_id]:
+            num_pkmn_to_trade = night_vendor_event["num_pkmn_to_trade"]
+            while i < num_pkmn_to_trade:
+                t_pkmn = self._generate_random_pokemon(0)[0]
+                self.vendor_trade_list[user_id].append(t_pkmn)
+                i += 1
+
+    async def _vendor_info(self, ctx):
+        """
+        Displays info on what the vendor wants to trade
+        """
+        t_pkmn_list = ''
+        user_id = ctx.message.author.id
+        for t_pkmn in self.vendor_trade_list[user_id]:
+            t_pkmn_list += '{}\n'.format(t_pkmn.title())
+        pkmn = self.vendor_sales[user_id]["pkmn"]
+        if self.vendor_sales[user_id]["shiny"]:
+            pkmn += "(Shiny)"
+        await self.bot.say('The **Night Vendor** wants to trade '
+                           '**{}** a **{}** for the following '
+                           'pokemon:\n**{}**'
+                           ''.format(ctx.message.author.name,
+                                     pkmn.title(),
+                                     t_pkmn_list))
+
+    async def _vendor_reroll(self, ctx):
+        """
+        Rerolls the vendor's trade for the user of interest
+        """
+        user_id = ctx.message.author.id
+        trainer_profile = self.trainer_data[user_id]
+        if user_id in self.vendor_sales:
+            self.vendor_sales.pop(user_id)
+        if user_id in self.vendor_trade_list:
+            self.vendor_trade_list.pop(user_id)
+        self._vendor_roll(ctx)
+        if trainer_profile["reroll_count"] > 0:
+            trainer_profile["reroll_count"] -= 1
+            self._save_trainer_file(self.trainer_data)
+            await self.bot.say("**{}** has re-rolled the vendor's trade."
+                               "".format(ctx.message.author.name))
+        else:
+            await self.bot.say("<@{}>, you don't have anymore rolls."
+                               "".format(user_id))
+
+    async def _vendor_trade(self, ctx):
+        """
+        Trades the vendor
+        """
+        msg = ''
+        user_id = ctx.message.author.id
+        trainer_profile = self.trainer_data[user_id]
+        trade_verified = True
+        for p in self.vendor_trade_list[user_id]:
+            if p not in trainer_profile["pinventory"]:
+                msg += "**{}**\n".format(p.title())
+                trade_verified = False
+        if trade_verified:
+            for pkmn in self.vendor_trade_list[user_id]:
+                successful = await self.release_pokemon(ctx,
+                                                        pkmn,
+                                                        1,
+                                                        False,
+                                                        False)
+                if not successful:
+                    self.trainer_data = self._load_trainer_file()
+                    return
+            vendor_pkmn_sale = self.vendor_sales[user_id]["pkmn"]
+            pkmn_img_path = self.vendor_sales[user_id]["pkmn_img_path"]
+            is_shiny = self.vendor_sales[user_id]["shiny"]
+            self._move_pokemon_to_inventory(trainer_profile,
+                                            vendor_pkmn_sale,
+                                            is_shiny)
+            self.vendor_sales.pop(user_id)
+            self.vendor_trade_list.pop(user_id)
+            random_pokeball = random.choice(list(self.pokeball))
+            await self._post_pokemon_catch(ctx,
+                                           vendor_pkmn_sale,
+                                           pkmn_img_path,
+                                           random_pokeball,
+                                           is_shiny,
+                                           "has traded the night vendor for",
+                                           None)
+            trainer_profile["reroll_count"] = 0
+            self._save_trainer_file(self.trainer_data)
+        else:
+            await self.bot.say("Unable to trade. The following Pokémon are "
+                               "missing:\n{}".format(msg))
+
+    async def vendor_options(self, ctx, option):
+        """
+        Carries out vendor operations depending on the option
+
+        @param ctx - context of the command
+        @param option - option the user input
+        """
+        try:
+            if self.event.night_vendor:
+                user_id = ctx.message.author.id
+                if user_id in self.trainer_data:
+                    trainer_profile = self.trainer_data[user_id]
+                    if (trainer_profile["reroll_count"] > 0
+                       or user_id in self.vendor_sales):
+                        if user_id not in self.vendor_sales:
+                            self._vendor_roll(ctx)
+                        if option == "i":
+                            await self._vendor_info(ctx)
+                        elif option == "r":
+                            await self._vendor_reroll(ctx)
+                        elif option == "t":
+                            await self._vendor_trade(ctx)
+                        else:
+                            await self.bot.say("`{}` is not a valid choice"
+                                               "".format(option))
+                    else:
+                        await self.bot.say("<@{}>, the night vendor is done "
+                                           "doing business with you for the "
+                                           "evening.".format(user_id))
+                else:
+                    await self.bot.say("Trainer hasn't set off on his journey "
+                                       "to catch 'em all yet.")
+            else:
+                await self.bot.say("The night vendor is not here.")
+        except Exception as e:
+            print("Failed to speak with vendor. See error.log")
             logger.error("Exception: {}".format(str(e)))
