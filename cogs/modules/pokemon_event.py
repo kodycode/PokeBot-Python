@@ -82,7 +82,7 @@ class PokemonEvent:
         """
         self.happy_hour = False
         msg = "**Happy hour has ended.**"
-        await self._send_event_start_msg(msg)
+        await self._send_event_end_msg(msg)
 
     async def activate_night_vendor(self):
         """
