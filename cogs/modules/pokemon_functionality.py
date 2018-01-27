@@ -34,11 +34,13 @@ class PokemonFunctionality:
         self.event = PokemonEvent(bot, self.config_data)
         self.nrml_pokemon = self._load_pokemon_imgs()
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
+        self.daily_data = self._load_daily_file()
         self.trainer_data = self._load_trainer_file()
         self._save_trainer_file(self.trainer_data, backup=True)
         self.bot.loop.create_task(self._update_cache())
         self.bot.loop.create_task(self._display_total_pokemon_caught())
         self.bot.loop.create_task(self._load_event())
+        self.bot.loop.create_task(self._refresh_daily())
 
     async def update_game_status(self, total_pkmn_count):
         """
@@ -73,6 +75,18 @@ class PokemonFunctionality:
         while True:
             await self._cache_users()
             await asyncio.sleep(3600)
+
+    async def _refresh_daily(self):
+        """
+        Checks and refreshes the daily
+        """
+        while True:
+            hour = int(datetime.datetime.now().hour)
+            if hour == self.config_data["daily_reset_hour"]:
+                self._save_daily_file([])
+                self._load_daily_file()
+                await asyncio.sleep(3600)
+            await asyncio.sleep(60)
 
     async def _display_total_pokemon_caught(self):
         """
@@ -191,6 +205,30 @@ class PokemonFunctionality:
             print("An error has occured. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
+    def _load_daily_file(self):
+        """
+        Checks to see if there's a valid daily.json file and loads it
+        """
+        try:
+            with open('daily.json') as daily:
+                return json.load(daily)
+        except FileNotFoundError:
+            self._save_daily_file([])
+            return json.loads('[]')
+        except Exception as e:
+            print("An error has occured. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
+    def _save_daily_file(self, daily_data={}):
+        """
+        Saves trainers.json file
+        """
+        daily_filename = "daily.json"
+        with open(daily_filename, 'w') as outfile:
+            json.dump(daily_data,
+                      outfile,
+                      indent=4)
+
     def _save_trainer_file(self, trainer_data={}, backup=False):
         """
         Saves trainers.json file
@@ -252,6 +290,7 @@ class PokemonFunctionality:
         try:
             self.nrml_pokemon = self._load_pokemon_imgs()
             self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
+            self.daily_data = self._load_daily_file()
             self.trainer_data = self._load_trainer_file()
             self.config_data = self._load_config_file()
             self.legendary_pkmn = self._load_legendary_file()
@@ -714,17 +753,23 @@ class PokemonFunctionality:
             trainer_profile["lootbox"][generated_lootbox] = 0
         trainer_profile["lootbox"][generated_lootbox] += 1
 
-    def _generate_lootbox(self, trainer_profile):
+    def _generate_lootbox(self, trainer_profile, daily=False):
         """
         Generates a lootbox depending on rng
 
         @param trainer_profile - trainer profile
         """
         lootbox_rng = random.uniform(0, 1)
-        lootbox_bronze_rate = self.config_data["lootbox_bronze_rate"]
-        lootbox_silver_rate = self.config_data["lootbox_silver_rate"]
-        lootbox_gold_rate = self.config_data["lootbox_gold_rate"]
-        lootbox_legendary_rate = self.config_data["lootbox_legendary_rate"]
+        if daily:
+            lootbox_bronze_rate = self.config_data["daily_lootbox_bronze_rate"]
+            lootbox_silver_rate = self.config_data["daily_lootbox_silver_rate"]
+            lootbox_gold_rate = self.config_data["daily_lootbox_gold_rate"]
+            lootbox_legendary_rate = self.config_data["daily_lootbox_legendary_rate"]
+        else:
+            lootbox_bronze_rate = self.config_data["lootbox_bronze_rate"]
+            lootbox_silver_rate = self.config_data["lootbox_silver_rate"]
+            lootbox_gold_rate = self.config_data["lootbox_gold_rate"]
+            lootbox_legendary_rate = self.config_data["lootbox_legendary_rate"]
         if lootbox_rng < lootbox_legendary_rate:
             self._move_lootbox_to_inventory(trainer_profile, legendary=True)
             return "legendary"
@@ -1243,4 +1288,39 @@ class PokemonFunctionality:
                 await self.bot.say("The night vendor is not here.")
         except Exception as e:
             print("Failed to speak with vendor. See error.log")
+            logger.error("Exception: {}".format(str(e)))
+
+    async def claim_daily(self, ctx):
+        """
+        Claims the daily lootbox
+        """
+        try:
+            user_id = ctx.message.author.id
+            username = ctx.message.author.name
+            if user_id not in self.trainer_data:
+                user_obj = await self.bot.get_user_info(user_id)
+                self.trainer_data[user_id] = {}
+                self.trainer_data[user_id]["pinventory"] = {}
+                self.trainer_data[user_id]["timer"] = False
+                self.trainer_cache[user_id] = user_obj
+                self._save_trainer_file(self.trainer_data)
+            trainer_profile = self.trainer_data[user_id]
+            if "daily_tokens" not in trainer_profile:
+                trainer_profile["daily_tokens"] = 0
+                self._save_trainer_file(self.trainer_data)
+            if user_id not in self.daily_data:
+                lootbox = self._generate_lootbox(trainer_profile, daily=True)
+                trainer_profile["daily_tokens"] += 1
+                self.daily_data.append(user_id)
+                self._save_trainer_file(self.trainer_data)
+                self._save_daily_file(self.daily_data)
+                await self.bot.say("**{}** claimed their daily to get a **{}**"
+                                   " lootbox as well as a daily token."
+                                   "".format(username,
+                                             lootbox.title()))
+            else:
+                await self.bot.say("**{}** has already claimed their daily "
+                                   "lootbox".format(username))
+        except Exception as e:
+            print("Failed to claim daily. See error.log")
             logger.error("Exception: {}".format(str(e)))

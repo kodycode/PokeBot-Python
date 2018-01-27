@@ -211,3 +211,17 @@ class PokemonCommands:
                          t - trade the vendor
         """
         await self.cmd_function.vendor_options(ctx, option)
+
+    @commands.command(name='daily', pass_context=True)
+    async def daily(self, ctx):
+        """
+        Claim a daily lootbox as well as a daily token
+        """
+        await self.cmd_function.claim_daily(ctx)
+
+    @commands.command(name='d', pass_context=True, hidden=True)
+    async def d(self, ctx):
+        """
+        Shortcut to claim a daily lootbox as well as a daily token
+        """
+        await self.cmd_function.claim_daily(ctx)
