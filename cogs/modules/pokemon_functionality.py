@@ -228,6 +228,23 @@ class PokemonFunctionality:
                 filedict[pkmn_name].append(filename)
         return filedict
 
+    async def _valid_user(self, user_id):
+        """
+        Checks if the valid is user
+
+        @return - true if valid,
+                  false if invalid
+        """
+        if not self.trainer_cache:
+            await self.bot.say("Trainer data is still loading. "
+                               "Please wait and try again later.")
+            return False
+        elif user_id not in self.trainer_data:
+            await self.bot.say("Trainer hasn't set off on his journey to "
+                               "catch 'em all yet.")
+            return False
+        return True
+
     async def reload_data(self):
         """
         Reloads cog manager
@@ -318,41 +335,35 @@ class PokemonFunctionality:
         Releases a pokemon from the trainer's inventory
         """
         try:
-            if not self.trainer_cache:
-                await self.bot.say("Trainer data is still loading. "
-                                   "Please wait and try again later.")
-                return False
             user_id = ctx.message.author.id
-            if user_id not in self.trainer_data:
-                await self.bot.say("Trainer hasn't set off on his journey to "
-                                   "catch 'em all yet.")
+            valid_user = await self._valid_user(user_id)
+            if not valid_user:
+                return
+            pinventory = self.trainer_data[user_id]["pinventory"]
+            if pkmn not in pinventory:
+                await self.bot.say("Pokémon doesn't exist in the inventory"
+                                   " ({}). Please make sure there's a "
+                                   "valid quantity of this pokemon"
+                                   "".format(pkmn))
                 return False
             else:
-                pinventory = self.trainer_data[user_id]["pinventory"]
-                if pkmn not in pinventory:
-                    await self.bot.say("Pokémon doesn't exist in the inventory"
-                                       " ({}). Please make sure there's a "
-                                       "valid quantity of this pokemon"
-                                       "".format(pkmn))
+                if quantity > pinventory[pkmn]:
+                    await self.bot.say("Can't release more than what you "
+                                       "own. (Max quantity: **{}**)"
+                                       "".format(pinventory[pkmn]))
                     return False
-                else:
-                    if quantity > pinventory[pkmn]:
-                        await self.bot.say("Can't release more than what you "
-                                           "own. (Max quantity: **{}**)"
-                                           "".format(pinventory[pkmn]))
-                        return False
-                    pinventory[pkmn] -= quantity
-                    if pinventory[pkmn] < 1:
-                        pinventory.pop(pkmn)
-                    if save:
-                        self._save_trainer_file(self.trainer_data)
-                    if post:
-                        await self.bot.say("**{}** released **{} {}**"
-                                           "".format(self.trainer_cache[user_id].name,
-                                                     quantity,
-                                                     pkmn.title()))
-                    await self._display_total_pokemon_caught()
-                    return True
+                pinventory[pkmn] -= quantity
+                if pinventory[pkmn] < 1:
+                    pinventory.pop(pkmn)
+                if save:
+                    self._save_trainer_file(self.trainer_data)
+                if post:
+                    await self.bot.say("**{}** released **{} {}**"
+                                       "".format(self.trainer_cache[user_id].name,
+                                                 quantity,
+                                                 pkmn.title()))
+                await self._display_total_pokemon_caught()
+                return True
         except Exception as e:
             error_msg = 'Failed to release pokemon: {}'.format(str(e))
             print(error_msg)
@@ -364,8 +375,8 @@ class PokemonFunctionality:
         """
         try:
             trainer_id = ctx.message.author.id
-            if ctx.message.author.id not in self.trainer_data:
-                await self.bot.say("Trainer has nothing to display.")
+            valid_user = await self._valid_user(trainer_id)
+            if not valid_user:
                 return
             if page_number <= 1:
                 page_number = 1
@@ -418,16 +429,16 @@ class PokemonFunctionality:
         Displays pokemon inventory
         """
         try:
-            trainer_id = ctx.message.author.id
-            if ctx.message.author.id not in self.trainer_data:
-                await self.bot.say("Trainer has nothing to display.")
+            user_id = ctx.message.author.id
+            valid_user = await self._valid_user(user_id)
+            if not valid_user:
                 return
             user = ctx.message.author.name
             file_changed = False
-            if "lootbox" not in self.trainer_data[trainer_id]:
-                self.trainer_data[trainer_id]["lootbox"] = {}
+            if "lootbox" not in self.trainer_data[user_id]:
+                self.trainer_data[user_id]["lootbox"] = {}
                 file_changed = True
-            lootbox_inv = self.trainer_data[trainer_id]["lootbox"]
+            lootbox_inv = self.trainer_data[user_id]["lootbox"]
             if BRONZE not in lootbox_inv:
                 lootbox_inv["bronze"] = 0
                 file_changed = True
@@ -488,24 +499,18 @@ class PokemonFunctionality:
         @param trainer - trainer to look up
         """
         try:
-            if not self.trainer_cache:
-                await self.bot.say("Trainer data is still loading. "
-                                   "Please wait and try again later.")
+            user_id = re.search(r'\d+', trainer)
+            user_id = user_id.group(0)
+            valid_user = await self._valid_user(user_id)
+            if not valid_user:
                 return
-            trainer_id = re.search(r'\d+', trainer)
-            trainer_id = trainer_id.group(0)
-            if trainer_id not in self.trainer_cache:
-                await self.bot.say("Failed to find the trainer profile for "
-                                   "the trainer specified.")
-                return
-            else:
-                user_obj = self.trainer_cache[trainer_id]
+            user_obj = self.trainer_cache[user_id]
             legendary_pkmn_count = 0
             ultra_beasts_count = 0
             shiny_pkmn_count = 0
             total_pkmn_count = 0
-            if trainer_id in self.trainer_data:
-                pinventory = self.trainer_data[trainer_id]["pinventory"]
+            if user_id in self.trainer_data:
+                pinventory = self.trainer_data[user_id]["pinventory"]
                 for pkmn in pinventory:
                     if pkmn in self.legendary_pkmn:
                         legendary_pkmn_count += pinventory[pkmn]
@@ -801,49 +806,47 @@ class PokemonFunctionality:
             egg = "egg"
             egg_manaphy = "egg-manaphy"
             user_id = ctx.message.author.id
-            if user_id in self.trainer_data:
-                pinventory = self.trainer_data[user_id]["pinventory"]
-                if egg in pinventory:
-                    shiny_rng = random.uniform(0, 1)
-                    if shiny_rng < self.config_data["shiny_rate"]*self.config_data["shiny_hatch_multiplier"]:
+            valid_user = await self._valid_user(user_id)
+            if not valid_user:
+                return
+            pinventory = self.trainer_data[user_id]["pinventory"]
+            if egg in pinventory:
+                shiny_rng = random.uniform(0, 1)
+                if shiny_rng < self.config_data["shiny_rate"]*self.config_data["shiny_hatch_multiplier"]:
+                    random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
+                    valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                   random_pkmn)
+                    while not valid_pkmn:
                         random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                         valid_pkmn = await self._check_hatched_pokemon(pinventory,
                                                                        random_pkmn)
-                        while not valid_pkmn:
-                            random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
-                            valid_pkmn = await self._check_hatched_pokemon(pinventory,
-                                                                           random_pkmn)
-                        pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
-                        is_shiny = True
-                    else:
+                    pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
+                    is_shiny = True
+                else:
+                    random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
+                    valid_pkmn = await self._check_hatched_pokemon(pinventory,
+                                                                   random_pkmn)
+                    while not valid_pkmn:
                         random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
                         valid_pkmn = await self._check_hatched_pokemon(pinventory,
                                                                        random_pkmn)
-                        while not valid_pkmn:
-                            random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
-                            valid_pkmn = await self._check_hatched_pokemon(pinventory,
-                                                                           random_pkmn)
-                        pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
-                        is_shiny = False
-                    pinventory[egg] -= 1
-                    if pinventory[egg] < 1:
-                        pinventory.pop(egg)
-                elif egg_manaphy in pinventory:
-                    shiny_rng = random.uniform(0, 1)
-                    random_pkmn = "manaphy"
-                    if shiny_rng < self.config_data["shiny_rate"]*self.config_data["shiny_hatch_multiplier"]:
-                        pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
-                        is_shiny = True
-                    else:
-                        pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
-                        is_shiny = False
-                    pinventory[egg_manaphy] -= 1
-                    if pinventory[egg_manaphy] < 1:
-                        pinventory.pop(egg_manaphy)
+                    pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
+                    is_shiny = False
+                pinventory[egg] -= 1
+                if pinventory[egg] < 1:
+                    pinventory.pop(egg)
+            elif egg_manaphy in pinventory:
+                shiny_rng = random.uniform(0, 1)
+                random_pkmn = "manaphy"
+                if shiny_rng < self.config_data["shiny_rate"]*self.config_data["shiny_hatch_multiplier"]:
+                    pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
+                    is_shiny = True
                 else:
-                    await self.bot.say("There are no eggs in the trainer's "
-                                       "inventory.")
-                    return
+                    pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
+                    is_shiny = False
+                pinventory[egg_manaphy] -= 1
+                if pinventory[egg_manaphy] < 1:
+                    pinventory.pop(egg_manaphy)
                 random_pkmnball = random.choice(list(self.pokeball))
                 self._save_trainer_file(self.trainer_data)
                 await self._post_pokemon_catch(ctx,
@@ -853,9 +856,6 @@ class PokemonFunctionality:
                                                is_shiny,
                                                "hatched",
                                                None)
-            else:
-                await self.bot.say("Trainer hasn't set off on his journey to "
-                                   "catch 'em all yet.")
         except Exception as e:
             print("An error has occured in hatching egg. See error.log.")
             logger.error("Exception: {}".format(str(e)))
@@ -871,6 +871,9 @@ class PokemonFunctionality:
         try:
             msg = ''
             user_id = ctx.message.author.id
+            valid_user = await self._valid_user(user_id)
+            if not valid_user:
+                return
             if pkmn in self.nrml_pokemon.keys():
                 regex_pkmn = pkmn+'-'
                 pkmn_forms = [p for p in self.nrml_pokemon.keys() if regex_pkmn in p]
@@ -916,38 +919,37 @@ class PokemonFunctionality:
         @param pokemon_list - 5 pokemon to exchange
         """
         try:
+            user_id = ctx.message.author.id
+            valid_user = await self._valid_user(user_id)
+            if not valid_user:
+                return
             if len(pokemon_list) != 5:
                 await self.bot.say("Please enter only 5 pokemon to exchange.")
                 return
-            user_id = ctx.message.author.id
-            if user_id in self.trainer_data:
-                for pkmn in pokemon_list:
-                    successful = await self.release_pokemon(ctx,
-                                                            pkmn,
-                                                            1,
-                                                            False,
-                                                            False)
-                    if not successful:
-                        self.trainer_data = self._load_trainer_file()
-                        return
-                shiny_exchange_multiplier = self.config_data["shiny_exchange_multiplier"]
-                random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_exchange_multiplier)
-                random_pkmnball = random.choice(list(self.pokeball))
-                trainer_profile = self.trainer_data[user_id]
-                self._move_pokemon_to_inventory(trainer_profile,
-                                                random_pkmn,
-                                                is_shiny)
-                self._save_trainer_file(self.trainer_data)
-                await self._post_pokemon_catch(ctx,
-                                               random_pkmn,
-                                               pkmn_img_path,
-                                               random_pkmnball,
-                                               is_shiny,
-                                               "exchanged for",
-                                               None)
-            else:
-                await self.bot.say("Trainer hasn't set off on his journey to "
-                                   "catch 'em all yet.")
+            for pkmn in pokemon_list:
+                successful = await self.release_pokemon(ctx,
+                                                        pkmn,
+                                                        1,
+                                                        False,
+                                                        False)
+                if not successful:
+                    self.trainer_data = self._load_trainer_file()
+                    return
+            shiny_exchange_multiplier = self.config_data["shiny_exchange_multiplier"]
+            random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_exchange_multiplier)
+            random_pkmnball = random.choice(list(self.pokeball))
+            trainer_profile = self.trainer_data[user_id]
+            self._move_pokemon_to_inventory(trainer_profile,
+                                            random_pkmn,
+                                            is_shiny)
+            self._save_trainer_file(self.trainer_data)
+            await self._post_pokemon_catch(ctx,
+                                           random_pkmn,
+                                           pkmn_img_path,
+                                           random_pkmnball,
+                                           is_shiny,
+                                           "exchanged for",
+                                           None)
         except Exception as e:
             print("Failed to exchange pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))
@@ -1058,28 +1060,27 @@ class PokemonFunctionality:
             elif lootbox == 'l':
                 lootbox = LEGEND
             user_id = ctx.message.author.id
+            valid_user = await self._valid_user(user_id)
+            if not valid_user:
+                return
             trainer_profile = self.trainer_data[user_id]
-            if user_id in self.trainer_data:
-                if "lootbox" in trainer_profile:
-                    if lootbox in trainer_profile["lootbox"]:
-                        if trainer_profile["lootbox"][lootbox] > 0:
-                            success = await self._generate_lootbox_pokemon(ctx,
-                                                                           lootbox)
-                            if success:
-                                trainer_profile["lootbox"][lootbox] -= 1
-                                self._save_trainer_file(self.trainer_data)
-                        else:
-                            await self.bot.say("<@{}> you don't have any {} "
-                                               "lootboxes.".format(user_id,
-                                                                   lootbox))
+            if "lootbox" in trainer_profile:
+                if lootbox in trainer_profile["lootbox"]:
+                    if trainer_profile["lootbox"][lootbox] > 0:
+                        success = await self._generate_lootbox_pokemon(ctx,
+                                                                       lootbox)
+                        if success:
+                            trainer_profile["lootbox"][lootbox] -= 1
+                            self._save_trainer_file(self.trainer_data)
                     else:
-                        await self.bot.say("Lootbox does not exist or has not "
-                                           "been obtained yet.")
+                        await self.bot.say("<@{}> you don't have any {} "
+                                           "lootboxes.".format(user_id,
+                                                               lootbox))
                 else:
-                    await self.bot.say("Trainer does not have a lootbox.")
+                    await self.bot.say("Lootbox does not exist or has not "
+                                       "been obtained yet.")
             else:
-                await self.bot.say("Trainer hasn't set off on his journey to "
-                                   "catch 'em all yet.")
+                await self.bot.say("Trainer does not have a lootbox.")
         except Exception as e:
             print("Failed to open a lootbox. See error.log.")
             logger.error("Exception: {}".format(str(e)))
@@ -1217,28 +1218,27 @@ class PokemonFunctionality:
         try:
             if self.event.night_vendor:
                 user_id = ctx.message.author.id
-                if user_id in self.trainer_data:
-                    trainer_profile = self.trainer_data[user_id]
-                    if (trainer_profile["reroll_count"] > 0
-                       or user_id in self.vendor_sales):
-                        if user_id not in self.vendor_sales:
-                            self._vendor_roll(ctx)
-                        if option == "i":
-                            await self._vendor_info(ctx)
-                        elif option == "r":
-                            await self._vendor_reroll(ctx)
-                        elif option == "t":
-                            await self._vendor_trade(ctx)
-                        else:
-                            await self.bot.say("`{}` is not a valid choice"
-                                               "".format(option))
+                valid_user = await self._valid_user(user_id)
+                if not valid_user:
+                    return
+                trainer_profile = self.trainer_data[user_id]
+                if (trainer_profile["reroll_count"] > 0
+                   or user_id in self.vendor_sales):
+                    if user_id not in self.vendor_sales:
+                        self._vendor_roll(ctx)
+                    if option == "i":
+                        await self._vendor_info(ctx)
+                    elif option == "r":
+                        await self._vendor_reroll(ctx)
+                    elif option == "t":
+                        await self._vendor_trade(ctx)
                     else:
-                        await self.bot.say("<@{}>, the night vendor is done "
-                                           "doing business with you for the "
-                                           "evening.".format(user_id))
+                        await self.bot.say("`{}` is not a valid choice"
+                                           "".format(option))
                 else:
-                    await self.bot.say("Trainer hasn't set off on his journey "
-                                       "to catch 'em all yet.")
+                    await self.bot.say("<@{}>, the night vendor is done "
+                                       "doing business with you for the "
+                                       "evening.".format(user_id))
             else:
                 await self.bot.say("The night vendor is not here.")
         except Exception as e:
