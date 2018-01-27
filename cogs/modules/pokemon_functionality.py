@@ -315,29 +315,28 @@ class PokemonFunctionality:
             trainer_profile = {}
             header = ''
             msg = ''
-            legendary_count = 0
+            pkmn_count = 0
             for trainer in self.trainer_data:
                 pinventory = self.trainer_data[trainer]["pinventory"]
                 if option == "l":
                     header = "Legendary Pokémon"
                     for pkmn in pinventory:
                         if pkmn in self.legendary_pkmn:
-                            legendary_count += pinventory[pkmn]
-                    trainer_profile[trainer] = legendary_count
-                    legendary_count = 0
+                            pkmn_count += pinventory[pkmn]
                 elif option == "s":
                     header = "Shiny Pokémon"
                     for pkmn in pinventory:
                         if "Shiny" in pkmn:
-                            trainer_profile[trainer] = pinventory[pkmn]
+                            pkmn_count += pinventory[pkmn]
                 elif option == "t":
                     header = "Total Pokémon"
-                    trainer_profile[trainer] = len(pinventory)
+                    for pkmn in pinventory:
+                        pkmn_count += pinventory[pkmn]
                 elif option == "u":
                     header = "Ultra Beasts"
                     for pkmn in pinventory:
                         if pkmn in self.ultra_beasts:
-                            trainer_profile[trainer] = pinventory[pkmn]
+                            pkmn_count += pinventory[pkmn]
                 else:
                     await self.bot.say("`{}` is not a valid option. The options"
                                        " are:\n"
@@ -347,6 +346,8 @@ class PokemonFunctionality:
                                        "**u** - ultra\n"
                                        "".format(option))
                     return
+                trainer_profile[trainer] = pkmn_count
+                pkmn_count = 0
             rank_num = 0
             count = 0
             for trainer in sorted(trainer_profile.items(),
