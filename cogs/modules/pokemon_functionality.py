@@ -84,7 +84,7 @@ class PokemonFunctionality:
             hour = int(datetime.datetime.now().hour)
             if hour == self.config_data["daily_reset_hour"]:
                 self._save_daily_file([])
-                self._load_daily_file()
+                self.daily_data = self._load_daily_file()
                 await asyncio.sleep(3600)
             await asyncio.sleep(60)
 
