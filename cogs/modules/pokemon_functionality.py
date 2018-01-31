@@ -1218,11 +1218,11 @@ class PokemonFunctionality:
         """
         user_id = ctx.message.author.id
         trainer_profile = self.trainer_data[user_id]
-        if user_id in self.vendor_sales:
-            self.vendor_sales.pop(user_id)
-        if user_id in self.vendor_trade_list:
-            self.vendor_trade_list.pop(user_id)
         if trainer_profile["reroll_count"] > 0:
+            if user_id in self.vendor_sales:
+                self.vendor_sales.pop(user_id)
+            if user_id in self.vendor_trade_list:
+                self.vendor_trade_list.pop(user_id)
             t_pkmn_list = ''
             self._vendor_roll(ctx)
             trainer_profile["reroll_count"] -= 1
