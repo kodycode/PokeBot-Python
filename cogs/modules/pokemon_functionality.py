@@ -382,9 +382,9 @@ class PokemonFunctionality:
             pinventory = self.trainer_data[user_id]["pinventory"]
             if pkmn not in pinventory:
                 await self.bot.say("Pokémon doesn't exist in the inventory"
-                                   " ({}). Please make sure there's a "
-                                   "valid quantity of this pokemon"
-                                   "".format(pkmn))
+                                   " (**{}**). Please make sure there's a "
+                                   "valid quantity of this pokémon."
+                                   "".format(pkmn.title()))
                 return False
             else:
                 if quantity > pinventory[pkmn]:
@@ -906,13 +906,14 @@ class PokemonFunctionality:
             print("An error has occured in hatching egg. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
-    async def fuse_pokemon(self, ctx, pkmn):
+    async def fuse_pokemon(self, ctx, pkmn, form_list):
         """
         Retrieves all type-specific forms of a pokemon and fuses them to
         get the original
 
         @param ctx - context of the command
         @param pkmn - pokemon to fuse into
+        @param form_list - 5 pokemon to fuse to get to the original
         """
         try:
             msg = ''
@@ -927,17 +928,50 @@ class PokemonFunctionality:
                     await self.bot.say("There are no multiple forms to fuse "
                                        "for this pokemon.")
                     return
-                trainer_profile = self.trainer_data[user_id]
-                for p in pkmn_forms:
-                    if p not in trainer_profile["pinventory"]:
-                        msg += "**{}**\n".format(p.title())
-                if msg != '':
-                    await self.bot.say("**{}** is missing the following forms to "
-                                       "fuse:\n{}".format(ctx.message.author.name,
-                                                          msg))
+                elif form_list and len(pkmn_forms) < 5:
+                    await self.bot.say("You must have all forms to fuse this "
+                                       "pokemon.")
                     return
-                for p in pkmn_forms:
-                    await self.release_pokemon(ctx, p, 1, False, False)
+                trainer_profile = self.trainer_data[user_id]
+                if len(form_list) == 0:
+                    if len(pkmn_forms) >= 5:
+                        await self.bot.say("This pokemon has many forms. "
+                                           "Use the command again but also "
+                                           "specify 5 forms of this pokemon you "
+                                           "would like to use for this fusion.")
+                        return
+                    for p in pkmn_forms:
+                        if p not in trainer_profile["pinventory"]:
+                            msg += "**{}**\n".format(p.title())
+                    if msg != '':
+                        await self.bot.say("**{}** is missing the following "
+                                           "forms to fuse:\n{}"
+                                           "".format(ctx.message.author.name,
+                                                     msg))
+                        return
+                if len(form_list) != 5:
+                    await self.bot.say("Invalid number of pokemon forms "
+                                       "inputted. Please "
+                                       "enter 5 pokemon forms from your "
+                                       "inventory you wish to use.")
+                    return
+                release_list = pkmn_forms if form_list is None else form_list
+                for p in release_list:
+                    if p in pkmn_forms:
+                        successful = await self.release_pokemon(ctx,
+                                                                p,
+                                                                1,
+                                                                False,
+                                                                False)
+                        if not successful:
+                            self.trainer_data = self._load_trainer_file()
+                            return
+                    else:
+                        await self.bot.say("**{}** is not a valid pokemon to "
+                                           "use for this fusion."
+                                           "".format(p.title()))
+                        self.trainer_data = self._load_trainer_file()
+                        return
                 self._move_pokemon_to_inventory(trainer_profile,
                                                 pkmn,
                                                 False)

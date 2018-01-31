@@ -122,13 +122,25 @@ class PokemonCommands:
         await self.cmd_function.hatch_egg(ctx)
 
     @commands.command(name='fuse', pass_context=True)
-    async def fuse(self, ctx, pkmn):
+    async def fuse(self, ctx, pkmn, *args):
         """
         Fuses all type-specific forms of a pokemon to get the original
 
         @param pkmn - pokemon to fuse into
+        @param args - enter 5 pokemon to fuse to get to the original
+                      (valid for only pokemon with over 5 known forms)
         """
-        await self.cmd_function.fuse_pokemon(ctx, pkmn)
+        await self.cmd_function.fuse_pokemon(ctx, pkmn, args)
+
+    @commands.command(name='f', pass_context=True, hidden=True)
+    async def f(self, ctx, pkmn, *args):
+        """
+        Shortcut to fuse all type-specific forms of a pokemon
+        to get the original
+
+        @param pkmn - pokemon to fuse into
+        """
+        await self.cmd_function.fuse_pokemon(ctx, pkmn, args)
 
     @commands.command(name='exchange', pass_context=True)
     async def exchange(self, ctx, *args):
