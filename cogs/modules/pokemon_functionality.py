@@ -894,7 +894,7 @@ class PokemonFunctionality:
                 if pinventory[egg_manaphy] < 1:
                     pinventory.pop(egg_manaphy)
             else:
-                await self.say("There are no eggs in the trainer's inventory.")
+                await self.bot.say("There are no eggs in the trainer's inventory.")
                 return
             random_pkmnball = random.choice(list(self.pokeball))
             self._save_trainer_file(self.trainer_data)
