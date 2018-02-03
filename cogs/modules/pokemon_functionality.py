@@ -893,15 +893,15 @@ class PokemonFunctionality:
                 pinventory[egg_manaphy] -= 1
                 if pinventory[egg_manaphy] < 1:
                     pinventory.pop(egg_manaphy)
-                random_pkmnball = random.choice(list(self.pokeball))
-                self._save_trainer_file(self.trainer_data)
-                await self._post_pokemon_catch(ctx,
-                                               random_pkmn,
-                                               pkmn_img_path,
-                                               random_pkmnball,
-                                               is_shiny,
-                                               "hatched",
-                                               None)
+            random_pkmnball = random.choice(list(self.pokeball))
+            self._save_trainer_file(self.trainer_data)
+            await self._post_pokemon_catch(ctx,
+                                           random_pkmn,
+                                           pkmn_img_path,
+                                           random_pkmnball,
+                                           is_shiny,
+                                           "hatched",
+                                           None)
         except Exception as e:
             print("An error has occured in hatching egg. See error.log.")
             logger.error("Exception: {}".format(str(e)))
