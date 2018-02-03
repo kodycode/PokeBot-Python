@@ -65,7 +65,7 @@ class PokemonCommands:
                                                        lootbox)
 
     @commands.command(name='reload', pass_context=True, hidden=True)
-    async def reload(self):
+    async def reload(self, ctx):
         """
         Reloads pokemon data (admin only cmd)
         """

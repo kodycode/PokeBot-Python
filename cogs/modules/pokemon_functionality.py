@@ -339,7 +339,7 @@ class PokemonFunctionality:
                 if pkmn_name in pinventory:
                     if shiny == "s" or shiny == "shiny":
                         pkmn_name += "(Shiny)"
-                    successful = await self.release_pokemon(ctx,
+                    successful = await self.release_pokemon(user_id,
                                                             pkmn_name,
                                                             1,
                                                             True,
@@ -539,12 +539,11 @@ class PokemonFunctionality:
             print(error_msg)
             logger.error(error_msg)
 
-    async def release_pokemon(self, ctx, pkmn, quantity, save=True, post=True):
+    async def release_pokemon(self, user_id, pkmn, quantity, save=True, post=True):
         """
         Releases a pokemon from the trainer's inventory
         """
         try:
-            user_id = ctx.message.author.id
             valid_user = await self._valid_user(user_id)
             if not valid_user:
                 return
@@ -1130,7 +1129,7 @@ class PokemonFunctionality:
                 release_list = pkmn_forms if form_list is None else form_list
                 for p in release_list:
                     if p in pkmn_forms:
-                        successful = await self.release_pokemon(ctx,
+                        successful = await self.release_pokemon(user_id,
                                                                 p,
                                                                 1,
                                                                 False,
@@ -1179,7 +1178,7 @@ class PokemonFunctionality:
                 await self.bot.say("Please enter only 5 pokemon to exchange.")
                 return
             for pkmn in pokemon_list:
-                successful = await self.release_pokemon(ctx,
+                successful = await self.release_pokemon(user_id,
                                                         pkmn,
                                                         1,
                                                         False,
@@ -1430,7 +1429,7 @@ class PokemonFunctionality:
                 trade_verified = False
         if trade_verified:
             for pkmn in self.vendor_trade_list[user_id]:
-                successful = await self.release_pokemon(ctx,
+                successful = await self.release_pokemon(user_id,
                                                         pkmn,
                                                         1,
                                                         False,
