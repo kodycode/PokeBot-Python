@@ -339,11 +339,13 @@ class PokemonFunctionality:
                 if pkmn_name in pinventory:
                     if shiny == "s" or shiny == "shiny":
                         pkmn_name += "(Shiny)"
-                    await self.release_pokemon(ctx,
-                                               pkmn_name,
-                                               1,
-                                               True,
-                                               False)
+                    successful = await self.release_pokemon(ctx,
+                                                            pkmn_name,
+                                                            1,
+                                                            True,
+                                                            False)
+                    if not successful:
+                        return
                     msg = ("<@{}> deleted **{}** from <@{}>'s inventory"
                            "".format(admin_id,
                                      pkmn_name.title(),
