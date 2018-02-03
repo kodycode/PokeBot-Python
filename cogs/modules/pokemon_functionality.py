@@ -283,21 +283,188 @@ class PokemonFunctionality:
             return False
         return True
 
-    async def reload_data(self):
+    async def give_trainer_pokemon(self, ctx, user_id, pkmn_name, shiny):
+        """
+        Gives a pokemon to the trainer
+        """
+        try:
+            admin_id = ctx.message.author.id
+            if admin_id in self.config_data["admin_list"]:
+                if user_id in self.trainer_data:
+                    trainer_profile = self.trainer_data[user_id]
+                else:
+                    await self.bot.say("Trainer ID was not found.")
+                    return
+                if pkmn_name in self.nrml_pokemon:
+                    if shiny == "s" or shiny == "shiny":
+                        if pkmn_name in self.shiny_pokemon:
+                            shiny = True
+                        else:
+                            await self.bot.say("This pokemon does not have a "
+                                               "shiny version available: **{}**"
+                                               "".format(pkmn_name.title()))
+                            return
+                    self._move_pokemon_to_inventory(trainer_profile,
+                                                    pkmn_name,
+                                                    shiny)
+                    self._save_trainer_file(self.trainer_data)
+                    msg = ("<@{}> gave <@{}> a **{}**"
+                           "".format(admin_id,
+                                     user_id,
+                                     pkmn_name.title()))
+                    if shiny:
+                        msg += ("**(Shiny)**")
+                    await self.bot.say(msg)
+                else:
+                    await self.bot.say("Invalid pokemon: **{}**"
+                                       "".format(pkmn_name.title()))
+        except Exception as e:
+            error_msg = 'Failed to give user a lootbox: {}'.format(str(e))
+            print(error_msg)
+            logger.error(error_msg)
+
+    async def delete_trainer_pokemon(self, ctx, user_id, pkmn_name, shiny):
+        """
+        Deletes a pokemon specified from the trainer's inventory
+        """
+        try:
+            admin_id = ctx.message.author.id
+            if admin_id in self.config_data["admin_list"]:
+                if user_id in self.trainer_data:
+                    trainer_profile = self.trainer_data[user_id]
+                else:
+                    await self.bot.say("Trainer ID was not found.")
+                    return
+                pinventory = trainer_profile["pinventory"]
+                if pkmn_name in pinventory:
+                    if shiny == "s" or shiny == "shiny":
+                        pkmn_name += "(Shiny)"
+                    await self.release_pokemon(ctx,
+                                               pkmn_name,
+                                               1,
+                                               True,
+                                               False)
+                    msg = ("<@{}> deleted **{}** from <@{}>'s inventory"
+                           "".format(admin_id,
+                                     pkmn_name.title(),
+                                     user_id))
+                    await self.bot.say(msg)
+                else:
+                    await self.bot.say("Invalid pokemon: **{}**"
+                                       "".format(pkmn_name.title()))
+        except Exception as e:
+            error_msg = 'Failed to give user a lootbox: {}'.format(str(e))
+            print(error_msg)
+            logger.error(error_msg)
+
+    async def give_trainer_lootbox(self, ctx, user_id, lootbox):
+        """
+        Gives a lootbox to a user based on their ID
+
+        @param ctx - context of the command sent
+        @param user_id - user to give pokemon to
+        @param lootbox - lootbox to give to the user
+        """
+        try:
+            admin_id = ctx.message.author.id
+            if admin_id in self.config_data["admin_list"]:
+                if user_id in self.trainer_data:
+                    trainer_profile = self.trainer_data[user_id]
+                else:
+                    await self.bot.say("Trainer ID was not found.")
+                    return
+                if lootbox == "b":
+                    self._move_lootbox_to_inventory(trainer_profile,
+                                                    bronze=True)
+                    lootbox = BRONZE
+                elif lootbox == "s":
+                    self._move_lootbox_to_inventory(trainer_profile,
+                                                    silver=True)
+                    lootbox = SILVER
+                elif lootbox == "g":
+                    self._move_lootbox_to_inventory(trainer_profile,
+                                                    gold=True)
+                    lootbox = GOLD
+                elif lootbox == "l":
+                    self._move_lootbox_to_inventory(trainer_profile,
+                                                    legendary=True)
+                    lootbox = LEGEND
+                else:
+                    await self.bot.say("Invalid lootbox: **{}**"
+                                       "".format(lootbox))
+                    return
+                self._save_trainer_file(self.trainer_data)
+                msg = ("<@{}> gave <@{}> a **{}** lootbox"
+                       "".format(admin_id,
+                                 user_id,
+                                 lootbox.title()))
+                await self.bot.say(msg)
+        except Exception as e:
+            error_msg = 'Failed to give user a lootbox: {}'.format(str(e))
+            print(error_msg)
+            logger.error(error_msg)
+
+    async def delete_trainer_lootbox(self, ctx, user_id, lootbox):
+        """
+        Deletes a lootbox from a user based on their ID
+
+        @param ctx - context of the command sent
+        @param user_id - user to give pokemon to
+        @param lootbox - lootbox to give to the user
+        """
+        try:
+            admin_id = ctx.message.author.id
+            if admin_id in self.config_data["admin_list"]:
+                if user_id in self.trainer_data:
+                    trainer_profile = self.trainer_data[user_id]
+                else:
+                    await self.bot.say("Trainer ID was not found.")
+                    return
+                if lootbox == "b":
+                    lootbox = BRONZE
+                elif lootbox == "s":
+                    lootbox = SILVER
+                elif lootbox == "g":
+                    lootbox = GOLD
+                elif lootbox == "l":
+                    lootbox = LEGEND
+                else:
+                    await self.bot.say("Invalid lootbox: **{}**"
+                                       "".format(lootbox))
+                    return
+                if trainer_profile["lootbox"][lootbox] > 0:
+                    trainer_profile["lootbox"][lootbox] -= 1
+                    self._save_trainer_file(self.trainer_data)
+                    msg = ("<@{}> deleted a **{}** lootbox from <@{}>"
+                           "".format(admin_id,
+                                     lootbox.title(),
+                                     user_id))
+                    await self.bot.say(msg)
+                else:
+                    await self.bot.say("The user does not have any **{}** "
+                                       "lootboxes.".format(lootbox.title()))
+        except Exception as e:
+            error_msg = 'Failed to delete a lootbox from user: {}'.format(str(e))
+            print(error_msg)
+            logger.error(error_msg)
+
+    async def reload_data(self, ctx):
         """
         Reloads cog manager
         """
         try:
-            self.nrml_pokemon = self._load_pokemon_imgs()
-            self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
-            self.daily_data = self._load_daily_file()
-            self.trainer_data = self._load_trainer_file()
-            self.config_data = self._load_config_file()
-            self.legendary_pkmn = self._load_legendary_file()
-            self.ultra_beasts = self._load_ultra_file()
-            self.pokeball = self._load_pokeball_file()
-            self.event.event_data = self.event.load_event_file()
-            await self.bot.say("Reload complete.")
+            admin_id = ctx.message.author.id
+            if admin_id in self.config_data["admin_list"]:
+                self.nrml_pokemon = self._load_pokemon_imgs()
+                self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
+                self.daily_data = self._load_daily_file()
+                self.trainer_data = self._load_trainer_file()
+                self.config_data = self._load_config_file()
+                self.legendary_pkmn = self._load_legendary_file()
+                self.ultra_beasts = self._load_ultra_file()
+                self.pokeball = self._load_pokeball_file()
+                self.event.event_data = self.event.load_event_file()
+                await self.bot.say("Reload complete.")
         except Exception as e:
             error_msg = 'Failed to reload: {}'.format(str(e))
             print(error_msg)
