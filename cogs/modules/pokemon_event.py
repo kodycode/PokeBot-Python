@@ -37,7 +37,7 @@ class PokemonEvent:
         """
         pokemon_channel = ''
         for channel in self.bot.get_all_channels():
-            if channel.name == "pokemon":
+            if channel.name == "event":
                 pokemon_channel = channel.id
         pokemon_channel_obj = self.bot.get_channel(pokemon_channel)
         em = discord.Embed(title="Event Started",
@@ -54,7 +54,7 @@ class PokemonEvent:
         """
         pokemon_channel = ''
         for channel in self.bot.get_all_channels():
-            if channel.name == "pokemon":
+            if channel.name == "event":
                 pokemon_channel = channel.id
         pokemon_channel_obj = self.bot.get_channel(pokemon_channel)
         em = discord.Embed(title="Event Ended",
