@@ -1064,8 +1064,11 @@ class PokemonFunctionality:
             else:
                 await self.bot.say("There are no eggs in the trainer's inventory.")
                 return
-            random_pkmnball = random.choice(list(self.pokeball))
+            self._move_pokemon_to_inventory(self.trainer_data[user_id],
+                                            random_pkmn,
+                                            is_shiny)
             self._save_trainer_file(self.trainer_data)
+            random_pkmnball = random.choice(list(self.pokeball))
             await self._post_pokemon_catch(ctx,
                                            random_pkmn,
                                            pkmn_img_path,
