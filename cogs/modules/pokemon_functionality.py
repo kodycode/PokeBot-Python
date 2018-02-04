@@ -35,6 +35,7 @@ class PokemonFunctionality:
         self.nrml_pokemon = self._load_pokemon_imgs()
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
         self.daily_data = self._load_daily_file()
+        self.compensation_data = self._load_compensation_file()
         self.trainer_data = self._load_trainer_file()
         self._save_trainer_file(self.trainer_data, backup=True)
         self.bot.loop.create_task(self._update_cache())
@@ -219,13 +220,37 @@ class PokemonFunctionality:
             print("An error has occured. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
+    def _load_compensation_file(self):
+        """
+        Checks to see if there's a valid compensation.json file and loads it
+        """
+        try:
+            with open('compensation.json') as compensation:
+                return json.load(compensation)
+        except FileNotFoundError:
+            self._save_compensation_file([])
+            return json.loads('[]')
+        except Exception as e:
+            print("An error has occured. See error.log.")
+            logger.error("Exception: {}".format(str(e)))
+
     def _save_daily_file(self, daily_data={}):
         """
-        Saves trainers.json file
+        Saves daily.json file
         """
         daily_filename = "daily.json"
         with open(daily_filename, 'w') as outfile:
             json.dump(daily_data,
+                      outfile,
+                      indent=4)
+
+    def _save_compensation_file(self, compensation_data={}):
+        """
+        Saves compensation.json file
+        """
+        compensation_filename = "compensation.json"
+        with open(compensation_filename, 'w') as outfile:
+            json.dump(compensation_data,
                       outfile,
                       indent=4)
 
@@ -355,7 +380,7 @@ class PokemonFunctionality:
                     await self.bot.say("Invalid pokemon: **{}**"
                                        "".format(pkmn_name.title()))
         except Exception as e:
-            error_msg = 'Failed to give user a lootbox: {}'.format(str(e))
+            error_msg = 'Failed to delete a pokemon from the user: {}'.format(str(e))
             print(error_msg)
             logger.error(error_msg)
 
@@ -460,6 +485,7 @@ class PokemonFunctionality:
                 self.nrml_pokemon = self._load_pokemon_imgs()
                 self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
                 self.daily_data = self._load_daily_file()
+                self.compensation_data = self._load_compensation_file()
                 self.trainer_data = self._load_trainer_file()
                 self.config_data = self._load_config_file()
                 self.legendary_pkmn = self._load_legendary_file()
@@ -1527,4 +1553,64 @@ class PokemonFunctionality:
                                    "lootbox".format(username))
         except Exception as e:
             print("Failed to claim daily. See error.log")
+            logger.error("Exception: {}".format(str(e)))
+
+    async def claim_compensation(self, ctx):
+        """
+        Claims the available compensation
+        """
+        try:
+            user_id = ctx.message.author.id
+            username = ctx.message.author.name
+            pkmn_msg = ''
+            lootbox_msg = ''
+            if user_id not in self.trainer_data:
+                user_obj = await self.bot.get_user_info(user_id)
+                self.trainer_data[user_id] = {}
+                self.trainer_data[user_id]["pinventory"] = {}
+                self.trainer_data[user_id]["lootbox"] = {}
+                self.trainer_data[user_id]["lootbox"][BRONZE] = 0
+                self.trainer_data[user_id]["lootbox"][SILVER] = 0
+                self.trainer_data[user_id]["lootbox"][GOLD] = 0
+                self.trainer_data[user_id]["lootbox"][LEGEND] = 0
+                self.trainer_data[user_id]["timer"] = False
+                self.trainer_cache[user_id] = user_obj
+                self._save_trainer_file(self.trainer_data)
+            trainer_profile = self.trainer_data[user_id]
+            pinventory = trainer_profile["pinventory"]
+            if not self.config_data["compensation"]:
+                await self.bot.say("No compensation to claim.")
+                return
+            if user_id not in self.compensation_data:
+                pokemon_list = self.config_data["compensation_list"]["pokemon"]
+                lootbox_list = self.config_data["compensation_list"]["lootbox"]
+                for pkmn in pokemon_list:
+                    if pkmn not in pinventory:
+                        pinventory[pkmn] = pokemon_list[pkmn]
+                    else:
+                        pinventory[pkmn] += pokemon_list[pkmn]
+                    pkmn_msg += "**{}** x{}\n".format(pkmn.title(),
+                                                      pokemon_list[pkmn])
+                for lootbox in lootbox_list:
+                    trainer_profile["lootbox"][lootbox] += lootbox_list[lootbox]
+                    lootbox_msg += "**{}** x{}\n".format(lootbox.title(),
+                                                         lootbox_list[lootbox])
+                self.compensation_data.append(user_id)
+                self._save_trainer_file(self.trainer_data)
+                self._save_compensation_file(self.compensation_data)
+                em = discord.Embed(title="{}'s Compensation\n"
+                                         "".format(username),
+                                   colour=0xFFFFFF)
+                if pokemon_list:
+                    em.add_field(name="Pokemon",
+                                 value=pkmn_msg)
+                if lootbox_list:
+                    em.add_field(name="Lootbox",
+                                 value=lootbox_msg)
+                await self.bot.say(embed=em)
+            else:
+                await self.bot.say("**{}** has already claimed their "
+                                   "compensation".format(username))
+        except Exception as e:
+            print("Failed to claim compensation. See error.log")
             logger.error("Exception: {}".format(str(e)))
