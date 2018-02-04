@@ -796,14 +796,9 @@ class PokemonFunctionality:
                 legendary = True
             if legendary or random_pkmn in self.ultra_beasts:
                 for channel in ctx.message.server.channels:
-                    if legendary:
-                        if "legendary" == channel.name:
-                            special_channel = self.bot.get_channel(channel.id)
-                            break
-                    else:
-                        if "ultra" == channel.name:
-                            special_channel = self.bot.get_channel(channel.id)
-                            break
+                    if "special" == channel.name:
+                        special_channel = self.bot.get_channel(channel.id)
+                        break
                 if special_channel is not None:
                     em = discord.Embed(description=msg,
                                        colour=0xFFFFFF)
