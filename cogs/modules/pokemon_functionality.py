@@ -35,7 +35,7 @@ class PokemonFunctionality:
         self.nrml_pokemon = self._load_pokemon_imgs()
         self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
         self.daily_data = self._load_daily_file()
-        self.compensation_data = self._load_compensation_file()
+        self.gift_data = self._load_gift_file()
         self.trainer_data = self._load_trainer_file()
         self._save_trainer_file(self.trainer_data, backup=True)
         self.bot.loop.create_task(self._update_cache())
@@ -220,15 +220,15 @@ class PokemonFunctionality:
             print("An error has occured. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
-    def _load_compensation_file(self):
+    def _load_gift_file(self):
         """
-        Checks to see if there's a valid compensation.json file and loads it
+        Checks to see if there's a valid gift.json file and loads it
         """
         try:
-            with open('compensation.json') as compensation:
-                return json.load(compensation)
+            with open('gift.json') as gift:
+                return json.load(gift)
         except FileNotFoundError:
-            self._save_compensation_file([])
+            self._save_gift_file([])
             return json.loads('[]')
         except Exception as e:
             print("An error has occured. See error.log.")
@@ -244,13 +244,13 @@ class PokemonFunctionality:
                       outfile,
                       indent=4)
 
-    def _save_compensation_file(self, compensation_data={}):
+    def _save_gift_file(self, gift_data={}):
         """
-        Saves compensation.json file
+        Saves gift.json file
         """
-        compensation_filename = "compensation.json"
-        with open(compensation_filename, 'w') as outfile:
-            json.dump(compensation_data,
+        gift_filename = "gift.json"
+        with open(gift_filename, 'w') as outfile:
+            json.dump(gift_data,
                       outfile,
                       indent=4)
 
@@ -485,7 +485,7 @@ class PokemonFunctionality:
                 self.nrml_pokemon = self._load_pokemon_imgs()
                 self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
                 self.daily_data = self._load_daily_file()
-                self.compensation_data = self._load_compensation_file()
+                self.gift_data = self._load_gift_file()
                 self.trainer_data = self._load_trainer_file()
                 self.config_data = self._load_config_file()
                 self.legendary_pkmn = self._load_legendary_file()
@@ -1555,9 +1555,9 @@ class PokemonFunctionality:
             print("Failed to claim daily. See error.log")
             logger.error("Exception: {}".format(str(e)))
 
-    async def claim_compensation(self, ctx):
+    async def claim_gift(self, ctx):
         """
-        Claims the available compensation
+        Claims the available gift
         """
         try:
             user_id = ctx.message.author.id
@@ -1578,12 +1578,12 @@ class PokemonFunctionality:
                 self._save_trainer_file(self.trainer_data)
             trainer_profile = self.trainer_data[user_id]
             pinventory = trainer_profile["pinventory"]
-            if not self.config_data["compensation"]:
-                await self.bot.say("No compensation to claim.")
+            if not self.config_data["gift"]:
+                await self.bot.say("No gift to claim.")
                 return
-            if user_id not in self.compensation_data:
-                pokemon_list = self.config_data["compensation_list"]["pokemon"]
-                lootbox_list = self.config_data["compensation_list"]["lootbox"]
+            if user_id not in self.gift_data:
+                pokemon_list = self.config_data["gift_list"]["pokemon"]
+                lootbox_list = self.config_data["gift_list"]["lootbox"]
                 for pkmn in pokemon_list:
                     if pkmn not in pinventory:
                         pinventory[pkmn] = pokemon_list[pkmn]
@@ -1595,10 +1595,10 @@ class PokemonFunctionality:
                     trainer_profile["lootbox"][lootbox] += lootbox_list[lootbox]
                     lootbox_msg += "**{}** x{}\n".format(lootbox.title(),
                                                          lootbox_list[lootbox])
-                self.compensation_data.append(user_id)
+                self.gift_data.append(user_id)
                 self._save_trainer_file(self.trainer_data)
-                self._save_compensation_file(self.compensation_data)
-                em = discord.Embed(title="{}'s Compensation\n"
+                self._save_gift_file(self.gift_data)
+                em = discord.Embed(title="{}'s Gift\n"
                                          "".format(username),
                                    colour=0xFFFFFF)
                 if pokemon_list:
@@ -1609,8 +1609,8 @@ class PokemonFunctionality:
                                  value=lootbox_msg)
                 await self.bot.say(embed=em)
             else:
-                await self.bot.say("**{}** has already claimed their "
-                                   "compensation".format(username))
+                await self.bot.say("<@{}>, you've already claimed your "
+                                   "gift".format(user_id))
         except Exception as e:
-            print("Failed to claim compensation. See error.log")
+            print("Failed to claim gift. See error.log")
             logger.error("Exception: {}".format(str(e)))

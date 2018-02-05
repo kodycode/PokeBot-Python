@@ -287,12 +287,12 @@ class PokemonCommands:
         """
         await self.cmd_function.claim_daily(ctx)
 
-    @commands.command(name='compensation', pass_context=True)
-    async def compensation(self, ctx):
+    @commands.command(name='gift', pass_context=True)
+    async def gift(self, ctx):
         """
-        Claims the available compensation for the bot's hiccups
+        Claims an available gift
         """
-        await self.cmd_function.claim_compensation(ctx)
+        await self.cmd_function.claim_gift(ctx)
 
     @commands.command(name='d', pass_context=True, hidden=True)
     async def d(self, ctx):

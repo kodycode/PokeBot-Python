@@ -4,11 +4,11 @@
 	"admin_list": [
 		"enter user id's here of who you want to be an admin"
 	],
-	"compensation": {
+	"gift_list": {
 		"pokemon": {},
 		"lootbox": {}
 	},
-	"compensation": false,
+	"gift": false,
 	"lootbox_pokemon_limit": 3,
 	"daily_reset_hour": 0,
 	"daily_lootbox_bronze_rate": 1,
