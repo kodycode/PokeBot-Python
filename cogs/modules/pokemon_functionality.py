@@ -1534,6 +1534,16 @@ class PokemonFunctionality:
                 self.trainer_data[user_id]["timer"] = False
                 self.trainer_cache[user_id] = user_obj
             trainer_profile = self.trainer_data[user_id]
+            if "lootbox" not in trainer_profile:
+                trainer_profile["lootbox"] = {}
+            if BRONZE not in trainer_profile:
+                trainer_profile["lootbox"][BRONZE] = 0
+            if SILVER not in trainer_profile:
+                trainer_profile["lootbox"][SILVER] = 0
+            if GOLD not in trainer_profile:
+                trainer_profile["lootbox"][GOLD] = 0
+            if LEGEND not in trainer_profile:
+                trainer_profile["lootbox"][LEGEND] = 0
             if "daily_tokens" not in trainer_profile:
                 trainer_profile["daily_tokens"] = 0
                 self._save_trainer_file(self.trainer_data)
@@ -1572,11 +1582,15 @@ class PokemonFunctionality:
                 self.trainer_cache[user_id] = user_obj
             trainer_profile = self.trainer_data[user_id]
             if "lootbox" not in trainer_profile:
-                self.trainer_data[user_id]["lootbox"] = {}
-                self.trainer_data[user_id]["lootbox"][BRONZE] = 0
-                self.trainer_data[user_id]["lootbox"][SILVER] = 0
-                self.trainer_data[user_id]["lootbox"][GOLD] = 0
-                self.trainer_data[user_id]["lootbox"][LEGEND] = 0
+                trainer_profile["lootbox"] = {}
+            if BRONZE not in trainer_profile:
+                trainer_profile["lootbox"][BRONZE] = 0
+            if SILVER not in trainer_profile:
+                trainer_profile["lootbox"][SILVER] = 0
+            if GOLD not in trainer_profile:
+                trainer_profile["lootbox"][GOLD] = 0
+            if LEGEND not in trainer_profile:
+                trainer_profile["lootbox"][LEGEND] = 0
             pinventory = trainer_profile["pinventory"]
             if not self.config_data["gift"]:
                 await self.bot.say("No gift to claim.")
