@@ -1533,7 +1533,6 @@ class PokemonFunctionality:
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
                 self.trainer_cache[user_id] = user_obj
-                self._save_trainer_file(self.trainer_data)
             trainer_profile = self.trainer_data[user_id]
             if "daily_tokens" not in trainer_profile:
                 trainer_profile["daily_tokens"] = 0
@@ -1552,6 +1551,7 @@ class PokemonFunctionality:
                 await self.bot.say("**{}** has already claimed their daily "
                                    "lootbox".format(username))
         except Exception as e:
+            self.daily_data = self._load_daily_file()
             print("Failed to claim daily. See error.log")
             logger.error("Exception: {}".format(str(e)))
 
@@ -1568,15 +1568,15 @@ class PokemonFunctionality:
                 user_obj = await self.bot.get_user_info(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
+                self.trainer_data[user_id]["timer"] = False
+                self.trainer_cache[user_id] = user_obj
+            trainer_profile = self.trainer_data[user_id]
+            if "lootbox" not in trainer_profile:
                 self.trainer_data[user_id]["lootbox"] = {}
                 self.trainer_data[user_id]["lootbox"][BRONZE] = 0
                 self.trainer_data[user_id]["lootbox"][SILVER] = 0
                 self.trainer_data[user_id]["lootbox"][GOLD] = 0
                 self.trainer_data[user_id]["lootbox"][LEGEND] = 0
-                self.trainer_data[user_id]["timer"] = False
-                self.trainer_cache[user_id] = user_obj
-                self._save_trainer_file(self.trainer_data)
-            trainer_profile = self.trainer_data[user_id]
             pinventory = trainer_profile["pinventory"]
             if not self.config_data["gift"]:
                 await self.bot.say("No gift to claim.")
@@ -1612,5 +1612,6 @@ class PokemonFunctionality:
                 await self.bot.say("<@{}>, you've already claimed your "
                                    "gift".format(user_id))
         except Exception as e:
+            self.gift_data = self._load_gift_file()
             print("Failed to claim gift. See error.log")
             logger.error("Exception: {}".format(str(e)))
