@@ -1536,13 +1536,13 @@ class PokemonFunctionality:
             trainer_profile = self.trainer_data[user_id]
             if "lootbox" not in trainer_profile:
                 trainer_profile["lootbox"] = {}
-            if BRONZE not in trainer_profile:
+            if BRONZE not in trainer_profile["lootbox"]:
                 trainer_profile["lootbox"][BRONZE] = 0
-            if SILVER not in trainer_profile:
+            if SILVER not in trainer_profile["lootbox"]:
                 trainer_profile["lootbox"][SILVER] = 0
-            if GOLD not in trainer_profile:
+            if GOLD not in trainer_profile["lootbox"]:
                 trainer_profile["lootbox"][GOLD] = 0
-            if LEGEND not in trainer_profile:
+            if LEGEND not in trainer_profile["lootbox"]:
                 trainer_profile["lootbox"][LEGEND] = 0
             if "daily_tokens" not in trainer_profile:
                 trainer_profile["daily_tokens"] = 0
@@ -1583,13 +1583,13 @@ class PokemonFunctionality:
             trainer_profile = self.trainer_data[user_id]
             if "lootbox" not in trainer_profile:
                 trainer_profile["lootbox"] = {}
-            if BRONZE not in trainer_profile:
+            if BRONZE not in trainer_profile["lootbox"]:
                 trainer_profile["lootbox"][BRONZE] = 0
-            if SILVER not in trainer_profile:
+            if SILVER not in trainer_profile["lootbox"]:
                 trainer_profile["lootbox"][SILVER] = 0
-            if GOLD not in trainer_profile:
+            if GOLD not in trainer_profile["lootbox"]:
                 trainer_profile["lootbox"][GOLD] = 0
-            if LEGEND not in trainer_profile:
+            if LEGEND not in trainer_profile["lootbox"]:
                 trainer_profile["lootbox"][LEGEND] = 0
             pinventory = trainer_profile["pinventory"]
             if not self.config_data["gift"]:
