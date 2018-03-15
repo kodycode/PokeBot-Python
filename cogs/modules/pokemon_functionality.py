@@ -18,6 +18,11 @@ SILVER = "silver"
 GOLD = "gold"
 LEGEND = "legendary"
 
+SHINY_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/shiny/"
+SHINY_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani-shiny/"
+NRML_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/regular/"
+NRML_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani/"
+
 
 class PokemonFunctionality:
     """Handles Pokemon Command Functionality"""
@@ -283,7 +288,7 @@ class PokemonFunctionality:
         for filename in glob.glob(img_path):
             result = re.match(r'([^\d]+)', filename)
             if result:
-                pkmn_name = filename
+                pkmn_name = filename.lower()
                 pkmn_name = pkmn_name.replace(folder_path, "")
                 pkmn_name = pkmn_name.replace('/', "")
                 pkmn_name = pkmn_name.replace('\\', "")
@@ -803,6 +808,26 @@ class PokemonFunctionality:
             await self.bot.say(msg)
             return True
 
+    async def _post_unique_channel(self, msg, channel, pkmn, is_shiny):
+        if channel is not None:
+            em = discord.Embed(description=msg,
+                               colour=0xFFFFFF)
+            if is_shiny:
+                em.set_thumbnail(url="{}{}.png".format(SHINY_ICON_URL,
+                                                       pkmn.replace('_', '-')))
+                em.set_image(url="{}{}.gif".format(SHINY_GIF_URL,
+                                                   pkmn.replace('_', '')))
+            else:
+                em.set_thumbnail(url="{}{}.png".format(NRML_ICON_URL,
+                                                       pkmn.replace('_', '-')))
+                em.set_image(url="{}{}.gif".format(NRML_GIF_URL,
+                                                   pkmn.replace('_', '')))
+            try:
+                await self.bot.send_message(channel,
+                                            embed=em)
+            except:
+                pass
+
     async def _post_pokemon_catch(self, ctx, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny, catch_condition, lootbox):
         """
         Posts the pokemon that was caught
@@ -820,60 +845,32 @@ class PokemonFunctionality:
             special_channel = None
             if random_pkmn in self.legendary_pkmn:
                 legendary = True
-            if legendary or random_pkmn in self.ultra_beasts:
-                for channel in ctx.message.server.channels:
-                    if "special" == channel.name:
-                        special_channel = self.bot.get_channel(channel.id)
-                        break
-                if special_channel is not None:
-                    em = discord.Embed(description=msg,
-                                       colour=0xFFFFFF)
-                    if is_shiny:
-                        em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
-                                             "pokesprite/master/icons/pokemon/shiny/"
-                                             "{}.png"
-                                             "".format(random_pkmn.replace('_', '-')))
-                        em.set_image(url="https://play.pokemonshowdown.com/sprites/"
-                                         "xyani-shiny/{}.gif"
-                                         "".format(random_pkmn.replace('_', '')))
+            try:
+                if legendary or random_pkmn in self.ultra_beasts:
+                    for channel in ctx.message.server.channels:
+                        if "special" == channel.name:
+                            special_channel = self.bot.get_channel(channel.id)
+                            break
+                    await self._post_unique_channel(msg,
+                                                    special_channel,
+                                                    random_pkmn,
+                                                    is_shiny)
+                if is_shiny:
+                    type_pkmn = re.search(r'\-.*$', random_pkmn)
+                    if type_pkmn is not None:
+                        base_pkmn = random_pkmn.replace(type_pkmn[0], '')
                     else:
-                        em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
-                                             "pokesprite/master/icons/pokemon/regular/"
-                                             "{}.png"
-                                             "".format(random_pkmn.replace('_', '-')))
-                        em.set_image(url="https://play.pokemonshowdown.com/sprites/"
-                                         "xyani/{}.gif"
-                                         "".format(random_pkmn.replace('_', '')))
-                    try:
-                        await self.bot.send_message(special_channel,
-                                                    embed=em)
-                    except:
-                        pass
-            if is_shiny:
-                type_pkmn = re.search(r'\-.*$', random_pkmn)
-                if type_pkmn is not None:
-                    base_pkmn = random_pkmn.replace(type_pkmn[0], '')
-                else:
-                    base_pkmn = random_pkmn
-                for channel in ctx.message.server.channels:
-                    if "shiny" == channel.name:
-                        shiny_channel = self.bot.get_channel(channel.id)
-                        break
-                if shiny_channel is not None:
-                    em = discord.Embed(description=msg,
-                                       colour=0xFFFFFF)
-                    em.set_thumbnail(url="https://raw.githubusercontent.com/msikma/"
-                                         "pokesprite/master/icons/pokemon/shiny/"
-                                         "{}.png"
-                                         "".format(base_pkmn.replace('_', '-')))
-                    em.set_image(url="https://play.pokemonshowdown.com/sprites/"
-                                     "xyani-shiny/{}.gif"
-                                     "".format(base_pkmn.replace('_', '')))
-                    try:
-                        await self.bot.send_message(shiny_channel,
-                                                    embed=em)
-                    except:
-                        pass
+                        base_pkmn = random_pkmn
+                    for channel in ctx.message.server.channels:
+                        if "shiny" == channel.name:
+                            shiny_channel = self.bot.get_channel(channel.id)
+                            break
+                    await self._post_unique_channel(msg,
+                                                    shiny_channel,
+                                                    base_pkmn,
+                                                    is_shiny)
+            except:
+                pass
             try:
                 await self.bot.send_file(destination=ctx_channel,
                                          fp=pkmn_img_path,
