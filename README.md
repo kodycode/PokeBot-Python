@@ -8,8 +8,6 @@ To read more on the bot's features, see the [command page](https://github.com/ko
 
 For information on events, see the [event page](https://github.com/kodycode/PokeBot-Python/wiki/Events).
 
-To try out the bot for yourself, [join the Discord Server](https://discord.gg/PsZk8zV).
-
 # Installation
 
 To setup the bot,
