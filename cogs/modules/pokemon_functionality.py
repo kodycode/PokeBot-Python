@@ -1451,7 +1451,7 @@ class PokemonFunctionality:
                 trade_verified = False
         if trade_verified:
             for pkmn in self.vendor_trade_list[user_id]:
-                successful = await self.release_pokemon(user_id,
+                successful = await self.release_pokemon(ctx,
                                                         pkmn,
                                                         1,
                                                         False,
