@@ -300,3 +300,10 @@ class PokemonCommands:
         Shortcut to claim a daily lootbox as well as a daily token
         """
         await self.cmd_function.claim_daily(ctx)
+
+    @commands.command(name='tokens', pass_context=True)
+    async def tokens(self, ctx):
+        """
+        Displays the number of daily tokens the user has
+        """
+        await self.cmd_function.display_daily_tokens(ctx)

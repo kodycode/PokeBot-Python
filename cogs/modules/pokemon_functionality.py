@@ -570,11 +570,12 @@ class PokemonFunctionality:
             print(error_msg)
             logger.error(error_msg)
 
-    async def release_pokemon(self, user_id, pkmn, quantity, save=True, post=True):
+    async def release_pokemon(self, ctx, pkmn, quantity, save=True, post=True):
         """
         Releases a pokemon from the trainer's inventory
         """
         try:
+            user_id = ctx.message.author.id
             valid_user = await self._valid_user(user_id)
             if not valid_user:
                 return
@@ -1626,3 +1627,23 @@ class PokemonFunctionality:
             self.gift_data = self._load_gift_file()
             print("Failed to claim gift. See error.log")
             logger.error("Exception: {}".format(str(e)))
+
+    async def display_daily_tokens(self, ctx):
+        """
+        Displays the player's daily token
+        """
+        try:
+            user_id = ctx.message.author.id
+            if user_id not in self.trainer_data:
+                await self.bot.say("Please catch a pokemon with `p.c` first.")
+            trainer_profile = self.trainer_data[user_id]
+            if "daily_tokens" not in trainer_profile:
+                trainer_profile["daily_tokens"] = 0
+                self._save_trainer_file(self.trainer_data)
+            await self.bot.say("<@{}> currently has **{}** daily tokens."
+                               "".format(user_id,
+                                         trainer_profile["daily_tokens"]))
+        except Exception as e:
+            print("Failed to display daily tokens.")
+            logger.error("Exception: {}".format(str(e)))
+
