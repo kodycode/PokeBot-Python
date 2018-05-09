@@ -369,7 +369,7 @@ class PokemonFunctionality:
                 if pkmn_name in pinventory:
                     if shiny == "s" or shiny == "shiny":
                         pkmn_name += "(Shiny)"
-                    successful = await self.release_pokemon(user_id,
+                    successful = await self.release_pokemon(ctx,
                                                             pkmn_name,
                                                             1,
                                                             True,
@@ -1151,7 +1151,7 @@ class PokemonFunctionality:
                 release_list = pkmn_forms if form_list is None else form_list
                 for p in release_list:
                     if p in pkmn_forms:
-                        successful = await self.release_pokemon(user_id,
+                        successful = await self.release_pokemon(ctx,
                                                                 p,
                                                                 1,
                                                                 False,
@@ -1200,7 +1200,7 @@ class PokemonFunctionality:
                 await self.bot.say("Please enter only 5 pokemon to exchange.")
                 return
             for pkmn in pokemon_list:
-                successful = await self.release_pokemon(user_id,
+                successful = await self.release_pokemon(ctx,
                                                         pkmn,
                                                         1,
                                                         False,
