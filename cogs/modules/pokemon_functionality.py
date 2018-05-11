@@ -1684,22 +1684,42 @@ class PokemonFunctionality:
                     return
                 token_num = int(trainer_profile["daily_tokens"])
                 if item_num == '1':
+                    if token_num < BRONZE_LOOTBOX_PRICE:
+                        await self.bot.say("<@{}>, you do not have enough tokens."
+                                           "".format(user_id))
+                        return
                     trainer_profile["daily_tokens"] = token_num - BRONZE_LOOTBOX_PRICE
                     trainer_profile["lootbox"][BRONZE] += 1
                     await self.bot.say("<@{}> bought a **Bronze** lootbox.".format(user_id))
                 elif item_num == '2':
+                    if token_num < SILVER_LOOTBOX_PRICE:
+                        await self.bot.say("<@{}>, you do not have enough tokens."
+                                           "".format(user_id))
+                        return
                     trainer_profile["daily_tokens"] = token_num - SILVER_LOOTBOX_PRICE
                     trainer_profile["lootbox"][SILVER] += 1
                     await self.bot.say("<@{}> bought a **Silver** lootbox.".format(user_id))
                 elif item_num == '3':
+                    if token_num < GOLD_LOOTBOX_PRICE:
+                        await self.bot.say("<@{}>, you do not have enough tokens."
+                                           "".format(user_id))
+                        return
                     trainer_profile["daily_tokens"] = token_num - GOLD_LOOTBOX_PRICE
                     trainer_profile["lootbox"][SILVER] += 1
                     await self.bot.say("<@{}> bought a **Gold** lootbox.".format(user_id))
                 elif item_num == '4':
+                    if token_num < LEGENDARY_LOOTBOX_PRICE:
+                        await self.bot.say("<@{}>, you do not have enough tokens."
+                                           "".format(user_id))
+                        return
                     trainer_profile["daily_tokens"] = token_num - LEGENDARY_LOOTBOX_PRICE
                     trainer_profile["lootbox"][LEGEND] += 1
                     await self.bot.say("<@{}> bought a **Legendary** lootbox.".format(user_id))
                 elif item_num == '5':
+                    if token_num < RANDOM_SHINY_PRICE:
+                        await self.bot.say("<@{}>, you do not have enough tokens."
+                                           "".format(user_id))
+                        return
                     trainer_profile["daily_tokens"] = token_num - RANDOM_SHINY_PRICE
                     pkmn = self._generate_random_pokemon(50000)
                     random_pkmnball = random.choice(list(self.pokeball))
