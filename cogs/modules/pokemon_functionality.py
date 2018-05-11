@@ -18,6 +18,13 @@ SILVER = "silver"
 GOLD = "gold"
 LEGEND = "legendary"
 
+BRONZE_LOOTBOX_PRICE = 3
+SILVER_LOOTBOX_PRICE = 6
+GOLD_LOOTBOX_PRICE = 9
+LEGENDARY_LOOTBOX_PRICE = 15
+RANDOM_SHINY_PRICE = 50
+
+
 SHINY_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/shiny/"
 SHINY_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani-shiny/"
 NRML_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/regular/"
@@ -1647,3 +1654,72 @@ class PokemonFunctionality:
             print("Failed to display daily tokens.")
             logger.error("Exception: {}".format(str(e)))
 
+    async def daily_shop(self, ctx, option, item_num):
+        """
+        Displays the daily shop via options
+        """
+        try:
+            user_id = ctx.message.author.id
+            trainer_profile = self.trainer_data[user_id]
+            if user_id not in self.trainer_data:
+                await self.bot.say("Please catch a pokemon with `p.c` first.")
+                return
+            if option == "i":
+                menu_items = ("[1] - Bronze lootbox (**{}** tokens)\n"
+                              "[2] - Silver lootbox (**{}** tokens)\n"
+                              "[3] - Gold lootbox (**{}** tokens)\n"
+                              "[4] - Legendary lootbox (**{}** tokens)\n"
+                              "[5] - Random shiny pokemon (**{}** tokens)\n"
+                              "".format(BRONZE_LOOTBOX_PRICE,
+                                        SILVER_LOOTBOX_PRICE,
+                                        GOLD_LOOTBOX_PRICE,
+                                        LEGENDARY_LOOTBOX_PRICE,
+                                        RANDOM_SHINY_PRICE))
+                em = discord.Embed(title="Daily Token Shop",
+                                   description=menu_items)
+                await self.bot.say(embed=em)
+            elif option == "b":
+                if item_num is None:
+                    await self.bot.say("Please enter the item number you wish to buy.")
+                    return
+                token_num = int(trainer_profile["daily_tokens"])
+                if item_num == '1':
+                    trainer_profile["daily_tokens"] = token_num - BRONZE_LOOTBOX_PRICE
+                    trainer_profile["lootbox"][BRONZE] += 1
+                    await self.bot.say("<@{}> bought a **Bronze** lootbox.".format(user_id))
+                elif item_num == '2':
+                    trainer_profile["daily_tokens"] = token_num - SILVER_LOOTBOX_PRICE
+                    trainer_profile["lootbox"][SILVER] += 1
+                    await self.bot.say("<@{}> bought a **Silver** lootbox.".format(user_id))
+                elif item_num == '3':
+                    trainer_profile["daily_tokens"] = token_num - GOLD_LOOTBOX_PRICE
+                    trainer_profile["lootbox"][SILVER] += 1
+                    await self.bot.say("<@{}> bought a **Gold** lootbox.".format(user_id))
+                elif item_num == '4':
+                    trainer_profile["daily_tokens"] = token_num - LEGENDARY_LOOTBOX_PRICE
+                    trainer_profile["lootbox"][LEGEND] += 1
+                    await self.bot.say("<@{}> bought a **Legendary** lootbox.".format(user_id))
+                elif item_num == '5':
+                    trainer_profile["daily_tokens"] = token_num - RANDOM_SHINY_PRICE
+                    pkmn = self._generate_random_pokemon(50000)
+                    random_pkmnball = random.choice(list(self.pokeball))
+                    self._move_pokemon_to_inventory(trainer_profile,
+                                                    pkmn[0],
+                                                    pkmn[2])
+                    await self._post_pokemon_catch(ctx,
+                                                   pkmn[0],
+                                                   pkmn[1],
+                                                   random_pkmnball,
+                                                   pkmn[2],
+                                                   "bought",
+                                                   None)
+                else:
+                    await self.bot.say("Invalid choice. Please enter a number from the "
+                                       "daily shop")
+                    return
+                self._save_trainer_file(self.trainer_data)
+            else:
+                await self.bot.say("Please enter a valid option.")
+        except Exception as e:
+            print("Failed to perform shop operations.")
+            logger.error("Exception: {}".format(str(e)))

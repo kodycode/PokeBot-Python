@@ -307,3 +307,14 @@ class PokemonCommands:
         Displays the number of daily tokens the user has
         """
         await self.cmd_function.display_daily_tokens(ctx)
+
+    @commands.command(name='shop', pass_context=True)
+    async def shop(self, ctx, option: str, item_num=None):
+        """
+        Displays daily shop
+
+        @param options - options include:
+                         i - info to see what's for sale
+                         b - buy what's for sale
+        """
+        await self.cmd_function.daily_shop(ctx, option, item_num)
