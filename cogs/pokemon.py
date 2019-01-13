@@ -9,7 +9,7 @@ class PokemonCommands:
         self.cmd_function = PokemonFunctionality(bot)
 
     @commands.command(name='give', pass_context=True, hidden=True)
-    async def give(self, ctx, user_id, pkmn_name, shiny=False):
+    async def give(self, ctx, user_id, pkmn_name, shiny=None):
         """
         Gives a pokemon to a trainer (admin only cmd)
 

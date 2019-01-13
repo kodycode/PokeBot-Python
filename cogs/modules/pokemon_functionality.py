@@ -341,16 +341,18 @@ class PokemonFunctionality:
                                                "shiny version available: **{}**"
                                                "".format(pkmn_name.title()))
                             return
+                    else:
+                        shiny = False
                     self._move_pokemon_to_inventory(trainer_profile,
                                                     pkmn_name,
                                                     shiny)
                     self._save_trainer_file(self.trainer_data)
-                    msg = ("<@{}> gave <@{}> a **{}**"
+                    msg = ("<@{}> gave <@{}> a/an **{}**"
                            "".format(admin_id,
                                      user_id,
                                      pkmn_name.title()))
                     if shiny:
-                        msg += ("**(Shiny)**")
+                        msg += (" **(Shiny)**")
                     await self.bot.say(msg)
                 else:
                     await self.bot.say("Invalid pokemon: **{}**"
@@ -1314,6 +1316,7 @@ class PokemonFunctionality:
                                             pkmn[1])
             if pkmn[1]:
                 msg += "**{}(Shiny)**\n".format(pkmn[0].title())
+                self._post_pokemon_catch(ctx, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny, catch_condition, lootbox)
             else:
                 msg += "**{}**\n".format(pkmn[0].title())
         em = discord.Embed(title="Lootbox",
