@@ -1,5 +1,5 @@
 {
-	"cmd_prefix": "!",
+	"cmd_prefix": "+",
 	"token": "",
 	"admin_list": [
 		"enter user id's here of who you want to be an admin"
