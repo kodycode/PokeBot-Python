@@ -2,7 +2,7 @@ from cogs.modules.pokemon_functionality import PokemonFunctionality
 from discord.ext import commands
 
 
-class PokemonCommands:
+class PokemonCommands(commands.Cog):
     """Handles Pokemon related commands"""
 
     def __init__(self, bot):
@@ -109,27 +109,27 @@ class PokemonCommands:
         """
         await self.cmd_function.display_pinventory(ctx, page_number)
 
-    @commands.command(name='gif')
-    async def gif(self, pkmn_name: str, shiny=None):
+    @commands.command(name='gif', pass_context=True)
+    async def gif(self, ctx, pkmn_name: str, shiny=None):
         """
         Display a gif of the pokemon
 
         @param pkmn_name - name of the pokemon to find a gif of
         @param shiny - specify if pkmn is shiny or not
         """
-        await self.cmd_function.display_gif(pkmn_name, shiny)
+        await self.cmd_function.display_gif(ctx, pkmn_name, shiny)
 
-    @commands.command(name='profile')
-    async def profile(self, trainer):
+    @commands.command(name='profile', pass_context=True)
+    async def profile(self, ctx, trainer):
         """
         Obtains the profile of a trainer specified
 
         @param trainer - trainer profile to search for
         """
-        await self.cmd_function.display_trainer_profile(trainer)
+        await self.cmd_function.display_trainer_profile(ctx, trainer)
 
-    @commands.command(name='ranking')
-    async def ranking(self, option="t"):
+    @commands.command(name='ranking', pass_context=True)
+    async def ranking(self, ctx, option="t"):
         """
         Displays ranking of all the trainers
 
@@ -139,7 +139,7 @@ class PokemonCommands:
                         t - total (default)
                         u - ultra
         """
-        await self.cmd_function.display_ranking(option)
+        await self.cmd_function.display_ranking(ctx, option)
 
     @commands.command(name='release', pass_context=True)
     async def release(self, ctx, pkmn: str, quantity=1):

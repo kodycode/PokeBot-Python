@@ -1,6 +1,7 @@
 from bot_logger import logger
 from cogs.modules.pokemon_event import PokemonEvent
 from collections import defaultdict
+from discord import File
 from math import ceil
 from operator import itemgetter
 import asyncio
@@ -62,7 +63,7 @@ class PokemonFunctionality:
         try:
             game_status = discord.Game(name="{} Pokémon caught"
                                             "".format(total_pkmn_count))
-            await self.bot.change_presence(game=game_status)
+            await self.bot.change_presence(activity=game_status)
         except Exception as e:
             print("Failed to update game status. See error.log.")
             logger.error("Exception: {}".format(str(e)))
@@ -74,7 +75,7 @@ class PokemonFunctionality:
         try:
             trainer_cache = {}
             for trainer in self.trainer_data:
-                user_obj = await self.bot.get_user_info(str(trainer))
+                user_obj = await self.bot.fetch_user(str(trainer))
                 trainer_cache[trainer] = user_obj
             self.trainer_cache = trainer_cache
         except Exception as e:
@@ -303,7 +304,7 @@ class PokemonFunctionality:
                 filedict[pkmn_name].append(filename)
         return filedict
 
-    async def _valid_user(self, user_id):
+    async def _valid_user(self, ctx, user_id):
         """
         Checks if the valid is user
 
@@ -311,12 +312,12 @@ class PokemonFunctionality:
                   false if invalid
         """
         if not self.trainer_cache:
-            await self.bot.say("Trainer data is still loading. "
-                               "Please wait and try again later.")
+            await ctx.send("Trainer data is still loading. "
+                           "Please wait and try again later.")
             return False
         elif user_id not in self.trainer_data:
-            await self.bot.say("Trainer hasn't set off on his journey to "
-                               "catch 'em all yet.")
+            await ctx.send("Trainer hasn't set off on his journey to "
+                           "catch 'em all yet.")
             return False
         return True
 
@@ -325,21 +326,21 @@ class PokemonFunctionality:
         Gives a pokemon to the trainer
         """
         try:
-            admin_id = ctx.message.author.id
+            admin_id = str(ctx.message.author.id)
             if admin_id in self.config_data["admin_list"]:
                 if user_id in self.trainer_data:
                     trainer_profile = self.trainer_data[user_id]
                 else:
-                    await self.bot.say("Trainer ID was not found.")
+                    await ctx.send("Trainer ID was not found.")
                     return
                 if pkmn_name in self.nrml_pokemon:
                     if shiny == "s" or shiny == "shiny":
                         if pkmn_name in self.shiny_pokemon:
                             shiny = True
                         else:
-                            await self.bot.say("This pokemon does not have a "
-                                               "shiny version available: **{}**"
-                                               "".format(pkmn_name.title()))
+                            await ctx.send("This pokemon does not have a "
+                                           "shiny version available: **{}**"
+                                           "".format(pkmn_name.title()))
                             return
                     else:
                         shiny = False
@@ -353,10 +354,10 @@ class PokemonFunctionality:
                                      pkmn_name.title()))
                     if shiny:
                         msg += (" **(Shiny)**")
-                    await self.bot.say(msg)
+                    await ctx.send(msg)
                 else:
-                    await self.bot.say("Invalid pokemon: **{}**"
-                                       "".format(pkmn_name.title()))
+                    await ctx.send("Invalid pokemon: **{}**"
+                                   "".format(pkmn_name.title()))
         except Exception as e:
             error_msg = 'Failed to give user a lootbox: {}'.format(str(e))
             print(error_msg)
@@ -372,7 +373,7 @@ class PokemonFunctionality:
                 if user_id in self.trainer_data:
                     trainer_profile = self.trainer_data[user_id]
                 else:
-                    await self.bot.say("Trainer ID was not found.")
+                    await ctx.send("Trainer ID was not found.")
                     return
                 pinventory = trainer_profile["pinventory"]
                 if pkmn_name in pinventory:
@@ -389,10 +390,10 @@ class PokemonFunctionality:
                            "".format(admin_id,
                                      pkmn_name.title(),
                                      user_id))
-                    await self.bot.say(msg)
+                    await ctx.send(msg)
                 else:
-                    await self.bot.say("Invalid pokemon: **{}**"
-                                       "".format(pkmn_name.title()))
+                    await ctx.send("Invalid pokemon: **{}**"
+                                   "".format(pkmn_name.title()))
         except Exception as e:
             error_msg = 'Failed to delete a pokemon from the user: {}'.format(str(e))
             print(error_msg)
@@ -412,7 +413,7 @@ class PokemonFunctionality:
                 if user_id in self.trainer_data:
                     trainer_profile = self.trainer_data[user_id]
                 else:
-                    await self.bot.say("Trainer ID was not found.")
+                    await ctx.send("Trainer ID was not found.")
                     return
                 if lootbox == "b":
                     self._move_lootbox_to_inventory(trainer_profile,
@@ -431,15 +432,15 @@ class PokemonFunctionality:
                                                     legendary=True)
                     lootbox = LEGEND
                 else:
-                    await self.bot.say("Invalid lootbox: **{}**"
-                                       "".format(lootbox))
+                    await ctx.send("Invalid lootbox: **{}**"
+                                   "".format(lootbox))
                     return
                 self._save_trainer_file(self.trainer_data)
                 msg = ("<@{}> gave <@{}> a **{}** lootbox"
                        "".format(admin_id,
                                  user_id,
                                  lootbox.title()))
-                await self.bot.say(msg)
+                await ctx.send(msg)
         except Exception as e:
             error_msg = 'Failed to give user a lootbox: {}'.format(str(e))
             print(error_msg)
@@ -459,7 +460,7 @@ class PokemonFunctionality:
                 if user_id in self.trainer_data:
                     trainer_profile = self.trainer_data[user_id]
                 else:
-                    await self.bot.say("Trainer ID was not found.")
+                    await ctx.send("Trainer ID was not found.")
                     return
                 if lootbox == "b":
                     lootbox = BRONZE
@@ -470,8 +471,8 @@ class PokemonFunctionality:
                 elif lootbox == "l":
                     lootbox = LEGEND
                 else:
-                    await self.bot.say("Invalid lootbox: **{}**"
-                                       "".format(lootbox))
+                    await ctx.send("Invalid lootbox: **{}**"
+                                   "".format(lootbox))
                     return
                 if trainer_profile["lootbox"][lootbox] > 0:
                     trainer_profile["lootbox"][lootbox] -= 1
@@ -480,10 +481,10 @@ class PokemonFunctionality:
                            "".format(admin_id,
                                      lootbox.title(),
                                      user_id))
-                    await self.bot.say(msg)
+                    await ctx.send(msg)
                 else:
-                    await self.bot.say("The user does not have any **{}** "
-                                       "lootboxes.".format(lootbox.title()))
+                    await ctx.send("The user does not have any **{}** "
+                                   "lootboxes.".format(lootbox.title()))
         except Exception as e:
             error_msg = 'Failed to delete a lootbox from user: {}'.format(str(e))
             print(error_msg)
@@ -506,20 +507,20 @@ class PokemonFunctionality:
                 self.ultra_beasts = self._load_ultra_file()
                 self.pokeball = self._load_pokeball_file()
                 self.event.event_data = self.event.load_event_file()
-                await self.bot.say("Reload complete.")
+                await ctx.send("Reload complete.")
         except Exception as e:
             error_msg = 'Failed to reload: {}'.format(str(e))
             print(error_msg)
             logger.error(error_msg)
 
-    async def display_ranking(self, option):
+    async def display_ranking(self, ctx, option):
         """
         Displays the top 10 trainer rankings
         """
         try:
             if not self.trainer_cache:
-                await self.bot.say("Trainer data is still loading. "
-                                   "Please wait and try again later.")
+                await ctx.send("Trainer data is still loading. "
+                               "Please wait and try again later.")
                 return
             trainer_profile = {}
             header = ''
@@ -547,13 +548,13 @@ class PokemonFunctionality:
                         if pkmn in self.ultra_beasts:
                             pkmn_count += pinventory[pkmn]
                 else:
-                    await self.bot.say("`{}` is not a valid option. The options"
-                                       " are:\n"
-                                       "**l** - legendary\n"
-                                       "**s** - shiny\n"
-                                       "**t** - total (default)\n"
-                                       "**u** - ultra\n"
-                                       "".format(option))
+                    await ctx.send("`{}` is not a valid option. The options"
+                                   " are:\n"
+                                   "**l** - legendary\n"
+                                   "**s** - shiny\n"
+                                   "**t** - total (default)\n"
+                                   "**u** - ultra\n"
+                                   "".format(option))
                     return
                 trainer_profile[trainer] = pkmn_count
                 pkmn_count = 0
@@ -573,7 +574,7 @@ class PokemonFunctionality:
             em = discord.Embed(title="Ranking ({})".format(header),
                                description=msg,
                                colour=0xFFDF00)
-            await self.bot.say(embed=em)
+            await ctx.send(embed=em)
         except Exception as e:
             error_msg = 'Failed to display ranking: {}'.format(str(e))
             print(error_msg)
@@ -585,21 +586,21 @@ class PokemonFunctionality:
         """
         try:
             user_id = ctx.message.author.id
-            valid_user = await self._valid_user(user_id)
+            valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
             pinventory = self.trainer_data[user_id]["pinventory"]
             if pkmn not in pinventory:
-                await self.bot.say("Pokémon doesn't exist in the inventory"
-                                   " (**{}**). Please make sure there's a "
-                                   "valid quantity of this pokémon."
-                                   "".format(pkmn.title()))
+                await ctx.send("Pokémon doesn't exist in the inventory"
+                               " (**{}**). Please make sure there's a "
+                               "valid quantity of this pokémon."
+                               "".format(pkmn.title()))
                 return False
             else:
                 if quantity > pinventory[pkmn]:
-                    await self.bot.say("Can't release more than what you "
-                                       "own. (Max quantity: **{}**)"
-                                       "".format(pinventory[pkmn]))
+                    await ctx.send("Can't release more than what you "
+                                   "own. (Max quantity: **{}**)"
+                                   "".format(pinventory[pkmn]))
                     return False
                 pinventory[pkmn] -= quantity
                 if pinventory[pkmn] < 1:
@@ -607,10 +608,10 @@ class PokemonFunctionality:
                 if save:
                     self._save_trainer_file(self.trainer_data)
                 if post:
-                    await self.bot.say("**{}** released **{} {}**"
-                                       "".format(self.trainer_cache[user_id].name,
-                                                 quantity,
-                                                 pkmn.title()))
+                    await ctx.send("**{}** released **{} {}**"
+                                   "".format(self.trainer_cache[user_id].name,
+                                             quantity,
+                                             pkmn.title()))
                 await self._display_total_pokemon_caught()
                 return True
         except Exception as e:
@@ -623,8 +624,8 @@ class PokemonFunctionality:
         Displays pokemon inventory
         """
         try:
-            trainer_id = ctx.message.author.id
-            valid_user = await self._valid_user(trainer_id)
+            trainer_id = str(ctx.message.author.id)
+            valid_user = await self._valid_user(ctx, trainer_id)
             if not valid_user:
                 return
             if page_number <= 1:
@@ -653,7 +654,7 @@ class PokemonFunctionality:
                 count += 1
             max_pages = ceil(len(pinventory)/20) if len(pinventory) != 0 else 1
             if page_number > max_pages:
-                await self.bot.say("Page number is invalid.")
+                await ctx.send("Page number is invalid.")
                 return
             msg = ("__**{}** Pokémon total. "
                    "(Page **{} of {}**)__\n"
@@ -663,9 +664,8 @@ class PokemonFunctionality:
                                description=msg,
                                colour=0xff0000)
             try:
-                user_obj = await self.bot.get_user_info(ctx.message.author.id)
-                await self.bot.send_message(user_obj,
-                                            embed=em)
+                user_obj = await self.bot.fetch_user(ctx.message.author.id)
+                await user_obj.send(embed=em)
             except:
                 pass
         except Exception as e:
@@ -678,8 +678,8 @@ class PokemonFunctionality:
         Displays pokemon inventory
         """
         try:
-            user_id = ctx.message.author.id
-            valid_user = await self._valid_user(user_id)
+            user_id = str(ctx.message.author.id)
+            valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
             user = ctx.message.author.name
@@ -710,8 +710,7 @@ class PokemonFunctionality:
                                description=msg,
                                colour=0xFF9900)
             try:
-                await self.bot.send_message(ctx.message.channel,
-                                            embed=em)
+                await ctx.send(embed=em)
             except:
                 pass
         except Exception as e:
@@ -719,7 +718,7 @@ class PokemonFunctionality:
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
-    async def display_gif(self, pkmn_name, shiny):
+    async def display_gif(self, ctx, pkmn_name, shiny):
         """
         Displays a gif of the pokemon
 
@@ -735,13 +734,13 @@ class PokemonFunctionality:
                 em.set_image(url="https://play.pokemonshowdown.com/sprites/"
                                  "xyani/{}.gif"
                                  "".format(pkmn_name))
-            await self.bot.say(embed=em)
+            await ctx.send(embed=em)
         except Exception as e:
             print("An error has occured in displaying a gif. "
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
-    async def display_trainer_profile(self, trainer):
+    async def display_trainer_profile(self, ctx, trainer):
         """
         Gets trainer profile of a trainer specified
 
@@ -749,8 +748,8 @@ class PokemonFunctionality:
         """
         try:
             user_id = re.search(r'\d+', trainer)
-            user_id = user_id.group(0)
-            valid_user = await self._valid_user(user_id)
+            user_id = str(user_id.group(0))
+            valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
             user_obj = self.trainer_cache[user_id]
@@ -769,8 +768,8 @@ class PokemonFunctionality:
                         shiny_pkmn_count += pinventory[pkmn]
                     total_pkmn_count += pinventory[pkmn]
             else:
-                await self.bot.say("Trainer hasn't set off on his journey to "
-                                   "catch 'em all yet.")
+                await ctx.send("Trainer hasn't set off on his journey to "
+                               "catch 'em all yet.")
                 return
             em = discord.Embed()
             em.set_author(name=user_obj)
@@ -783,7 +782,7 @@ class PokemonFunctionality:
                          value=shiny_pkmn_count)
             em.add_field(name="Total Pokémon caught",
                          value=total_pkmn_count)
-            await self.bot.say(embed=em)
+            await ctx.send(embed=em)
         except Exception as e:
             print("An error has occured in displaying trainer profile. "
                   "See error.log.")
@@ -815,7 +814,7 @@ class PokemonFunctionality:
             msg += "**{} minutes and** ".format(int(time_left[1]))
             msg += "**{} seconds** ".format(int(float(time_left[2])))
             msg += "left before you can catch another pokémon."
-            await self.bot.say(msg)
+            await ctx.send(msg)
             return True
 
     async def _post_unique_channel(self, msg, channel, pkmn, is_shiny):
@@ -833,8 +832,7 @@ class PokemonFunctionality:
                 em.set_image(url="{}{}.gif".format(NRML_GIF_URL,
                                                    pkmn.replace('_', '')))
             try:
-                await self.bot.send_message(channel,
-                                            embed=em)
+                await channel.send(embed=em)
             except:
                 pass
 
@@ -882,9 +880,8 @@ class PokemonFunctionality:
             except:
                 pass
             try:
-                await self.bot.send_file(destination=ctx_channel,
-                                         fp=pkmn_img_path,
-                                         content=msg)
+                await ctx_channel.send(file=File(pkmn_img_path),
+                                       content=msg)
             except Exception as e:
                 print(e)
                 pass
@@ -989,7 +986,7 @@ class PokemonFunctionality:
             current_time = time.time()
             user_id = ctx.message.author.id
             if user_id not in self.trainer_data:
-                user_obj = await self.bot.get_user_info(user_id)
+                user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
@@ -1047,8 +1044,8 @@ class PokemonFunctionality:
         try:
             egg = "egg"
             egg_manaphy = "egg-manaphy"
-            user_id = ctx.message.author.id
-            valid_user = await self._valid_user(user_id)
+            user_id = str(ctx.message.author.id)
+            valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
             pinventory = self.trainer_data[user_id]["pinventory"]
@@ -1090,7 +1087,7 @@ class PokemonFunctionality:
                 if pinventory[egg_manaphy] < 1:
                     pinventory.pop(egg_manaphy)
             else:
-                await self.bot.say("There are no eggs in the trainer's inventory.")
+                await ctx.send("There are no eggs in the trainer's inventory.")
                 return
             self._move_pokemon_to_inventory(self.trainer_data[user_id],
                                             random_pkmn,
@@ -1119,43 +1116,43 @@ class PokemonFunctionality:
         """
         try:
             msg = ''
-            user_id = ctx.message.author.id
-            valid_user = await self._valid_user(user_id)
+            user_id = str(ctx.message.author.id)
+            valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
             if pkmn in self.nrml_pokemon.keys():
                 regex_pkmn = pkmn+'-'
                 pkmn_forms = [p for p in self.nrml_pokemon.keys() if regex_pkmn in p]
                 if not pkmn_forms or len(pkmn_forms) == 1:
-                    await self.bot.say("There are no multiple forms to fuse "
-                                       "for this pokemon.")
+                    await ctx.send("There are no multiple forms to fuse "
+                                   "for this pokemon.")
                     return
                 elif form_list and len(pkmn_forms) < 5:
-                    await self.bot.say("You must have all forms to fuse this "
-                                       "pokemon.")
+                    await ctx.send("You must have all forms to fuse this "
+                                   "pokemon.")
                     return
                 trainer_profile = self.trainer_data[user_id]
                 if len(form_list) == 0:
                     if len(pkmn_forms) >= 5:
-                        await self.bot.say("This pokemon has many forms. "
-                                           "Use the command again but also "
-                                           "specify 5 forms of this pokemon you "
-                                           "would like to use for this fusion.")
+                        await ctx.send("This pokemon has many forms. "
+                                       "Use the command again but also "
+                                       "specify 5 forms of this pokemon you "
+                                       "would like to use for this fusion.")
                         return
                     for p in pkmn_forms:
                         if p not in trainer_profile["pinventory"]:
                             msg += "**{}**\n".format(p.title())
                     if msg != '':
-                        await self.bot.say("**{}** is missing the following "
-                                           "forms to fuse:\n{}"
-                                           "".format(ctx.message.author.name,
-                                                     msg))
+                        await ctx.send("**{}** is missing the following "
+                                       "forms to fuse:\n{}"
+                                       "".format(ctx.message.author.name,
+                                                 msg))
                         return
                 if len(form_list) != 5:
-                    await self.bot.say("Invalid number of pokemon forms "
-                                       "inputted. Please "
-                                       "enter 5 pokemon forms from your "
-                                       "inventory you wish to use.")
+                    await ctx.send("Invalid number of pokemon forms "
+                                   "inputted. Please "
+                                   "enter 5 pokemon forms from your "
+                                   "inventory you wish to use.")
                     return
                 release_list = pkmn_forms if form_list is None else form_list
                 for p in release_list:
@@ -1169,9 +1166,9 @@ class PokemonFunctionality:
                             self.trainer_data = self._load_trainer_file()
                             return
                     else:
-                        await self.bot.say("**{}** is not a valid pokemon to "
-                                           "use for this fusion."
-                                           "".format(p.title()))
+                        await ctx.send("**{}** is not a valid pokemon to "
+                                       "use for this fusion."
+                                       "".format(p.title()))
                         self.trainer_data = self._load_trainer_file()
                         return
                 self._move_pokemon_to_inventory(trainer_profile,
@@ -1187,8 +1184,8 @@ class PokemonFunctionality:
                                                "fused for",
                                                None)
             else:
-                await self.bot.say("Not a valid pokemon: **{}**"
-                                   "".format(pkmn.title()))
+                await ctx.send("Not a valid pokemon: **{}**"
+                               "".format(pkmn.title()))
         except Exception as e:
             print("An error has occured in fusing pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))
@@ -1201,12 +1198,12 @@ class PokemonFunctionality:
         @param pokemon_list - 5 pokemon to exchange
         """
         try:
-            user_id = ctx.message.author.id
-            valid_user = await self._valid_user(user_id)
+            user_id = str(ctx.message.author.id)
+            valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
             if len(pokemon_list) != 5:
-                await self.bot.say("Please enter only 5 pokemon to exchange.")
+                await ctx.send("Please enter only 5 pokemon to exchange.")
                 return
             for pkmn in pokemon_list:
                 successful = await self.release_pokemon(ctx,
@@ -1306,7 +1303,7 @@ class PokemonFunctionality:
                              "icons/pokeball/master.png?raw=true")
             lootbox_color = 0xFF9900
         else:
-            await self.bot.say("Lootbox failed to open: {}".format(lootbox))
+            await ctx.send("Lootbox failed to open: {}".format(lootbox))
             return False
         msg = ("**{}** opened the **{}** lootbox and obtained:\n"
                "".format(ctx.message.author.name, lootbox.title()))
@@ -1316,14 +1313,13 @@ class PokemonFunctionality:
                                             pkmn[1])
             if pkmn[1]:
                 msg += "**{}(Shiny)**\n".format(pkmn[0].title())
-                self._post_pokemon_catch(ctx, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny, catch_condition, lootbox)
             else:
                 msg += "**{}**\n".format(pkmn[0].title())
         em = discord.Embed(title="Lootbox",
                            description=msg,
                            colour=lootbox_color)
         em.set_thumbnail(url=thumbnail_url)
-        await self.bot.say(embed=em)
+        await ctx.send(embed=em)
         return True
 
     async def open_lootbox(self, ctx, lootbox):
@@ -1342,8 +1338,8 @@ class PokemonFunctionality:
                 lootbox = GOLD
             elif lootbox == 'l':
                 lootbox = LEGEND
-            user_id = ctx.message.author.id
-            valid_user = await self._valid_user(user_id)
+            user_id = str(ctx.message.author.id)
+            valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
             trainer_profile = self.trainer_data[user_id]
@@ -1356,14 +1352,14 @@ class PokemonFunctionality:
                             trainer_profile["lootbox"][lootbox] -= 1
                             self._save_trainer_file(self.trainer_data)
                     else:
-                        await self.bot.say("<@{}> you don't have any {} "
-                                           "lootboxes.".format(user_id,
-                                                               lootbox))
+                        await ctx.send("<@{}> you don't have any {} "
+                                       "lootboxes.".format(user_id,
+                                                           lootbox))
                 else:
-                    await self.bot.say("Lootbox does not exist or has not "
-                                       "been obtained yet.")
+                    await ctx.send("Lootbox does not exist or has not "
+                                   "been obtained yet.")
             else:
-                await self.bot.say("Trainer does not have a lootbox.")
+                await ctx.send("Trainer does not have a lootbox.")
         except Exception as e:
             print("Failed to open a lootbox. See error.log.")
             logger.error("Exception: {}".format(str(e)))
@@ -1408,12 +1404,12 @@ class PokemonFunctionality:
         pkmn = self.vendor_sales[user_id]["pkmn"]
         if self.vendor_sales[user_id]["shiny"]:
             pkmn += "(Shiny)"
-        await self.bot.say('The **Night Vendor** wants to trade '
-                           '**{}** a **{}** for **all** of the following '
-                           'pokemon:\n**{}**'
-                           ''.format(ctx.message.author.name,
-                                     pkmn.title(),
-                                     t_pkmn_list))
+        await ctx.send("The **Night Vendor** wants to trade "
+                       "**{}** a **{}** for **all** of the following "
+                       "pokemon:\n**{}**"
+                       "".format(ctx.message.author.name,
+                                 pkmn.title(),
+                                 t_pkmn_list))
 
     async def _vendor_reroll(self, ctx):
         """
@@ -1435,17 +1431,17 @@ class PokemonFunctionality:
                 t_pkmn_list += '**{}**\n'.format(t_pkmn.title())
             if self.vendor_sales[user_id]["shiny"]:
                 pkmn += "(Shiny)"
-            await self.bot.say("**{}** has re-rolled the vendor's trade (**{}**"
-                               " re-rolls remaining). The **Night Vendor** "
-                               "wants to trade **{}** for **all** of the "
-                               "following pokemon:\n{}"
-                               "".format(ctx.message.author.name,
-                                         trainer_profile["reroll_count"],
-                                         pkmn.title(),
-                                         t_pkmn_list))
+            await ctx.send("**{}** has re-rolled the vendor's trade (**{}**"
+                           " re-rolls remaining). The **Night Vendor** "
+                           "wants to trade **{}** for **all** of the "
+                           "following pokemon:\n{}"
+                           "".format(ctx.message.author.name,
+                                     trainer_profile["reroll_count"],
+                                     pkmn.title(),
+                                     t_pkmn_list))
         else:
-            await self.bot.say("<@{}>, you don't have anymore rolls."
-                               "".format(user_id))
+            await ctx.send("<@{}>, you don't have anymore rolls."
+                           "".format(user_id))
 
     async def _vendor_trade(self, ctx):
         """
@@ -1488,8 +1484,8 @@ class PokemonFunctionality:
             trainer_profile["reroll_count"] = 0
             self._save_trainer_file(self.trainer_data)
         else:
-            await self.bot.say("Unable to trade. The following Pokémon are "
-                               "missing:\n{}".format(msg))
+            await ctx.send("Unable to trade. The following Pokémon are "
+                           "missing:\n{}".format(msg))
 
     async def vendor_options(self, ctx, option):
         """
@@ -1500,8 +1496,8 @@ class PokemonFunctionality:
         """
         try:
             if self.event.night_vendor:
-                user_id = ctx.message.author.id
-                valid_user = await self._valid_user(user_id)
+                user_id = str(ctx.message.author.id)
+                valid_user = await self._valid_user(ctx, user_id)
                 if not valid_user:
                     return
                 trainer_profile = self.trainer_data[user_id]
@@ -1516,14 +1512,14 @@ class PokemonFunctionality:
                     elif option == "t":
                         await self._vendor_trade(ctx)
                     else:
-                        await self.bot.say("`{}` is not a valid choice"
-                                           "".format(option))
+                        await ctx.send("`{}` is not a valid choice"
+                                       "".format(option))
                 else:
-                    await self.bot.say("<@{}>, the night vendor is done "
-                                       "doing business with you for the "
-                                       "evening.".format(user_id))
+                    await ctx.send("<@{}>, the night vendor is done "
+                                   "doing business with you for the "
+                                   "evening.".format(user_id))
             else:
-                await self.bot.say("The night vendor is not here.")
+                await ctx.send("The night vendor is not here.")
         except Exception as e:
             print("Failed to speak with vendor. See error.log")
             logger.error("Exception: {}".format(str(e)))
@@ -1536,7 +1532,7 @@ class PokemonFunctionality:
             user_id = ctx.message.author.id
             username = ctx.message.author.name
             if user_id not in self.trainer_data:
-                user_obj = await self.bot.get_user_info(user_id)
+                user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
@@ -1561,13 +1557,13 @@ class PokemonFunctionality:
                 self.daily_data.append(user_id)
                 self._save_trainer_file(self.trainer_data)
                 self._save_daily_file(self.daily_data)
-                await self.bot.say("**{}** claimed their daily to get a **{}**"
-                                   " lootbox as well as a daily token."
-                                   "".format(username,
-                                             lootbox.title()))
+                await ctx.send("**{}** claimed their daily to get a **{}**"
+                               " lootbox as well as a daily token."
+                               "".format(username,
+                                         lootbox.title()))
             else:
-                await self.bot.say("**{}** has already claimed their daily "
-                                   "lootbox".format(username))
+                await ctx.send("**{}** has already claimed their daily "
+                               "lootbox".format(username))
         except Exception as e:
             self.daily_data = self._load_daily_file()
             print("Failed to claim daily. See error.log")
@@ -1583,7 +1579,7 @@ class PokemonFunctionality:
             pkmn_msg = ''
             lootbox_msg = ''
             if user_id not in self.trainer_data:
-                user_obj = await self.bot.get_user_info(user_id)
+                user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
                 self.trainer_data[user_id]["timer"] = False
@@ -1601,7 +1597,7 @@ class PokemonFunctionality:
                 trainer_profile["lootbox"][LEGEND] = 0
             pinventory = trainer_profile["pinventory"]
             if not self.config_data["gift"]:
-                await self.bot.say("No gift to claim.")
+                await ctx.send("No gift to claim.")
                 return
             if user_id not in self.gift_data:
                 pokemon_list = self.config_data["gift_list"]["pokemon"]
@@ -1629,10 +1625,10 @@ class PokemonFunctionality:
                 if lootbox_list:
                     em.add_field(name="Lootbox",
                                  value=lootbox_msg)
-                await self.bot.say(embed=em)
+                await ctx.send(embed=em)
             else:
-                await self.bot.say("<@{}>, you've already claimed your "
-                                   "gift".format(user_id))
+                await ctx.send("<@{}>, you've already claimed your "
+                               "gift".format(user_id))
         except Exception as e:
             self.gift_data = self._load_gift_file()
             print("Failed to claim gift. See error.log")
@@ -1645,14 +1641,14 @@ class PokemonFunctionality:
         try:
             user_id = ctx.message.author.id
             if user_id not in self.trainer_data:
-                await self.bot.say("Please catch a pokemon with `p.c` first.")
+                await ctx.send("Please catch a pokemon with `p.c` first.")
             trainer_profile = self.trainer_data[user_id]
             if "daily_tokens" not in trainer_profile:
                 trainer_profile["daily_tokens"] = 0
                 self._save_trainer_file(self.trainer_data)
-            await self.bot.say("<@{}> currently has **{}** daily tokens."
-                               "".format(user_id,
-                                         trainer_profile["daily_tokens"]))
+            await ctx.send("<@{}> currently has **{}** daily tokens."
+                           "".format(user_id,
+                                     trainer_profile["daily_tokens"]))
         except Exception as e:
             print("Failed to display daily tokens.")
             logger.error("Exception: {}".format(str(e)))
@@ -1665,7 +1661,7 @@ class PokemonFunctionality:
             user_id = ctx.message.author.id
             trainer_profile = self.trainer_data[user_id]
             if user_id not in self.trainer_data:
-                await self.bot.say("Please catch a pokemon with `p.c` first.")
+                await ctx.send("Please catch a pokemon with `p.c` first.")
                 return
             if option == "i":
                 menu_items = ("[1] - Bronze lootbox (**{}** tokens)\n"
@@ -1680,48 +1676,48 @@ class PokemonFunctionality:
                                         RANDOM_SHINY_PRICE))
                 em = discord.Embed(title="Daily Token Shop",
                                    description=menu_items)
-                await self.bot.say(embed=em)
+                await ctx.send(embed=em)
             elif option == "b":
                 if item_num is None:
-                    await self.bot.say("Please enter the item number you wish to buy.")
+                    await ctx.send("Please enter the item number you wish to buy.")
                     return
                 token_num = int(trainer_profile["daily_tokens"])
                 if item_num == '1':
                     if token_num < BRONZE_LOOTBOX_PRICE:
-                        await self.bot.say("<@{}>, you do not have enough tokens."
-                                           "".format(user_id))
+                        await ctx.send("<@{}>, you do not have enough tokens."
+                                       "".format(user_id))
                         return
                     trainer_profile["daily_tokens"] = token_num - BRONZE_LOOTBOX_PRICE
                     trainer_profile["lootbox"][BRONZE] += 1
-                    await self.bot.say("<@{}> bought a **Bronze** lootbox.".format(user_id))
+                    await ctx.send("<@{}> bought a **Bronze** lootbox.".format(user_id))
                 elif item_num == '2':
                     if token_num < SILVER_LOOTBOX_PRICE:
-                        await self.bot.say("<@{}>, you do not have enough tokens."
-                                           "".format(user_id))
+                        await ctx.send("<@{}>, you do not have enough tokens."
+                                       "".format(user_id))
                         return
                     trainer_profile["daily_tokens"] = token_num - SILVER_LOOTBOX_PRICE
                     trainer_profile["lootbox"][SILVER] += 1
-                    await self.bot.say("<@{}> bought a **Silver** lootbox.".format(user_id))
+                    await ctx.send("<@{}> bought a **Silver** lootbox.".format(user_id))
                 elif item_num == '3':
                     if token_num < GOLD_LOOTBOX_PRICE:
-                        await self.bot.say("<@{}>, you do not have enough tokens."
-                                           "".format(user_id))
+                        await ctx.send("<@{}>, you do not have enough tokens."
+                                       "".format(user_id))
                         return
                     trainer_profile["daily_tokens"] = token_num - GOLD_LOOTBOX_PRICE
                     trainer_profile["lootbox"][SILVER] += 1
-                    await self.bot.say("<@{}> bought a **Gold** lootbox.".format(user_id))
+                    await ctx.send("<@{}> bought a **Gold** lootbox.".format(user_id))
                 elif item_num == '4':
                     if token_num < LEGENDARY_LOOTBOX_PRICE:
-                        await self.bot.say("<@{}>, you do not have enough tokens."
-                                           "".format(user_id))
+                        await ctx.send("<@{}>, you do not have enough tokens."
+                                       "".format(user_id))
                         return
                     trainer_profile["daily_tokens"] = token_num - LEGENDARY_LOOTBOX_PRICE
                     trainer_profile["lootbox"][LEGEND] += 1
-                    await self.bot.say("<@{}> bought a **Legendary** lootbox.".format(user_id))
+                    await ctx.send("<@{}> bought a **Legendary** lootbox.".format(user_id))
                 elif item_num == '5':
                     if token_num < RANDOM_SHINY_PRICE:
-                        await self.bot.say("<@{}>, you do not have enough tokens."
-                                           "".format(user_id))
+                        await ctx.send("<@{}>, you do not have enough tokens."
+                                       "".format(user_id))
                         return
                     trainer_profile["daily_tokens"] = token_num - RANDOM_SHINY_PRICE
                     pkmn = self._generate_random_pokemon(50000)
@@ -1737,12 +1733,12 @@ class PokemonFunctionality:
                                                    "bought",
                                                    None)
                 else:
-                    await self.bot.say("Invalid choice. Please enter a number from the "
-                                       "daily shop")
+                    await ctx.send("Invalid choice. Please enter a number from the "
+                                   "daily shop")
                     return
                 self._save_trainer_file(self.trainer_data)
             else:
-                await self.bot.say("Please enter a valid option.")
+                await ctx.send("Please enter a valid option.")
         except Exception as e:
             print("Failed to perform shop operations.")
             logger.error("Exception: {}".format(str(e)))
