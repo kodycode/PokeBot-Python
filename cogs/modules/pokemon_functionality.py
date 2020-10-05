@@ -318,7 +318,7 @@ class PokemonFunctionality:
         elif user_id not in self.trainer_data:
             await ctx.send("Trainer hasn't set off on his journey to "
                            "catch 'em all yet. (Catch a pokemon first in "
-                           "order to use this bot command.")
+                           "order to use this bot command).")
             return False
         return True
 
@@ -771,7 +771,7 @@ class PokemonFunctionality:
             else:
                 await ctx.send("Trainer hasn't set off on his journey to "
                                "catch 'em all yet. (Catch a pokemon first in "
-                               "order to use this bot command.")
+                               "order to use this bot command).")
                 return
             em = discord.Embed()
             em.set_author(name=user_obj)
