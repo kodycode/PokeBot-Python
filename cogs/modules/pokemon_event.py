@@ -43,8 +43,7 @@ class PokemonEvent:
         em = discord.Embed(title="Event Started",
                            description=msg,
                            colour=0x00FF00)
-        await self.bot.send_message(pokemon_channel_obj,
-                                    embed=em)
+        await pokemon_channel_obj.send(embed=em)
 
     async def _send_event_end_msg(self, msg):
         """
@@ -60,8 +59,7 @@ class PokemonEvent:
         em = discord.Embed(title="Event Ended",
                            description=msg,
                            colour=0xFF0000)
-        await self.bot.send_message(pokemon_channel_obj,
-                                    embed=em)
+        await pokemon_channel_obj.send(embed=em)
 
     async def activate_happy_hour(self):
         """
