@@ -4,10 +4,7 @@ __pycache__
 trainers.json
 trainers_backup.json
 error.log
-config.json
-config_template.json
-events.json
-events_template.json
+settings/config.json
+settings/events/*
 daily.json
 gift.json
-compensation.json
