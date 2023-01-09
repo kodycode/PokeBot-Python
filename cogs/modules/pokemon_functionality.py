@@ -807,13 +807,13 @@ class PokemonFunctionality:
         False if cooldown is not active
         """
         user_id = ctx.message.author.id
-        timer = float(self.trainer_data[user_id]["timer"])
+        last_catch_time = float(self.trainer_data[user_id]["last_catch_time"])
         happy_hour_event = self.event.happy_hour_event_data
         cooldown_seconds = self.config_data["cooldown_seconds"]
         if self.event.happy_hour:
             cooldown_seconds //= happy_hour_event["cooldown_divider"]
         cooldown_limit = datetime.timedelta(seconds=cooldown_seconds)
-        time_passed = datetime.timedelta(seconds=time.time()-timer)
+        time_passed = datetime.timedelta(seconds=time.time()-last_catch_time)
         current_cooldown = cooldown_limit.total_seconds() - time_passed.total_seconds()
         converted_cooldown = datetime.timedelta(seconds=current_cooldown)
         if converted_cooldown.total_seconds() <= 0:
@@ -1001,13 +1001,13 @@ class PokemonFunctionality:
                 user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
-                self.trainer_data[user_id]["timer"] = False
+                self.trainer_data[user_id]["last_catch_time"] = False
                 self.trainer_cache[user_id] = user_obj
             if not await self._load_cooldown(ctx, current_time):
                 random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon()
                 random_pkmnball = random.choice(list(self.pokeball))
                 trainer_profile = self.trainer_data[user_id]
-                trainer_profile["timer"] = current_time
+                trainer_profile["last_catch_time"] = current_time
                 lootbox = self._generate_lootbox(trainer_profile)
                 self._move_pokemon_to_inventory(trainer_profile,
                                                 random_pkmn,
@@ -1547,7 +1547,7 @@ class PokemonFunctionality:
                 user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
-                self.trainer_data[user_id]["timer"] = False
+                self.trainer_data[user_id]["last_catch_time"] = False
                 self.trainer_cache[user_id] = user_obj
             trainer_profile = self.trainer_data[user_id]
             if "lootbox" not in trainer_profile:
@@ -1594,7 +1594,7 @@ class PokemonFunctionality:
                 user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
-                self.trainer_data[user_id]["timer"] = False
+                self.trainer_data[user_id]["last_catch_time"] = False
                 self.trainer_cache[user_id] = user_obj
             trainer_profile = self.trainer_data[user_id]
             if "lootbox" not in trainer_profile:
