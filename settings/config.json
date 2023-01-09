@@ -1,0 +1,27 @@
+{
+	"cmd_prefix": "!",
+	"token": "",
+	"admin_list": [
+		"enter user id's here of who you want to be an admin"
+	],
+	"gift_list": {
+		"pokemon": {},
+		"lootbox": {}
+	},
+	"gift": false,
+	"lootbox_pokemon_limit": 3,
+	"daily_reset_hour": 0,
+	"daily_lootbox_bronze_rate": 1,
+	"daily_lootbox_silver_rate": 0.5,
+	"daily_lootbox_gold_rate": 0.25,
+	"daily_lootbox_legendary_rate": 0.1,
+	"lootbox_bronze_rate": 0.1,
+	"lootbox_silver_rate": 0.05,
+	"lootbox_gold_rate": 0.025,
+	"lootbox_legendary_rate": 0.01,
+	"cooldown_seconds": 600,
+	"shiny_rate": 0.0002,
+	"shiny_hatch_multiplier": 6,
+	"shiny_exchange_multiplier": 5,
+	"shiny_lootbox_multiplier": 4
+}
