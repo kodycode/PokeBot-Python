@@ -8,4 +8,5 @@ config_template.json
 events.json
 events_template.json
 daily.json
+gift.json
 compensation.json
