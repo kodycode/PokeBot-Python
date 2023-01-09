@@ -133,8 +133,8 @@ class PokemonFunctionality:
         """
         while True:
             hour = int(datetime.datetime.now().hour)
-            happy_hour_event = self.event.event_data["happy_hour_event"]
-            night_vendor_event = self.event.event_data["night_vendor_event"]
+            happy_hour_event = self.event.happy_hour_event_data
+            night_vendor_event = self.event.night_vendor_event_data
             if happy_hour_event["event"]:
                 if hour == happy_hour_event["event_start_hour"]:
                     await self.event.activate_happy_hour()
@@ -516,7 +516,7 @@ class PokemonFunctionality:
                 self.legendary_pkmn = self._load_legendary_file()
                 self.ultra_beasts = self._load_ultra_file()
                 self.pokeball = self._load_pokeball_file()
-                self.event.event_data = self.event.load_event_file()
+                self.event = PokemonEvent(self.bot, self.config_data)
                 await ctx.send("Reload complete.")
         except Exception as e:
             error_msg = 'Failed to reload: {}'.format(str(e))
@@ -807,7 +807,7 @@ class PokemonFunctionality:
         """
         user_id = ctx.message.author.id
         timer = float(self.trainer_data[user_id]["timer"])
-        happy_hour_event = self.event.event_data["happy_hour_event"]
+        happy_hour_event = self.event.happy_hour_event_data
         cooldown_seconds = self.config_data["cooldown_seconds"]
         if self.event.happy_hour:
             cooldown_seconds //= happy_hour_event["cooldown_divider"]
@@ -912,7 +912,7 @@ class PokemonFunctionality:
         if shiny_rate_multiplier is not None:
             shiny_rate *= shiny_rate_multiplier
         elif self.event.happy_hour:
-            happy_hour_event = self.event.event_data["happy_hour_event"]
+            happy_hour_event = self.event.happy_hour_event_data
             shiny_rate *= happy_hour_event["shiny_rate_multiplier"]
         if shiny_rng < shiny_rate:
             random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
@@ -1383,7 +1383,7 @@ class PokemonFunctionality:
         egg = "egg"
         egg_manaphy = "egg-manaphy"
         user_id = ctx.message.author.id
-        night_vendor_event = self.event.event_data["night_vendor_event"]
+        night_vendor_event = self.event.night_vendor_event_data
         if user_id not in self.vendor_sales:
             shiny_rate_multiplier = night_vendor_event["shiny_rate_multiplier"]
             random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_rate_multiplier)

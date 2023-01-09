@@ -2,7 +2,10 @@ from bot_logger import logger
 import discord
 import json
 
-EVENTS_JSON_PATH = "settings/events.json"
+SETTINGS_FOLDER_PATH = "settings"
+EVENTS_FOLDER_PATH = f"{SETTINGS_FOLDER_PATH}/events"
+HAPPY_HOUR_EVENT_JSON_PATH = f"{EVENTS_FOLDER_PATH}/happy_hour_event.json"
+NIGHT_VENDOR_EVENT_JSON_PATH = f"{EVENTS_FOLDER_PATH}/night_vendor_event.json"
 
 
 class PokemonEvent:
@@ -11,24 +14,25 @@ class PokemonEvent:
     def __init__(self, bot, config_data):
         self.bot = bot
         self.config_data = config_data
+        self.happy_hour_event_data = self.load_event_file(HAPPY_HOUR_EVENT_JSON_PATH)
+        self.night_vendor_event_data = self.load_event_file(NIGHT_VENDOR_EVENT_JSON_PATH)
         self.happy_hour = False
         self.night_vendor = False
-        self.event_data = self.load_event_file()
 
-    def load_event_file(self):
+    def load_event_file(self, json_path: str):
         """
         Checks to see if there's a valid events.json file and loads it
         """
         try:
-            with open(EVENTS_JSON_PATH) as events:
+            with open(json_path) as events:
                 return json.load(events)
         except FileNotFoundError:
             msg = ("FileNotFoundError: "
-                   "'events.json' file was not found")
+                   f"{json_path} file was not found")
             logger.error(msg)
             raise Exception(msg)
         except Exception as e:
-            print("An error has occured. See error.log.")
+            print("ERROR - Exception: {}".format(str(e)))
             logger.error("Exception: {}".format(str(e)))
 
     async def _send_event_start_msg(self, msg):
@@ -68,7 +72,7 @@ class PokemonEvent:
         Activates happy hour event
         """
         self.happy_hour = True
-        happy_hour_event = self.event_data["happy_hour_event"]
+        happy_hour_event = self.happy_hour_event_data["happy_hour_event"]
         msg = ("**Happy hour has started! During happy "
                "hour, the catch cooldown has "
                "been cut in half, and the shiny rate is {}x higher. "
