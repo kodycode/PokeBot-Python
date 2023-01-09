@@ -21,6 +21,7 @@ GIFT_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/gift.json"
 LEGENDARY_PKMN_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/legendary_pkmn.json"
 POKEBALLS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/pokeballs.json"
 TRAINERS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/trainers.json"
+TRAINERS_BACKUP_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/trainers_backup.json"
 ULTRA_BEASTS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/ultra_beasts.json"
 
 BRONZE = "bronze"
@@ -281,9 +282,9 @@ class PokemonFunctionality:
         Saves trainers.json file
         """
         if backup:
-            trainer_filename = "trainers_backup.json"
+            trainer_filename = TRAINERS_BACKUP_JSON_PATH
         else:
-            trainer_filename = "trainers.json"
+            trainer_filename = TRAINERS_JSON_PATH
         with open(trainer_filename, 'w') as outfile:
             json.dump(trainer_data,
                       outfile,
