@@ -1,10 +1,10 @@
 __pycache__
 .python-version
 .vimrc
-trainers.json
-trainers_backup.json
 error.log
 settings/config.json
-settings/events/*
-daily.json
-gift.json
+settings/daily.json
+settings/gift.json
+settings/trainers.json
+settings/trainers_backup.json
+settings/events/*.json
