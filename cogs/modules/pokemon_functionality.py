@@ -14,6 +14,15 @@ import random
 import re
 import time
 
+SETTINGS_FOLDER_PATH = "settings"
+CONFIG_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/config.json"
+DAILY_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/daily.json"
+GIFT_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/gift.json"
+LEGENDARY_PKMN_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/legendary_pkmn.json"
+POKEBALLS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/pokeballs.json"
+TRAINERS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/trainers.json"
+ULTRA_BEASTS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/ultra_beasts.json"
+
 BRONZE = "bronze"
 SILVER = "silver"
 GOLD = "gold"
@@ -150,10 +159,10 @@ class PokemonFunctionality:
         Checks to see if there's a valid config.json file and loads it
         """
         try:
-            with open('config.json') as config:
+            with open(CONFIG_JSON_PATH) as config:
                 return json.load(config)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'config.json' file not found"
+            msg = f"FileNotFoundError: {CONFIG_JSON_PATH} file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -165,10 +174,10 @@ class PokemonFunctionality:
         Checks to see if there's a valid legendary_pkmn.json file and loads it
         """
         try:
-            with open('legendary_pkmn.json') as legendaries:
+            with open(LEGENDARY_PKMN_JSON_PATH) as legendaries:
                 return json.load(legendaries)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'legendary_pkmn.json' file not found"
+            msg = f"FileNotFoundError: {LEGENDARY_PKMN_JSON_PATH} file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -180,10 +189,10 @@ class PokemonFunctionality:
         Checks to see if there's a valid ultra_beasts.json file
         """
         try:
-            with open('ultra_beasts.json') as ultras:
+            with open(ULTRA_BEASTS_JSON_PATH) as ultras:
                 return json.load(ultras)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'ultra_beasts.json' file not found"
+            msg = f"FileNotFoundError: {ULTRA_BEASTS_JSON_PATH} file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -195,10 +204,10 @@ class PokemonFunctionality:
         Checks to see if there's a valid pokeballs.json file and loads it
         """
         try:
-            with open('pokeballs.json') as pokeballs:
+            with open(POKEBALLS_JSON_PATH) as pokeballs:
                 return json.load(pokeballs)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'pokeballs.json' file not found"
+            msg = f"FileNotFoundError: {POKEBALLS_JSON_PATH} file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -210,7 +219,7 @@ class PokemonFunctionality:
         Checks to see if there's a valid trainers.json file and loads it
         """
         try:
-            with open('trainers.json') as trainers:
+            with open(TRAINERS_JSON_PATH) as trainers:
                 return json.load(trainers)
         except FileNotFoundError:
             self._save_trainer_file()
@@ -224,7 +233,7 @@ class PokemonFunctionality:
         Checks to see if there's a valid daily.json file and loads it
         """
         try:
-            with open('daily.json') as daily:
+            with open(DAILY_JSON_PATH) as daily:
                 return json.load(daily)
         except FileNotFoundError:
             self._save_daily_file([])
@@ -238,7 +247,7 @@ class PokemonFunctionality:
         Checks to see if there's a valid gift.json file and loads it
         """
         try:
-            with open('gift.json') as gift:
+            with open(GIFT_JSON_PATH) as gift:
                 return json.load(gift)
         except FileNotFoundError:
             self._save_gift_file([])

@@ -4,8 +4,9 @@ from bot_logger import logger
 import json
 import logging
 
+CONFIG_JSON_PATH = "settings/config.json"
 COG_MANAGER = "cogs.cog_manager"
-with open('config.json') as config:
+with open(CONFIG_JSON_PATH) as config:
     config_data = json.load(config)
 intents = Intents(messages=True, message_content=True, dm_messages=True, dm_reactions=True, reactions=True)
 bot = commands.Bot(command_prefix=config_data["cmd_prefix"],

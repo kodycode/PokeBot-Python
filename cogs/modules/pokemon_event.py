@@ -2,6 +2,8 @@ from bot_logger import logger
 import discord
 import json
 
+EVENTS_JSON_PATH = "settings/events.json"
+
 
 class PokemonEvent:
     """Stores Pokemon Events"""
@@ -18,7 +20,7 @@ class PokemonEvent:
         Checks to see if there's a valid events.json file and loads it
         """
         try:
-            with open('events.json') as events:
+            with open(EVENTS_JSON_PATH) as events:
                 return json.load(events)
         except FileNotFoundError:
             msg = ("FileNotFoundError: "
