@@ -1,3 +1,4 @@
+from discord import Intents
 from discord.ext import commands
 from bot_logger import logger
 import json
@@ -6,8 +7,10 @@ import logging
 COG_MANAGER = "cogs.cog_manager"
 with open('config.json') as config:
     config_data = json.load(config)
+intents = Intents(messages=True, message_content=True, dm_messages=True, dm_reactions=True, reactions=True)
 bot = commands.Bot(command_prefix=config_data["cmd_prefix"],
-                   description="Renedition of PokeBot")
+                   description="Renedition of PokeBot",
+                   intents=intents)
 
 
 class PokeBot:
@@ -19,7 +22,7 @@ class PokeBot:
     @bot.event
     async def on_ready():
         try:
-            bot.load_extension(COG_MANAGER)
+            await bot.load_extension(COG_MANAGER)
         except Exception as e:
             error_msg = 'Failed to load cog manager\n{}: {}'.format(type(e).__name__, e)
             print(error_msg)
