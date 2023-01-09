@@ -1,4 +1,5 @@
 __pycache__
+.python-version
 .vimrc
 trainers.json
 trainers_backup.json
