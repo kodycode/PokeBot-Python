@@ -1,5 +1,6 @@
 from bot_logger import logger
 from cogs.modules.pokemon_event import PokemonEvent
+from cogs.utils.utils import get_ctx_user_id
 from collections import defaultdict
 from discord import File
 from math import ceil
@@ -13,6 +14,16 @@ import os
 import random
 import re
 import time
+
+SETTINGS_FOLDER_PATH = "settings"
+CONFIG_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/config.json"
+DAILY_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/daily.json"
+GIFT_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/gift.json"
+LEGENDARY_PKMN_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/legendary_pkmn.json"
+POKEBALLS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/pokeballs.json"
+TRAINERS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/trainers.json"
+TRAINERS_BACKUP_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/trainers_backup.json"
+ULTRA_BEASTS_JSON_PATH = f"{SETTINGS_FOLDER_PATH}/ultra_beasts.json"
 
 BRONZE = "bronze"
 SILVER = "silver"
@@ -124,8 +135,8 @@ class PokemonFunctionality:
         """
         while True:
             hour = int(datetime.datetime.now().hour)
-            happy_hour_event = self.event.event_data["happy_hour_event"]
-            night_vendor_event = self.event.event_data["night_vendor_event"]
+            happy_hour_event = self.event.happy_hour_event_data
+            night_vendor_event = self.event.night_vendor_event_data
             if happy_hour_event["event"]:
                 if hour == happy_hour_event["event_start_hour"]:
                     await self.event.activate_happy_hour()
@@ -150,10 +161,10 @@ class PokemonFunctionality:
         Checks to see if there's a valid config.json file and loads it
         """
         try:
-            with open('config.json') as config:
+            with open(CONFIG_JSON_PATH) as config:
                 return json.load(config)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'config.json' file not found"
+            msg = f"FileNotFoundError: {CONFIG_JSON_PATH} file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -165,10 +176,10 @@ class PokemonFunctionality:
         Checks to see if there's a valid legendary_pkmn.json file and loads it
         """
         try:
-            with open('legendary_pkmn.json') as legendaries:
+            with open(LEGENDARY_PKMN_JSON_PATH) as legendaries:
                 return json.load(legendaries)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'legendary_pkmn.json' file not found"
+            msg = f"FileNotFoundError: {LEGENDARY_PKMN_JSON_PATH} file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -180,10 +191,10 @@ class PokemonFunctionality:
         Checks to see if there's a valid ultra_beasts.json file
         """
         try:
-            with open('ultra_beasts.json') as ultras:
+            with open(ULTRA_BEASTS_JSON_PATH) as ultras:
                 return json.load(ultras)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'ultra_beasts.json' file not found"
+            msg = f"FileNotFoundError: {ULTRA_BEASTS_JSON_PATH} file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -195,10 +206,10 @@ class PokemonFunctionality:
         Checks to see if there's a valid pokeballs.json file and loads it
         """
         try:
-            with open('pokeballs.json') as pokeballs:
+            with open(POKEBALLS_JSON_PATH) as pokeballs:
                 return json.load(pokeballs)
         except FileNotFoundError:
-            msg = "FileNotFoundError: 'pokeballs.json' file not found"
+            msg = f"FileNotFoundError: {POKEBALLS_JSON_PATH} file not found"
             print(msg)
             logger.error(msg)
         except Exception as e:
@@ -210,7 +221,7 @@ class PokemonFunctionality:
         Checks to see if there's a valid trainers.json file and loads it
         """
         try:
-            with open('trainers.json') as trainers:
+            with open(TRAINERS_JSON_PATH) as trainers:
                 return json.load(trainers)
         except FileNotFoundError:
             self._save_trainer_file()
@@ -224,7 +235,7 @@ class PokemonFunctionality:
         Checks to see if there's a valid daily.json file and loads it
         """
         try:
-            with open('daily.json') as daily:
+            with open(DAILY_JSON_PATH) as daily:
                 return json.load(daily)
         except FileNotFoundError:
             self._save_daily_file([])
@@ -238,7 +249,7 @@ class PokemonFunctionality:
         Checks to see if there's a valid gift.json file and loads it
         """
         try:
-            with open('gift.json') as gift:
+            with open(GIFT_JSON_PATH) as gift:
                 return json.load(gift)
         except FileNotFoundError:
             self._save_gift_file([])
@@ -251,8 +262,7 @@ class PokemonFunctionality:
         """
         Saves daily.json file
         """
-        daily_filename = "daily.json"
-        with open(daily_filename, 'w') as outfile:
+        with open(DAILY_JSON_PATH, 'w') as outfile:
             json.dump(daily_data,
                       outfile,
                       indent=4)
@@ -261,8 +271,7 @@ class PokemonFunctionality:
         """
         Saves gift.json file
         """
-        gift_filename = "gift.json"
-        with open(gift_filename, 'w') as outfile:
+        with open(GIFT_JSON_PATH, 'w') as outfile:
             json.dump(gift_data,
                       outfile,
                       indent=4)
@@ -272,9 +281,9 @@ class PokemonFunctionality:
         Saves trainers.json file
         """
         if backup:
-            trainer_filename = "trainers_backup.json"
+            trainer_filename = TRAINERS_BACKUP_JSON_PATH
         else:
-            trainer_filename = "trainers.json"
+            trainer_filename = TRAINERS_JSON_PATH
         with open(trainer_filename, 'w') as outfile:
             json.dump(trainer_data,
                       outfile,
@@ -327,7 +336,7 @@ class PokemonFunctionality:
         Gives a pokemon to the trainer
         """
         try:
-            admin_id = str(ctx.message.author.id)
+            admin_id = get_ctx_user_id(ctx)
             if admin_id in self.config_data["admin_list"]:
                 if user_id in self.trainer_data:
                     trainer_profile = self.trainer_data[user_id]
@@ -369,7 +378,7 @@ class PokemonFunctionality:
         Deletes a pokemon specified from the trainer's inventory
         """
         try:
-            admin_id = ctx.message.author.id
+            admin_id = get_ctx_user_id(ctx)
             if admin_id in self.config_data["admin_list"]:
                 if user_id in self.trainer_data:
                     trainer_profile = self.trainer_data[user_id]
@@ -409,7 +418,7 @@ class PokemonFunctionality:
         @param lootbox - lootbox to give to the user
         """
         try:
-            admin_id = ctx.message.author.id
+            admin_id = get_ctx_user_id(ctx)
             if admin_id in self.config_data["admin_list"]:
                 if user_id in self.trainer_data:
                     trainer_profile = self.trainer_data[user_id]
@@ -456,7 +465,7 @@ class PokemonFunctionality:
         @param lootbox - lootbox to give to the user
         """
         try:
-            admin_id = ctx.message.author.id
+            admin_id = get_ctx_user_id(ctx)
             if admin_id in self.config_data["admin_list"]:
                 if user_id in self.trainer_data:
                     trainer_profile = self.trainer_data[user_id]
@@ -496,7 +505,7 @@ class PokemonFunctionality:
         Reloads cog manager
         """
         try:
-            admin_id = ctx.message.author.id
+            admin_id = get_ctx_user_id(ctx)
             if admin_id in self.config_data["admin_list"]:
                 self.nrml_pokemon = self._load_pokemon_imgs()
                 self.shiny_pokemon = self._load_pokemon_imgs(shiny=True)
@@ -507,7 +516,7 @@ class PokemonFunctionality:
                 self.legendary_pkmn = self._load_legendary_file()
                 self.ultra_beasts = self._load_ultra_file()
                 self.pokeball = self._load_pokeball_file()
-                self.event.event_data = self.event.load_event_file()
+                self.event = PokemonEvent(self.bot, self.config_data)
                 await ctx.send("Reload complete.")
         except Exception as e:
             error_msg = 'Failed to reload: {}'.format(str(e))
@@ -586,7 +595,7 @@ class PokemonFunctionality:
         Releases a pokemon from the trainer's inventory
         """
         try:
-            user_id = ctx.message.author.id
+            user_id = get_ctx_user_id(ctx)
             valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
@@ -625,7 +634,7 @@ class PokemonFunctionality:
         Displays pokemon inventory
         """
         try:
-            trainer_id = str(ctx.message.author.id)
+            trainer_id = get_ctx_user_id(ctx)
             valid_user = await self._valid_user(ctx, trainer_id)
             if not valid_user:
                 return
@@ -665,7 +674,7 @@ class PokemonFunctionality:
                                description=msg,
                                colour=0xff0000)
             try:
-                user_obj = await self.bot.fetch_user(ctx.message.author.id)
+                user_obj = await self.bot.fetch_user(get_ctx_user_id(ctx))
                 await user_obj.send(embed=em)
             except:
                 pass
@@ -679,7 +688,7 @@ class PokemonFunctionality:
         Displays pokemon inventory
         """
         try:
-            user_id = str(ctx.message.author.id)
+            user_id = get_ctx_user_id(ctx)
             valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
@@ -796,14 +805,14 @@ class PokemonFunctionality:
         True if cooldown is still active
         False if cooldown is not active
         """
-        user_id = ctx.message.author.id
-        timer = float(self.trainer_data[user_id]["timer"])
-        happy_hour_event = self.event.event_data["happy_hour_event"]
+        user_id = get_ctx_user_id(ctx)
+        last_catch_time = float(self.trainer_data[user_id]["last_catch_time"])
+        happy_hour_event = self.event.happy_hour_event_data
         cooldown_seconds = self.config_data["cooldown_seconds"]
         if self.event.happy_hour:
             cooldown_seconds //= happy_hour_event["cooldown_divider"]
         cooldown_limit = datetime.timedelta(seconds=cooldown_seconds)
-        time_passed = datetime.timedelta(seconds=time.time()-timer)
+        time_passed = datetime.timedelta(seconds=time.time()-last_catch_time)
         current_cooldown = cooldown_limit.total_seconds() - time_passed.total_seconds()
         converted_cooldown = datetime.timedelta(seconds=current_cooldown)
         if converted_cooldown.total_seconds() <= 0:
@@ -903,7 +912,7 @@ class PokemonFunctionality:
         if shiny_rate_multiplier is not None:
             shiny_rate *= shiny_rate_multiplier
         elif self.event.happy_hour:
-            happy_hour_event = self.event.event_data["happy_hour_event"]
+            happy_hour_event = self.event.happy_hour_event_data
             shiny_rate *= happy_hour_event["shiny_rate_multiplier"]
         if shiny_rng < shiny_rate:
             random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
@@ -986,18 +995,18 @@ class PokemonFunctionality:
         """
         try:
             current_time = time.time()
-            user_id = ctx.message.author.id
+            user_id = get_ctx_user_id(ctx)
             if user_id not in self.trainer_data:
                 user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
-                self.trainer_data[user_id]["timer"] = False
+                self.trainer_data[user_id]["last_catch_time"] = False
                 self.trainer_cache[user_id] = user_obj
             if not await self._load_cooldown(ctx, current_time):
                 random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon()
                 random_pkmnball = random.choice(list(self.pokeball))
                 trainer_profile = self.trainer_data[user_id]
-                trainer_profile["timer"] = current_time
+                trainer_profile["last_catch_time"] = current_time
                 lootbox = self._generate_lootbox(trainer_profile)
                 self._move_pokemon_to_inventory(trainer_profile,
                                                 random_pkmn,
@@ -1046,7 +1055,7 @@ class PokemonFunctionality:
         try:
             egg = "egg"
             egg_manaphy = "egg-manaphy"
-            user_id = str(ctx.message.author.id)
+            user_id = get_ctx_user_id(ctx)
             valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
@@ -1118,7 +1127,7 @@ class PokemonFunctionality:
         """
         try:
             msg = ''
-            user_id = str(ctx.message.author.id)
+            user_id = get_ctx_user_id(ctx)
             valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
@@ -1200,7 +1209,7 @@ class PokemonFunctionality:
         @param pokemon_list - 5 pokemon to exchange
         """
         try:
-            user_id = str(ctx.message.author.id)
+            user_id = get_ctx_user_id(ctx)
             valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
@@ -1239,7 +1248,7 @@ class PokemonFunctionality:
         """
         Generates pokemon from the lootbox opened and displays what you got
         """
-        user_id = ctx.message.author.id
+        user_id = get_ctx_user_id(ctx)
         lootbox_pokemon_limit = self.config_data["lootbox_pokemon_limit"]
         shiny_lootbox_multiplier = self.config_data["shiny_lootbox_multiplier"]
         trainer_profile = self.trainer_data[user_id]
@@ -1340,7 +1349,7 @@ class PokemonFunctionality:
                 lootbox = GOLD
             elif lootbox == 'l':
                 lootbox = LEGEND
-            user_id = str(ctx.message.author.id)
+            user_id = get_ctx_user_id(ctx)
             valid_user = await self._valid_user(ctx, user_id)
             if not valid_user:
                 return
@@ -1373,8 +1382,8 @@ class PokemonFunctionality:
         i = 0
         egg = "egg"
         egg_manaphy = "egg-manaphy"
-        user_id = ctx.message.author.id
-        night_vendor_event = self.event.event_data["night_vendor_event"]
+        user_id = get_ctx_user_id(ctx)
+        night_vendor_event = self.event.night_vendor_event_data
         if user_id not in self.vendor_sales:
             shiny_rate_multiplier = night_vendor_event["shiny_rate_multiplier"]
             random_pkmn, pkmn_img_path, is_shiny = self._generate_random_pokemon(shiny_rate_multiplier)
@@ -1400,7 +1409,7 @@ class PokemonFunctionality:
         Displays info on what the vendor wants to trade
         """
         t_pkmn_list = ''
-        user_id = ctx.message.author.id
+        user_id = get_ctx_user_id(ctx)
         for t_pkmn in self.vendor_trade_list[user_id]:
             t_pkmn_list += '{}\n'.format(t_pkmn.title())
         pkmn = self.vendor_sales[user_id]["pkmn"]
@@ -1417,7 +1426,7 @@ class PokemonFunctionality:
         """
         Rerolls the vendor's trade for the user of interest
         """
-        user_id = ctx.message.author.id
+        user_id = get_ctx_user_id(ctx)
         trainer_profile = self.trainer_data[user_id]
         if trainer_profile["reroll_count"] > 0:
             if user_id in self.vendor_sales:
@@ -1450,7 +1459,7 @@ class PokemonFunctionality:
         Trades the vendor
         """
         msg = ''
-        user_id = ctx.message.author.id
+        user_id = get_ctx_user_id(ctx)
         trainer_profile = self.trainer_data[user_id]
         trade_verified = True
         for p in self.vendor_trade_list[user_id]:
@@ -1498,7 +1507,7 @@ class PokemonFunctionality:
         """
         try:
             if self.event.night_vendor:
-                user_id = str(ctx.message.author.id)
+                user_id = get_ctx_user_id(ctx)
                 valid_user = await self._valid_user(ctx, user_id)
                 if not valid_user:
                     return
@@ -1531,13 +1540,13 @@ class PokemonFunctionality:
         Claims the daily lootbox
         """
         try:
-            user_id = ctx.message.author.id
+            user_id = get_ctx_user_id(ctx)
             username = ctx.message.author.name
             if user_id not in self.trainer_data:
                 user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
-                self.trainer_data[user_id]["timer"] = False
+                self.trainer_data[user_id]["last_catch_time"] = False
                 self.trainer_cache[user_id] = user_obj
             trainer_profile = self.trainer_data[user_id]
             if "lootbox" not in trainer_profile:
@@ -1576,7 +1585,7 @@ class PokemonFunctionality:
         Claims the available gift
         """
         try:
-            user_id = ctx.message.author.id
+            user_id = get_ctx_user_id(ctx)
             username = ctx.message.author.name
             pkmn_msg = ''
             lootbox_msg = ''
@@ -1584,7 +1593,7 @@ class PokemonFunctionality:
                 user_obj = await self.bot.fetch_user(user_id)
                 self.trainer_data[user_id] = {}
                 self.trainer_data[user_id]["pinventory"] = {}
-                self.trainer_data[user_id]["timer"] = False
+                self.trainer_data[user_id]["last_catch_time"] = False
                 self.trainer_cache[user_id] = user_obj
             trainer_profile = self.trainer_data[user_id]
             if "lootbox" not in trainer_profile:
@@ -1641,7 +1650,7 @@ class PokemonFunctionality:
         Displays the player's daily token
         """
         try:
-            user_id = ctx.message.author.id
+            user_id = get_ctx_user_id(ctx)
             if user_id not in self.trainer_data:
                 await ctx.send("Please catch a pokemon with `p.c` first.")
             trainer_profile = self.trainer_data[user_id]
@@ -1660,7 +1669,7 @@ class PokemonFunctionality:
         Displays the daily shop via options
         """
         try:
-            user_id = ctx.message.author.id
+            user_id = get_ctx_user_id(ctx)
             trainer_profile = self.trainer_data[user_id]
             if user_id not in self.trainer_data:
                 await ctx.send("Please catch a pokemon with `p.c` first.")

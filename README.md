@@ -12,13 +12,9 @@ For information on events, see the [event page](https://github.com/kodycode/Poke
 
 To setup the bot,
 
-1. Rename config_template.json to config.json
+1. Enter your discord bot token into the `token` field of settings/config.json
 
-2. Rename events_template.json to events.json
-
-3. Enter your discord bot token into the `token` field of config.json
-
-4. Run the bot with `python bot.py` or `python3 bot.py`
+2. Run the bot with `python bot.py` or `python3 bot.py`
 
 For more options for configuration, see the [config page](https://github.com/kodycode/PokeBot-Python/wiki/Config).
 
