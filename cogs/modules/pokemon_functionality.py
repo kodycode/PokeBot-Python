@@ -63,7 +63,6 @@ class PokemonFunctionality:
         self.trainer_data = self._load_trainer_file()
         self._save_trainer_file(self.trainer_data, backup=True)
         self.bot.loop.create_task(self._update_cache())
-        self.bot.loop.create_task(self._display_total_pokemon_caught())
         self.bot.loop.create_task(self._load_event())
         self.bot.loop.create_task(self._refresh_daily())
 
