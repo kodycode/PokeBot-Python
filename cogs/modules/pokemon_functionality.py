@@ -262,8 +262,7 @@ class PokemonFunctionality:
         """
         Saves daily.json file
         """
-        daily_filename = "daily.json"
-        with open(daily_filename, 'w') as outfile:
+        with open(DAILY_JSON_PATH, 'w') as outfile:
             json.dump(daily_data,
                       outfile,
                       indent=4)
@@ -272,8 +271,7 @@ class PokemonFunctionality:
         """
         Saves gift.json file
         """
-        gift_filename = "gift.json"
-        with open(gift_filename, 'w') as outfile:
+        with open(GIFT_JSON_PATH, 'w') as outfile:
             json.dump(gift_data,
                       outfile,
                       indent=4)
