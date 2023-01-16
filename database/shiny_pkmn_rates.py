@@ -35,3 +35,10 @@ class ShinyPokemonRatesDAO(ConfigDAO):
         via lootboxes
         """
         return self.data["shiny_lootbox_multiplier"]
+
+    def get_random_shiny_daily_token_price(self) -> int:
+        """
+        Gets the daily token shop price to redeem a
+        random shiny pokemon
+        """
+        return self.data["random_shiny_daily_token_price"]
