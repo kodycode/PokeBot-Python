@@ -1,21 +1,21 @@
 {
-    "708060762580451336": {
-        "pinventory": {
-            "kakuna": 1,
-            "simisear": 1,
-            "deerling": 1,
-            "starly-f": 1,
-            "conkeldurr": 1,
-            "stunky": 1
-        },
-        "last_catch_time": 1673310423.742224,
-        "last_daily_redeemed_time": 0,
-        "lootbox": {
-            "bronze": 0,
-            "silver": 0,
-            "gold": 0,
-            "legendary": 1
-        },
-        "daily_tokens": 2
-    }
+  "708060762580451336": {
+    "pinventory": {
+      "kakuna": 1,
+      "simisear": 1,
+      "deerling": 1,
+      "starly-f": 10,
+      "conkeldurr": 1,
+      "stunky": 1
+    },
+    "last_catch_time": 1673310423.742224,
+    "last_daily_redeemed_time": 0,
+    "lootbox": {
+      "bronze": 0,
+      "silver": 0,
+      "gold": 0,
+      "legendary": 1
+    },
+    "daily_tokens": 2
+  }
 }
