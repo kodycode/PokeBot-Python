@@ -1,75 +1,14 @@
-from cogs.modules.pokemon_functionality import PokemonFunctionality
+# from cogs.modules.pokemon_functionality import PokemonFunctionality
 from discord.ext import commands
+from modules.pokebot_cog import PokeBotCog
 
 
-class PokemonCommands(commands.Cog):
+class UserCommands(PokeBotCog):
     """Handles Pokemon related commands"""
 
     def __init__(self, bot):
+        super().__init__()
         self.cmd_function = PokemonFunctionality(bot)
-
-    @commands.command(name='give', pass_context=True, hidden=True)
-    async def give(self, ctx, user_id, pkmn_name, shiny=None):
-        """
-        Gives a pokemon to a trainer (admin only cmd)
-
-        @param ctx - context of the command sent
-        @param user_id - user to give pokemon to
-        @param pkmn_name - name of the pokemon to give to user
-        @param shiny - 's' or 'shiny' if shiny
-        """
-        await self.cmd_function.give_trainer_pokemon(ctx,
-                                                     user_id,
-                                                     pkmn_name,
-                                                     shiny)
-
-    @commands.command(name='delete', pass_context=True, hidden=True)
-    async def delete(self, ctx, user_id, pkmn_name, shiny=False):
-        """
-        Deletes a pokemon from the trainer (admin only cmd)
-
-        @param ctx - context of the command sent
-        @param user_id - user to give pokemon to
-        @param pkmn_name - name of the pokemon to delete from the user
-        @param shiny - 's' or 'shiny' if shiny
-        """
-        await self.cmd_function.delete_trainer_pokemon(ctx,
-                                                       user_id,
-                                                       pkmn_name,
-                                                       shiny)
-
-    @commands.command(name='giveloot', pass_context=True, hidden=True)
-    async def giveloot(self, ctx, user_id, lootbox):
-        """
-        Deletes a pokemon from the trainer (admin only cmd)
-
-        @param ctx - context of the command sent
-        @param user_id - user to give pokemon to
-        @param lootbox - lootbox to give to the user
-        """
-        await self.cmd_function.give_trainer_lootbox(ctx,
-                                                     user_id,
-                                                     lootbox)
-
-    @commands.command(name='deleteloot', pass_context=True, hidden=True)
-    async def deleteloot(self, ctx, user_id, lootbox):
-        """
-        Deletes a pokemon from the trainer (admin only cmd)
-
-        @param ctx - context of the command sent
-        @param user_id - user to give pokemon to
-        @param lootbox - lootbox to remove
-        """
-        await self.cmd_function.delete_trainer_lootbox(ctx,
-                                                       user_id,
-                                                       lootbox)
-
-    @commands.command(name='reload', pass_context=True, hidden=True)
-    async def reload(self, ctx):
-        """
-        Reloads pokemon data (admin only cmd)
-        """
-        await self.cmd_function.reload_data(ctx)
 
     @commands.command(name='catch', pass_context=True)
     async def catch(self, ctx):
@@ -171,7 +110,7 @@ class PokemonCommands(commands.Cog):
     @commands.command(name='h', pass_context=True, hidden=True)
     async def h(self, ctx):
         """
-        Shortcut to hatch an egg from your invertory
+        Shortcut to hatch an egg from your inventory
 
         @param pkmn - pkmn to be released
         """
@@ -255,30 +194,6 @@ class PokemonCommands(commands.Cog):
         Shortcut to display the number of lootboxes the trainer has
         """
         await self.cmd_function.display_lootbox_inventory(ctx)
-
-    @commands.command(name='vendor', pass_context=True)
-    async def vendor(self, ctx, option: str):
-        """
-        Command to communicate with the night vendor
-
-        @param options - options include:
-                         i - info to see what's for sale
-                         r - re-roll what's for sale
-                         t - trade the vendor
-        """
-        await self.cmd_function.vendor_options(ctx, option)
-
-    @commands.command(name='v', pass_context=True, hidden=True)
-    async def v(self, ctx, option: str):
-        """
-        Shortcut to communicate with the night vendor
-
-        @param options - options include:
-                         i - info to see what's for sale
-                         r - re-roll what's for sale
-                         t - trade the vendor
-        """
-        await self.cmd_function.vendor_options(ctx, option)
 
     @commands.command(name='daily', pass_context=True)
     async def daily(self, ctx):

@@ -2,6 +2,7 @@ from bot_logger import logger
 import discord
 import json
 
+
 SETTINGS_FOLDER_PATH = "settings"
 EVENTS_FOLDER_PATH = f"{SETTINGS_FOLDER_PATH}/events"
 HAPPY_HOUR_EVENT_JSON_PATH = f"{EVENTS_FOLDER_PATH}/happy_hour_event.json"
