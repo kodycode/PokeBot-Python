@@ -1,14 +1,18 @@
 # from modules.pokemon_functionality import PokemonFunctionality
 from discord.ext import commands
-from modules.pokebot_cog import PokeBotCog
+from modules import PokeBotCog
 
 
 class AdminCommands(PokeBotCog):
-    """Handles Pokemon related commands"""
+
     def __init__(self, bot):
         super().__init__()
 
+    # def check_if_it_is_me(ctx):
+    #     return ctx.message.author.id == 85309593344815104
+
     # @commands.command(name='give', pass_context=True, hidden=True)
+    # @commands.check(check_if_it_is_me)
     # async def give(self, ctx, user_id, pkmn_name, shiny=None):
     #     """
     #     Gives a pokemon to a trainer (admin only cmd)
