@@ -1,7 +1,5 @@
-from bot_logger import logger
-from events import HappyHourEvent, NightVendorEvent
+from events import EventManager
 from modules import PokeBotCog
-import datetime
 import asyncio
 
 
@@ -10,10 +8,7 @@ class PokeBotTasks(PokeBotCog):
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
-        self.events = [
-            HappyHourEvent(bot),
-            NightVendorEvent(bot)
-        ]
+        self.event_manager = EventManager(bot)
         self.bot.loop.create_task(self._process_all_event_activation_times())
 
     async def _process_all_event_activation_times(self):
@@ -21,7 +16,5 @@ class PokeBotTasks(PokeBotCog):
         Checks if it's time for an event and activate it
         """
         while True:
-            hour = int(datetime.datetime.now().hour)
-            for event in self.events:
-                await event.process_event_activation_time(hour)
+            await self.event_manager.process_all_event_activation_times()
             await asyncio.sleep(60)
