@@ -16,26 +16,27 @@ class PokeBotEvent(ABC):
     def __init__(self, bot, event_key: str):
         self.bot = bot
         self.is_active = False
-        self.event_data = self._load_event_data(event_key)
+        self.event_data = {}
         self.catch_cooldown_modifier = 1
         self.shiny_catch_rate_modifier = 1
+        self._load_event_data(event_key)
         print(f"Loaded {type(self).__name__}")
 
-    def _load_event_data(self, event_key: str):
+    def _load_event_data(self, event_key: str) -> None:
         """
         Loads the specific event data given the event key
         """
         try:
-            return EventsDAO().get_event(event_key)
+            self.event_data = EventsDAO().get_event(event_key)
+            self.catch_cooldown_modifier = self.event_data.get("catch_cooldown_modifier", 1.0)
+            self.shiny_catch_rate_modifier = self.event_data.get("shiny_catch_rate_modifier", 1.0)
         except Exception as e:
             print("ERROR - Exception: {}".format(str(e)))
             logger.error("Exception: {}".format(str(e)))
 
-    async def _send_event_start_msg(self, msg):
+    async def _send_event_start_msg(self, msg: str) -> None:
         """
         Sends a message to the channel that an event has started
-
-        @param msg - event message to tell the server
         """
         pokemon_channel = ''
         for channel in self.bot.get_all_channels():
@@ -47,11 +48,9 @@ class PokeBotEvent(ABC):
                            colour=0x00FF00)
         await pokemon_channel_obj.send(embed=em)
 
-    async def _send_event_end_msg(self, msg):
+    async def _send_event_end_msg(self, msg: str):
         """
         Sends a message to the channel that an event has ended
-
-        @param msg - event message to tell the server
         """
         pokemon_channel = ''
         for channel in self.bot.get_all_channels():
@@ -63,7 +62,7 @@ class PokeBotEvent(ABC):
                            colour=0xFF0000)
         await pokemon_channel_obj.send(embed=em)
 
-    async def process_event_activation_time(self, hour: int):
+    async def process_event_activation_time(self, hour: int) -> None:
         """
         Checks across all events to see if it's time to
         activate or deactivate
@@ -76,9 +75,9 @@ class PokeBotEvent(ABC):
                 await self.deactivate()
 
     @abstractmethod
-    async def activate(self):
+    async def activate(self) -> None:
         """Activates the event (to-be-implemented by child)"""
 
     @abstractmethod
-    async def deactivate(self):
+    async def deactivate(self) -> None:
         """Deactivates the event (to-be-implemented by child)"""
