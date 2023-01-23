@@ -1,4 +1,4 @@
-from cogs import AdminCommands, DailyCommands, InventoryCommands, MiscCommands, NightVendorCommands 
+from cogs import AdminCommands, DailyCommands, InventoryCommands, MiscCommands, NightVendorCommands, PokeBotTasks
 
 
 async def setup(bot):
@@ -7,4 +7,5 @@ async def setup(bot):
     await bot.add_cog(InventoryCommands(bot))
     await bot.add_cog(MiscCommands(bot))
     await bot.add_cog(NightVendorCommands(bot))
+    await bot.add_cog(PokeBotTasks(bot))
     print("PokeBot online")

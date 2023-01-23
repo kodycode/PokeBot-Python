@@ -15,6 +15,13 @@ class EventsDAO(DataDAO):
         if not hasattr(cls, 'instance'):
             cls.instance = super(EventsDAO, cls).__new__(cls)
             return cls.instance
+        return cls.instance
+
+    def get_events(self) -> dict:
+        """
+        Gets the list of events that are available
+        """
+        return self.data
 
     def get_event(self, event_key: str) -> dict:
         """

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from bot_logger import logger
 from database import EventsDAO
 import discord
-import json
 
 
 SETTINGS_FOLDER_PATH = "settings"
@@ -11,7 +10,7 @@ HAPPY_HOUR_EVENT_JSON_PATH = f"{EVENTS_FOLDER_PATH}/happy_hour_event.json"
 NIGHT_VENDOR_EVENT_JSON_PATH = f"{EVENTS_FOLDER_PATH}/night_vendor_event.json"
 
 
-class PokeBotEvent:
+class PokeBotEvent(ABC):
     """Generic class to setup PokeBot Events"""
 
     def __init__(self, bot, event_key: str):
@@ -19,7 +18,7 @@ class PokeBotEvent:
         self.is_active = False
         self.event_data = self._load_event_data(event_key)
 
-    def _load_event_file(self, event_key: str):
+    def _load_event_data(self, event_key: str):
         """
         Loads the specific event data given the event key
         """
@@ -60,6 +59,18 @@ class PokeBotEvent:
                            description=msg,
                            colour=0xFF0000)
         await pokemon_channel_obj.send(embed=em)
+
+    async def process_event_activation_time(self, hour: int):
+        """
+        Checks across all events to see if it's time to
+        activate or deactivate
+        """
+        if not self.is_active:
+            if hour == self.event_data["event_start_hour"]:
+                await self.activate()
+        else:
+            if hour == self.event_data["event_end_hour"]:
+                await self.deactivate()
 
     @abstractmethod
     async def activate(self):
