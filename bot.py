@@ -42,27 +42,15 @@ async def on_message(message):
 
 
 @bot.event
-async def on_command_error(error, ctx):
+async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.MissingRequiredArgument):
-        await _send_cmd_help(ctx)
-    if isinstance(error, commands.errors.BadArgument):
-        await _send_cmd_help(ctx)
-
-
-async def _send_cmd_help(ctx):
-    if ctx.invoked_subcommand:
-        pages = bot.formatter.format_help_for(ctx, ctx.invoked_subcommand)
-        for page in pages:
-            await bot.send_message(ctx.message.channel,
-                                "Please make sure you're entering a valid"
-                                "command:\n{}".format(page))
-    else:
-        pages = bot.formatter.format_help_for(ctx, ctx.command)
-        for page in pages:
-            await bot.send_message(ctx.message.channel,
-                                "Command failed. Please make sure you're "
-                                "entering the correct arguments to the "
-                                "command:\n{}".format(page))
+        await ctx.send(content="Please make sure you're entering "
+        "a valid command.")   
+    elif isinstance(error, commands.errors.BadArgument):
+        await ctx.send(content="Command failed. Please make sure"
+            " you're entering the correct arguments for the "
+            "command.")
+    await ctx.send_help(ctx.command)  
 
 
 def main():
