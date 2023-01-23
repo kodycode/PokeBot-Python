@@ -14,6 +14,7 @@ class UltraBeastsDAO(DataDAO):
         if not hasattr(cls, 'instance'):
             cls.instance = super(UltraBeastsDAO, cls).__new__(cls)
             return cls.instance
+        return cls.instance
 
     def get_ultra_beasts(self) -> list:
         """

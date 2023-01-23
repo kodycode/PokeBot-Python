@@ -15,6 +15,7 @@ class ShinyPokemonRatesDAO(ConfigDAO):
         if not hasattr(cls, 'instance'):
             cls.instance = super(ShinyPokemonRatesDAO, cls).__new__(cls)
             return cls.instance
+        return cls.instance
 
     def get_shiny_pkmn_catch_rate(self) -> float:
         """

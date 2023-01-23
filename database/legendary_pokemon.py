@@ -15,6 +15,7 @@ class LegendaryPokemonDAO(DataDAO):
         if not hasattr(cls, 'instance'):
             cls.instance = super(LegendaryPokemonDAO, cls).__new__(cls)
             return cls.instance
+        return cls.instance
 
     def get_legendary_pokemon(self) -> list:
         """

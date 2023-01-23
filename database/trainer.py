@@ -23,6 +23,7 @@ class TrainerDAO(DataDAO):
         if not hasattr(cls, 'instance'):
             cls.instance = super(TrainerDAO, cls).__new__(cls)
             return cls.instance
+        return cls.instance
 
     def get_pokemon_inventory(self) -> dict:
         """

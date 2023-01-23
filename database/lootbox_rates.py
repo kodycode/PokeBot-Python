@@ -15,6 +15,7 @@ class LootboxConfigsDAO(ConfigDAO):
         if not hasattr(cls, 'instance'):
             cls.instance = super(LootboxConfigsDAO, cls).__new__(cls)
             return cls.instance
+        return cls.instance
 
     def get_lootbox_pokemon_limit(self) -> int:
         """

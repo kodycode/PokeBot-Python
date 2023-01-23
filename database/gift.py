@@ -16,6 +16,7 @@ class GiftDAO(DataDAO):
         if not hasattr(cls, 'instance'):
             cls.instance = super(GiftDAO, cls).__new__(cls)
             return cls.instance
+        return cls.instance
 
     def get_gift_list_pokemon(self) -> dict:
         """
