@@ -2,6 +2,7 @@ from events.happy_hour_event import HappyHourEvent
 from events.night_vendor_event import NightVendorEvent
 import datetime
 
+
 class EventManager(object):
     def __init__(self, bot):
         self.active_events = {}
