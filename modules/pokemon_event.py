@@ -1,4 +1,6 @@
+from abc import ABC, abstractmethod
 from bot_logger import logger
+from database import EventsDAO
 import discord
 import json
 
@@ -9,29 +11,20 @@ HAPPY_HOUR_EVENT_JSON_PATH = f"{EVENTS_FOLDER_PATH}/happy_hour_event.json"
 NIGHT_VENDOR_EVENT_JSON_PATH = f"{EVENTS_FOLDER_PATH}/night_vendor_event.json"
 
 
-class PokemonEvent:
-    """Stores Pokemon Events"""
+class PokeBotEvent:
+    """Generic class to setup PokeBot Events"""
 
-    def __init__(self, bot, config_data):
+    def __init__(self, bot, event_key: str):
         self.bot = bot
-        self.config_data = config_data
-        self.happy_hour_event_data = self.load_event_file(HAPPY_HOUR_EVENT_JSON_PATH)
-        self.night_vendor_event_data = self.load_event_file(NIGHT_VENDOR_EVENT_JSON_PATH)
-        self.happy_hour = False
-        self.night_vendor = False
+        self.is_active = False
+        self.event_data = self._load_event_data(event_key)
 
-    def load_event_file(self, json_path: str):
+    def _load_event_file(self, event_key: str):
         """
-        Checks to see if there's a valid events.json file and loads it
+        Loads the specific event data given the event key
         """
         try:
-            with open(json_path) as events:
-                return json.load(events)
-        except FileNotFoundError:
-            msg = ("FileNotFoundError: "
-                   f"{json_path} file was not found")
-            logger.error(msg)
-            raise Exception(msg)
+            return EventsDAO().get_event(event_key)
         except Exception as e:
             print("ERROR - Exception: {}".format(str(e)))
             logger.error("Exception: {}".format(str(e)))
@@ -68,44 +61,10 @@ class PokemonEvent:
                            colour=0xFF0000)
         await pokemon_channel_obj.send(embed=em)
 
-    async def activate_happy_hour(self):
-        """
-        Activates happy hour event
-        """
-        self.happy_hour = True
-        happy_hour_event = self.happy_hour_event_data["happy_hour_event"]
-        msg = ("**Happy hour has started! During happy "
-               "hour, the catch cooldown has "
-               "been cut in half, and the shiny rate is {}x higher. "
-               "Good luck @everyone!**"
-               "".format(happy_hour_event["shiny_rate_multiplier"]))
-        await self._send_event_start_msg(msg)
+    @abstractmethod
+    async def activate(self):
+        """Activates the event (to-be-implemented by chill)"""
 
-    async def deactivate_happy_hour(self):
-        """
-        Deactivates happy hour event
-        """
-        self.happy_hour = False
-        msg = "**Happy hour has ended.**"
-        await self._send_event_end_msg(msg)
-
-    async def activate_night_vendor(self):
-        """
-        Activates night vendor event
-        """
-        self.night_vendor = True
-        msg = ("**The Night Vendor has arrived! Use the `{0}vendor i` "
-               "command for info on what's he's trading. If you're "
-               "interested in the trade, type `{0}vendor t` to make. "
-               "the trade. If you don't like the roll, type `{0}vendor r` "
-               "to re-roll what the vendor has for sale.**"
-               "".format(self.config_data["cmd_prefix"]))
-        await self._send_event_start_msg(msg)
-
-    async def deactivate_night_vendor(self):
-        """
-        Deactivates night vendor event
-        """
-        self.night_vendor = False
-        msg = ("**The night vendor has vanished.**")
-        await self._send_event_end_msg(msg)
+    @abstractmethod
+    async def deactivate(self):
+        """Deactivates the event (to-be-implemented by child)"""
