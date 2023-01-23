@@ -9,6 +9,12 @@ class NightVendorEvent(PokeBotEvent):
         self.vendor_sales = {}
         self.vendor_trade_list = defaultdict(list)
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(NightVendorEvent, cls).__new__(cls)
+            return cls.instance
+        return cls.instance
+
     async def activate(self):
         """
         Activates night vendor event

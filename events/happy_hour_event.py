@@ -5,6 +5,12 @@ class HappyHourEvent(PokeBotEvent):
     def __init__(self, bot):
         super().__init__(bot, "happy_hour_event")
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(HappyHourEvent, cls).__new__(cls)
+            return cls.instance
+        return cls.instance
+
     async def activate(self):
         """
         Activates happy hour event
