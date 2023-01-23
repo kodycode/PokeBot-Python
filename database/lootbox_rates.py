@@ -11,6 +11,11 @@ class LootboxConfigsDAO(ConfigDAO):
     def __init__(self, filename=LOOTBOX_CONFIG_NAME):
         super().__init__(filename)
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(LootboxConfigsDAO, cls).__new__(cls)
+            return cls.instance
+
     def get_lootbox_pokemon_limit(self) -> int:
         """
         Gets the number of pokemon that a lootbox

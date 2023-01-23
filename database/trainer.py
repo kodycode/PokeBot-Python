@@ -19,6 +19,11 @@ class TrainerDAO(DataDAO):
         self.user_id = user_id
         self.trainer_data = self.data[self.user_id]
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(TrainerDAO, cls).__new__(cls)
+            return cls.instance
+
     def get_pokemon_inventory(self) -> dict:
         """
         Gets the inventory of pokemon from the trainer

@@ -5,7 +5,7 @@ DATA_FOLDER_PATH = "data"
 CONFIG_FOLDER_PATH = f"{DATA_FOLDER_PATH}/configs"
 
 
-class JSONDAO:
+class JSONDAO(object):
     """
     Generic class for loading data json files
     related to PokeBot

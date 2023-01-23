@@ -11,6 +11,11 @@ class ShinyPokemonRatesDAO(ConfigDAO):
     def __init__(self, filename=SHINY_CONFIG_NAME):
         super().__init__(filename)
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(ShinyPokemonRatesDAO, cls).__new__(cls)
+            return cls.instance
+
     def get_shiny_pkmn_catch_rate(self) -> float:
         """
         Gets the shiny pokemon catch rate

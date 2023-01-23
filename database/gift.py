@@ -12,6 +12,11 @@ class GiftDAO(DataDAO):
     def __init__(self, filename=GIFT_JSON_NAME):
         super().__init__(filename)
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(GiftDAO, cls).__new__(cls)
+            return cls.instance
+
     def get_gift_list_pokemon(self) -> dict:
         """
         Gets the list of gifted pokemon to receive from
