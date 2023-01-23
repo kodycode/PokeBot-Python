@@ -1,5 +1,11 @@
+from bot_logger import logger
+from discord import Embed
 from discord.ext import commands
 from modules import PokeBotCog
+
+
+class MiscCommandsException(Exception):
+    pass
 
 
 class MiscCommands(PokeBotCog):
@@ -7,15 +13,26 @@ class MiscCommands(PokeBotCog):
     def __init__(self, bot):
         super().__init__()
 
-    # @commands.command(name='gif', pass_context=True)
-    # async def gif(self, ctx, pkmn_name: str, shiny=None):
-    #     """
-    #     Display a gif of the pokemon
-
-    #     @param pkmn_name - name of the pokemon to find a gif of
-    #     @param shiny - specify if pkmn is shiny or not
-    #     """
-    #     await self.cmd_function.display_gif(ctx, pkmn_name, shiny)
+    @commands.command(name='gif', pass_context=True)
+    async def gif(self, ctx, pkmn_name: str, shiny: str=None):
+        """
+        Display a gif of the pokemon
+        """
+        try:
+            em = Embed()
+            if shiny == "shiny" or shiny == "s":
+                em.set_image(url="https://play.pokemonshowdown.com/sprites/"
+                                 "xyani-shiny/{}.gif"
+                                 "".format(pkmn_name))
+            else:
+                em.set_image(url="https://play.pokemonshowdown.com/sprites/"
+                                 "xyani/{}.gif"
+                                 "".format(pkmn_name))
+            await ctx.send(embed=em)
+        except MiscCommandsException as e:
+            print("An error has occurred in displaying a gif. "
+                  "See error.log.")
+            logger.error("MiscCommandsException: {}".format(str(e)))
 
     # @commands.command(name='profile', pass_context=True)
     # async def profile(self, ctx, trainer):
