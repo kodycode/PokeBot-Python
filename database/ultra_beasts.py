@@ -21,5 +21,3 @@ class UltraBeastsDAO(DataDAO):
         Gets the list of ultra beasts
         """
         return self.data
-
-        
