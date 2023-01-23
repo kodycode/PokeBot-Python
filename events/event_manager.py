@@ -30,6 +30,10 @@ class EventManager(object):
         return self.event_shiny_catch_rate_modifier
 
     async def process_all_event_activation_times(self) -> None:
+        """
+        Iterate through each event to determine activation and
+        apply side effects
+        """
         hour = int(datetime.datetime.now().hour)
         for event in self.events:
             await event.process_event_activation_time(hour)
