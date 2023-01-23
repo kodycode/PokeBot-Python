@@ -1,7 +1,7 @@
 from bot_logger import logger
+from classes import PokeBotCog
 from discord import Embed
 from discord.ext import commands
-from modules import PokeBotCog
 
 
 class MiscCommandsException(Exception):

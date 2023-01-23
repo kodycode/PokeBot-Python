@@ -1,4 +1,4 @@
-from modules import PokeBotEvent
+from classes import PokeBotEvent
 
 
 class HappyHourEvent(PokeBotEvent):

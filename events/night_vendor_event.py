@@ -1,5 +1,5 @@
+from classes import PokeBotEvent
 from collections import defaultdict
-from modules import PokeBotEvent
 
 
 class NightVendorEvent(PokeBotEvent):

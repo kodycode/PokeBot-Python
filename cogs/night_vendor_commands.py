@@ -1,5 +1,5 @@
+from classes import PokeBotCog
 from discord.ext import commands
-from modules import PokeBotCog
 
 
 class NightVendorCommands(PokeBotCog):

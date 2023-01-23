@@ -1,4 +1,4 @@
-from modules import PokeBotCog
+from classes import PokeBotCog
 
 
 class DailyCommands(PokeBotCog):

@@ -1,6 +1,6 @@
 # from modules.pokemon_functionality import PokemonFunctionality
+from classes import PokeBotCog
 from discord.ext import commands
-from modules import PokeBotCog
 
 
 class AdminCommands(PokeBotCog):

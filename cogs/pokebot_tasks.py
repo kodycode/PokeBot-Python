@@ -1,5 +1,5 @@
+from classes import PokeBotCog
 from events import EventManager
-from modules import PokeBotCog
 import asyncio
 
 
