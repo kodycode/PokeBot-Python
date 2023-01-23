@@ -12,10 +12,11 @@ CONFIG_JSON_PATH = "bot_config.json"
 config_file = open(CONFIG_JSON_PATH)
 config_data = json.load(config_file)
 intents = Intents(
-    messages=True,
-    message_content=True,
     dm_messages=True,
     dm_reactions=True,
+    guilds=True,
+    messages=True,
+    message_content=True,
     reactions=True
 )
 bot = commands.Bot(command_prefix=config_data["cmd_prefix"],
