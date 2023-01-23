@@ -19,6 +19,7 @@ class PokeBotEvent(ABC):
         self.event_data = self._load_event_data(event_key)
         self.catch_cooldown_modifier = 1
         self.shiny_catch_rate_modifier = 1
+        print(f"Loaded {type(self).__name__}")
 
     def _load_event_data(self, event_key: str):
         """
