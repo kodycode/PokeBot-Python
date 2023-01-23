@@ -17,6 +17,8 @@ class PokeBotEvent(ABC):
         self.bot = bot
         self.is_active = False
         self.event_data = self._load_event_data(event_key)
+        self.catch_cooldown_modifier = 1
+        self.shiny_catch_rate_modifier = 1
 
     def _load_event_data(self, event_key: str):
         """
@@ -74,7 +76,7 @@ class PokeBotEvent(ABC):
 
     @abstractmethod
     async def activate(self):
-        """Activates the event (to-be-implemented by chill)"""
+        """Activates the event (to-be-implemented by child)"""
 
     @abstractmethod
     async def deactivate(self):
