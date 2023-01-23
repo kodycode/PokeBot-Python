@@ -1,7 +1,5 @@
-from events.happy_hour_event import HappyHourEvent
-from events.night_vendor_event import NightVendorEvent
+from events.event_manager import EventManager
 
 all = [
-    HappyHourEvent,
-    NightVendorEvent,
+    EventManager,
 ]
