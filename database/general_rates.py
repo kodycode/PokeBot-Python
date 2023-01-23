@@ -13,7 +13,7 @@ class GeneralRatesDAO(ConfigDAO):
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
-            cls.instance = super(GeneralDAO, cls).__new__(cls)
+            cls.instance = super(GeneralRatesDAO, cls).__new__(cls)
             return cls.instance
         return cls.instance
 
