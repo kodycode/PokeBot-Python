@@ -17,13 +17,13 @@ class GeneralRatesDAO(ConfigDAO):
             return cls.instance
         return cls.instance
 
-    def get_daily_redemption_reset_hour(self) -> dict:
+    def get_daily_redemption_reset_hour(self) -> int:
         """
         Gets the hour to reset the daily
         """
         return self.data["daily_redemption_reset_hour"]
 
-    def get_catch_cooldown_seconds(self) -> dict:
+    def get_catch_cooldown_seconds(self) -> int:
         """
         Gets the list of gifted lootboxes to receive from
         PokeBot
