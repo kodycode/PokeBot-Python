@@ -2,6 +2,7 @@ from bot_logger import logger
 from classes import PokeBotCog
 from discord import Embed
 from discord.ext import commands
+from modules import PokeBotMiscLogic
 
 
 class MiscCommandsException(Exception):
@@ -12,6 +13,8 @@ class MiscCommands(PokeBotCog):
 
     def __init__(self, bot):
         super().__init__()
+        self.pokebot_misc_logic = PokeBotMiscLogic(bot)
+
 
     @commands.command(name='gif', pass_context=True)
     async def gif(self, ctx, pkmn_name: str, shiny: str=None):
@@ -34,14 +37,16 @@ class MiscCommands(PokeBotCog):
                   "See error.log.")
             logger.error("MiscCommandsException: {}".format(str(e)))
 
-    # @commands.command(name='profile', pass_context=True)
-    # async def profile(self, ctx, trainer):
-    #     """
-    #     Obtains the profile of a trainer specified
-
-    #     @param trainer - trainer profile to search for
-    #     """
-    #     await self.cmd_function.display_trainer_profile(ctx, trainer)
+    @commands.command(name='profile', pass_context=True)
+    async def profile(
+        self, 
+        ctx: commands.Context, 
+        user_mention: str=commands.parameter(description="The @-mention of the user on disord.")
+    ):
+        """
+        Obtains the profile of a trainer specified
+        """
+        await self.pokebot_misc_logic.display_trainer_profile(ctx, user_mention)
 
     # @commands.command(name='ranking', pass_context=True)
     # async def ranking(self, ctx, option="t"):

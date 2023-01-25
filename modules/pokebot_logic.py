@@ -1,4 +1,3 @@
-from bot_logger import logger
 from classes import PokeBotModule, Pokemon
 from modules.pokebot_assets import PokeBotAssets
 from modules.pokebot_rates import PokeBotRates

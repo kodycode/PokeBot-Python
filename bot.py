@@ -17,6 +17,7 @@ intents = Intents(
     emojis=True,
     emojis_and_stickers=True,
     guilds=True,
+    members=True,
     messages=True,
     message_content=True,
     reactions=True

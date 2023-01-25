@@ -154,11 +154,23 @@ class TrainerDAO(DataDAO):
                 total_pokemon_caught += pinventory[pkmn]
         return total_pokemon_caught
 
+    def get_legendary_pkmn_count(self, user_id: str) -> int:
+        """
+        Gets the legendary pokemon count
+        """
+        return self.data[user_id][self.LEGENDARY_PKMN_COUNT]
+
     def increment_legendary_pkmn_count(self, user_id: str) -> None:
         """
         Increments the trainer's count for legendary pokemon
         """
         self.data[user_id][self.LEGENDARY_PKMN_COUNT] += 1
+
+    def get_shiny_pkmn_count(self, user_id: str) -> int:
+        """
+        Gets the shiny pokemon count
+        """
+        return self.data[user_id][self.SHINY_PKMN_COUNT]
 
     def increment_shiny_pkmn_count(self, user_id: str) -> None:
         """
@@ -166,14 +178,27 @@ class TrainerDAO(DataDAO):
         """
         self.data[user_id][self.SHINY_PKMN_COUNT] += 1
 
+    def get_total_pkmn_count(self, user_id: str) -> int:
+        """
+        Gets the total pokemon count
+        """
+        return self.data[user_id][self.TOTAL_PKMN_COUNT]
+
     def increment_total_pkmn_count(self, user_id: str) -> None:
         """
         Increments the trainer's count for total pokemon
         """
         self.data[user_id][self.TOTAL_PKMN_COUNT] += 1
 
+    def get_ultra_beasts_count(self, user_id: str) -> int:
+        """
+        Gets the ultra beasts count
+        """
+        return self.data[user_id][self.ULTRA_BEASTS_COUNT]
+
     def increment_ultra_beasts_count(self, user_id: str) -> None:
         """
         Increments the trainer's count for legendary pokemon
         """
         self.data[user_id][self.ULTRA_BEASTS_COUNT] += 1
+        
