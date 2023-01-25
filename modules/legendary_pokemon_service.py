@@ -1,7 +1,12 @@
+from classes import PokeBotModule
 from database import LegendaryPokemonDAO
 
 
-class LegendaryPokemonService:
+class LegendaryPokemonServiceException(Exception):
+    pass
+
+
+class LegendaryPokemonService(PokeBotModule):
     def __init__(self) -> None:
         self.legendary_dao = LegendaryPokemonDAO()
 
@@ -9,6 +14,15 @@ class LegendaryPokemonService:
         """
         Gives the pokemon to the trainer in their inventory
         """
-        if pkmn_name in self.legendary_dao.get_legendary_pokemon():
-            return True
-        return False
+        try:
+            if pkmn_name in self.legendary_dao.get_legendary_pokemon():
+                return True
+            return False
+        except Exception as e:
+            msg = "Error has occurred in deciding if a pokemon " \
+                  "was a legendary pokemon."
+            self.post_error_log_msg(
+                LegendaryPokemonServiceException.__name__,
+                msg, 
+                e
+            )

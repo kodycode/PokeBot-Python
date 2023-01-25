@@ -167,7 +167,7 @@ class PokemonFunctionality:
             print(msg)
             logger.error(msg)
         except Exception as e:
-            print("An error has occured. See error.log.")
+            print("An error has occurred. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     def _load_legendary_file(self):
@@ -182,7 +182,7 @@ class PokemonFunctionality:
             print(msg)
             logger.error(msg)
         except Exception as e:
-            print("An error has occured. See error.log.")
+            print("An error has occurred. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     def _load_ultra_file(self):
@@ -197,7 +197,7 @@ class PokemonFunctionality:
             print(msg)
             logger.error(msg)
         except Exception as e:
-            print("An error has occured. See error.log.")
+            print("An error has occurred. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     def _load_pokeball_file(self):
@@ -212,7 +212,7 @@ class PokemonFunctionality:
             print(msg)
             logger.error(msg)
         except Exception as e:
-            print("An error has occured. See error.log.")
+            print("An error has occurred. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     def _load_trainer_file(self):
@@ -226,7 +226,7 @@ class PokemonFunctionality:
             self._save_trainer_file()
             return json.loads('{}')
         except Exception as e:
-            print("An error has occured. See error.log.")
+            print("An error has occurred. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     def _load_daily_file(self):
@@ -240,7 +240,7 @@ class PokemonFunctionality:
             self._save_daily_file([])
             return json.loads('[]')
         except Exception as e:
-            print("An error has occured. See error.log.")
+            print("An error has occurred. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     def _load_gift_file(self):
@@ -254,7 +254,7 @@ class PokemonFunctionality:
             self._save_gift_file([])
             return json.loads('[]')
         except Exception as e:
-            print("An error has occured. See error.log.")
+            print("An error has occurred. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     def _save_daily_file(self, daily_data={}):
@@ -678,7 +678,7 @@ class PokemonFunctionality:
             except:
                 pass
         except Exception as e:
-            print("An error has occured in displaying inventory. "
+            print("An error has occurred in displaying inventory. "
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
@@ -723,7 +723,7 @@ class PokemonFunctionality:
             except:
                 pass
         except Exception as e:
-            print("An error has occured in displaying inventory. "
+            print("An error has occurred in displaying inventory. "
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
@@ -745,7 +745,7 @@ class PokemonFunctionality:
                                  "".format(pkmn_name))
             await ctx.send(embed=em)
         except Exception as e:
-            print("An error has occured in displaying a gif. "
+            print("An error has occurred in displaying a gif. "
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
@@ -794,7 +794,7 @@ class PokemonFunctionality:
                          value=total_pkmn_count)
             await ctx.send(embed=em)
         except Exception as e:
-            print("An error has occured in displaying trainer profile. "
+            print("An error has occurred in displaying trainer profile. "
                   "See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
@@ -896,7 +896,7 @@ class PokemonFunctionality:
                 print(e)
                 pass
         except Exception as e:
-            print("An error has occured in posting catch. See error.log.")
+            print("An error has occurred in posting catch. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     def _generate_random_pokemon(self, shiny_rate_multiplier=None):
@@ -1020,7 +1020,7 @@ class PokemonFunctionality:
                                                "caught",
                                                lootbox)
         except Exception as e:
-            print("An error has occured in catching pokemon. See error.log.")
+            print("An error has occurred in catching pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     async def _check_hatched_pokemon(self, pinventory, pkmn):
@@ -1112,7 +1112,7 @@ class PokemonFunctionality:
                                            "hatched",
                                            None)
         except Exception as e:
-            print("An error has occured in hatching egg. See error.log.")
+            print("An error has occurred in hatching egg. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     async def fuse_pokemon(self, ctx, pkmn, form_list):
@@ -1197,7 +1197,7 @@ class PokemonFunctionality:
                 await ctx.send("Not a valid pokemon: **{}**"
                                "".format(pkmn.title()))
         except Exception as e:
-            print("An error has occured in fusing pokemon. See error.log.")
+            print("An error has occurred in fusing pokemon. See error.log.")
             logger.error("Exception: {}".format(str(e)))
 
     async def exchange_pokemon(self, ctx, pokemon_list):
