@@ -9,7 +9,7 @@ class TrainerService:
         self.trainer_dao = TrainerDAO()
         self.rates = rates
 
-    def give_pokemon_to_trainer(self, user_id: str, pkmn_name: str, ):
+    def give_pokemon_to_trainer(self, user_id: str, pkmn_name: str):
         """
         Gives the pokemon to the trainer in their inventory
         """
