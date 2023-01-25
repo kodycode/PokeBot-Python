@@ -1,9 +1,13 @@
 from bot_logger import logger
 from classes import Pokemon
-from database import LegendaryPokemonDAO, ShinyPokemonRatesDAO, UltraBeastsDAO
-from modules import PokeBotRates
-from modules.pokebot_trainer_service import PokeBotTrainerService
-from utils import get_ctx_user_id
+from database import PokeballsDAO, ShinyPokemonRatesDAO
+from modules.legendary_pokemon_service import LegendaryPokemonService
+from modules.pokebot_assets import PokeBotAssets
+from modules.pokebot_rates import PokeBotRates
+from modules.trainer_service import TrainerService
+from modules.ultra_beasts_service import UltraBeastsService
+from utils import format_pokemon_name, get_ctx_user_id, get_specific_text_channel
+import discord
 import random
 import time
 
@@ -15,46 +19,56 @@ class PokeBotLogicException(Exception):
 class PokeBotLogic:
     """Handles the basic logic of features for PokeBot"""
 
-    def __init__(self):
-        self.pokebot_rates = PokeBotRates()
-        self.legendary_pkmn = LegendaryPokemonDAO()
-        self.shiny_pkmn = ShinyPokemonRatesDAO()
-        self.trainer_service = PokeBotTrainerService()
-        self.ultra_beasts = UltraBeastsDAO()
+    SHINY_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/shiny/"
+    SHINY_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani-shiny/"
+    NRML_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/regular/"
+    NRML_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani/"
 
-    async def catch_pokemon(self, ctx):
+    def __init__(self, bot):
+        self.bot = bot
+        self.legendary_service = LegendaryPokemonService()
+        self.pokebot_rates = PokeBotRates(bot)
+        self.pokeballs = PokeballsDAO()
+        self.trainer_service = TrainerService(bot, self.pokebot_rates)
+        self.ultra_beasts_service = UltraBeastsService()
+        self.total_pokemon_caught = self.trainer_service.get_total_pokemon_caught()
+        self.nrml_pokemon = PokeBotAssets()
+        self.shiny_pokemon = PokeBotAssets(shiny=True)
+
+    async def catch_pokemon(self, ctx: discord.ext.commands.Context):
         """
         Generates a random pokemon to be caught
         """
         try:
+            catch_condition = "caught"
             current_time = time.time()
             user_id = get_ctx_user_id(ctx)
             is_trainer_catching = self.trainer_service.validate_trainer_catch(user_id)
             if is_trainer_catching:
-                random_pkmnball = random.choice(list(self.pokeball))
                 random_pkmn = self._generate_random_pokemon()
                 self.trainer_service.give_pokemon_to_trainer(
+                    user_id,
                     random_pkmn.name,
-                    user_id
                 )
-                self.trainer_service.validate_trainer_catch()
-                trainer_profile["last_catch_time"] = current_time
-                lootbox = self._generate_lootbox(trainer_profile)
-                self._move_pokemon_to_inventory(trainer_profile,
-                                                random_pkmn,
-                                                is_shiny)
-                self._save_trainer_file(self.trainer_data)
+                self.trainer_service.set_trainer_last_catch_time(
+                    user_id,
+                    current_time
+                )
+                lootbox = self._generate_lootbox()
+                if lootbox:
+                    self.trainer_service.give_lootbox_to_trainer(
+                        user_id,
+                        lootbox,
+                    )
                 await self._display_total_pokemon_caught()
                 await self._post_pokemon_catch(ctx,
                                                random_pkmn,
-                                               pkmn_img_path,
-                                               random_pkmnball,
-                                               is_shiny,
-                                               "caught",
+                                               catch_condition,
                                                lootbox)
+                self.trainer_service.save_all_trainer_data()
         except Exception as e:
             print("An error has occured in catching pokemon. See error.log.")
-            logger.error("Exception: {}".format(str(e)))
+            logger.error(f"{PokeBotLogicException.__name__}: {str(e)}")
 
     def _generate_random_pokemon(self) -> Pokemon:
         """
@@ -62,18 +76,14 @@ class PokeBotLogic:
         pokemon name, image path, and whether the pokemon is shiny
         or not
         """
+        # add to total pokemon caught count
+        self.total_pokemon_caught += 1
         is_shiny_pokemon = self._determine_shiny_pokemon()
         if is_shiny_pokemon:
-            random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
-            pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
+            pkmn = self.shiny_pokemon.get_random_pokemon_asset()
         else:
-            random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
-            pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
-        return Pokemon(
-            pkmn_name=random_pkmn,
-            img_path=pkmn_img_path,
-            is_shiny=is_shiny_pokemon
-        )
+            pkmn = self.nrml_pokemon.get_random_pokemon_asset()
+        return pkmn
 
     def _determine_shiny_pokemon(self) -> bool:
         """
@@ -83,3 +93,146 @@ class PokeBotLogic:
         if shiny_rng_chance < self.pokebot_rates.get_shiny_pkmn_catch_rate():
             return True
         return False
+
+    def _generate_lootbox(self, daily=False) -> str:
+        """
+        Generates a lootbox with consideration into daily or catch rates
+        """
+        lootbox_rng = random.uniform(0, 1)
+        if daily:
+            lootbox_bronze_rate = \
+                self.pokebot_rates.get_daily_lootbox_bronze_rate()
+            lootbox_silver_rate = \
+                self.pokebot_rates.get_daily_lootbox_silver_rate()
+            lootbox_gold_rate = \
+                self.pokebot_rates.get_daily_lootbox_gold_rate()
+            lootbox_legendary_rate = \
+                self.pokebot_rates.get_daily_lootbox_legendary_rate()
+        else:
+            lootbox_bronze_rate = self.pokebot_rates.get_lootbox_bronze_rate()
+            lootbox_silver_rate = self.pokebot_rates.get_lootbox_silver_rate()
+            lootbox_gold_rate = self.pokebot_rates.get_lootbox_gold_rate()
+            lootbox_legendary_rate = \
+                self.pokebot_rates.get_lootbox_legendary_rate()
+        if lootbox_rng < lootbox_legendary_rate:
+            return "legendary"
+        elif lootbox_rng < lootbox_gold_rate:
+            return "gold"
+        elif lootbox_rng < lootbox_silver_rate:
+            return "silver"
+        elif lootbox_rng < lootbox_bronze_rate:
+            return "bronze"
+        return None
+
+    async def _display_total_pokemon_caught(self):
+        """
+        Iterates over trainer profiles and gets the total
+        number of pokemon caught
+        """
+        try:
+            total_pokemon_caught = \
+                self.trainer_service.get_total_pokemon_caught()
+            await self._update_game_status(total_pokemon_caught)
+        except Exception as e:
+            print("Failed to display total pokemon caught. See error.log.")
+            logger.error(f"{PokeBotLogicException.__name__}: {str(e)}")
+
+    async def _update_game_status(self, total_pkmn_count: int) -> None:
+        """
+        Updates the game status of the bot
+        """
+        try:
+            game_status = discord.Game(name="{} Pokémon caught"
+                                            "".format(total_pkmn_count))
+            await self.bot.change_presence(activity=game_status)
+        except Exception as e:
+            print("Failed to update game status. See error.log.")
+            logger.error(f"{PokeBotLogicException.__name__}: {str(e)}")
+
+    async def _post_pokemon_catch(
+        self,
+        ctx: discord.ext.commands.Context,
+        pkmn: Pokemon,
+        catch_condition: str,
+        lootbox: str
+    ):
+        """
+        Posts the pokemon that was caught
+        """
+        try:
+            random_pokeball = self.pokeballs.get_random_pokeball_emoji()
+            msg = await self._create_catch_message(
+                ctx,
+                pkmn,
+                random_pokeball,
+                catch_condition,
+                lootbox
+            )
+            await self._post_catch_to_channels(ctx, pkmn, msg)
+        except Exception as e:
+            print("An error has occured in posting catch. See error.log.")
+            logger.error(f"{PokeBotLogicException.__name__}: {str(e)}")
+
+    async def _create_catch_message(
+        self,
+        ctx: discord.ext.commands.Context, 
+        pkmn: str, 
+        random_pokeball: str, 
+        catch_condition: str, 
+        lootbox: str
+    ):
+        """
+        Creates the catch message to display
+        """
+        formatted_pkmn_name = format_pokemon_name(pkmn.name)
+        user = "**{}**".format(ctx.message.author.name)
+        msg = f"{user} {catch_condition} a "\
+            f"{random_pokeball}**{formatted_pkmn_name}**"
+        msg += " and got a **{}** lootbox!".format(lootbox.title()) \
+            if lootbox is not None else "!"
+        return msg
+
+    async def _post_catch_to_channels(self,
+        ctx: discord.ext.commands.Context,
+        pkmn: Pokemon,
+        msg: str
+    ) -> None:
+        """
+        Posts to  bot channel about the pokemon catch and to the special
+        and shiny channels if conditions are met about the random
+        pokemon's status of being legendary, an ultra beast, or shiny
+        """
+        channel = ctx.message.channel
+        is_legendary = \
+            self.legendary_service.is_pokemon_legendary(pkmn.name)
+        is_ultra_beast = \
+            self.ultra_beasts_service.is_pokemon_ultra_beast(pkmn.name)
+        if is_legendary or is_ultra_beast:
+            self._post_catch_to_special_channel(ctx, pkmn, msg, "special")
+        if pkmn.is_shiny:
+            self._post_catch_to_special_channel(ctx, pkmn, msg, "shiny")
+        await channel.send(file=discord.File(pkmn.img_path), content=msg)
+
+    async def _post_catch_to_special_channel(
+        self,
+        ctx: discord.ext.commands.Command,
+        channel_name: str,
+        pkmn: Pokemon,
+        msg: str):
+        """
+        Posts catch to special or certain channels (i.e. shiny, special)
+        """
+        formatted_pkmn_name = format_pokemon_name(pkmn.name)
+        channel = get_specific_text_channel(ctx, channel_name)
+        if channel:
+            em = discord.Embed(description=msg, colour=0xFFFFFF)
+            if pkmn.is_shiny:
+                thumbnail = f"{self.SHINY_ICON_URL}{formatted_pkmn_name}.png"
+                image = f"{self.SHINY_GIF_URL}{formatted_pkmn_name}.gif"
+            else:
+                thumbnail = f"{self.NRML_ICON_URL}{formatted_pkmn_name}.png"
+                image = f"{self.NRML_GIF_URL}{formatted_pkmn_name}.gif"
+            em.set_thumbnail(url=thumbnail)
+            em.set_image(url=image)
+            await channel.send(embed=em)
+                                            

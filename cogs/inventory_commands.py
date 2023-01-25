@@ -1,22 +1,21 @@
 # from cogs.modules.pokemon_functionality import PokemonFunctionality
 from classes import PokeBotCog
 from discord.ext import commands
+from modules import PokeBotLogic
 
 
 class InventoryCommands(PokeBotCog):
 
     def __init__(self, bot):
         super().__init__()
-        # self.cmd_function = PokemonFunctionality(bot)
+        self.logic = PokeBotLogic(bot)
 
-    # @commands.command(name='catch', aliases=['c'], pass_context=True)
-    # async def catch(self, ctx):
-    #     """
-    #     Catches a random pokemon
-
-    #     @param ctx - context of the command sent
-    #     """
-    #     await self.cmd_function.catch_pokemon(ctx)
+    @commands.command(name='catch', aliases=['c'], pass_context=True)
+    async def catch(self, ctx: commands.Context):
+        """
+        Catches a random pokemon and gives it to the trainer
+        """
+        await self.logic.catch_pokemon(ctx)
 
     # @commands.command(name='inventory', aliases=['i'], pass_context=True)
     # async def pinventory(self, ctx, page_number=0):

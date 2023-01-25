@@ -7,8 +7,8 @@ class PokeBotRates:
     opens options here for event modification to the
     rates (i.e. Happy Hour shiny rate/cooldown)"""
 
-    def __init__(self):
-        self.event_manager = EventManager()
+    def __init__(self, bot):
+        self.event_manager = EventManager(bot)
         self.general_rates = GeneralRatesDAO()
         self.lootbox_rates = LootboxConfigsDAO()
         self.shiny_pkmn_rates = ShinyPokemonRatesDAO()

@@ -36,6 +36,30 @@ class TrainerDAO(DataDAO):
         """
         return self.data[user_id][self.PINVENTORY]
 
+    def get_pokemon_quantity(self, user_id: str, pkmn_name: str) -> int:
+        """
+        Gets the number of a specific pokemon from the inventory
+        """
+        return self.data[user_id][self.PINVENTORY][pkmn_name]
+
+    def increment_pokemon_quantity(self, user_id: str, pkmn_name: str) -> None:
+        """
+        Increments the quantity of a specific trainer's pokemon
+        within their inventory
+        """
+        pinventory = self.get_pokemon_inventory(user_id)
+        if pkmn_name not in pinventory:
+            self.set_pokemon_quantity(user_id, pkmn_name, 1)
+        else:
+            self.data[user_id][self.PINVENTORY][pkmn_name] += 1
+
+    def set_pokemon_quantity(self, user_id: str, pkmn_name: str, quantity: int) -> None:
+        """
+        Sets the quantity of a specific trainer's pokemon
+        within their inventory
+        """
+        self.data[user_id][self.PINVENTORY][pkmn_name] = quantity
+
     def get_last_catch_time(self, user_id: str) -> float:
         """
         Gets the last catch time of the trainer
@@ -54,18 +78,18 @@ class TrainerDAO(DataDAO):
         """
         return self.data[user_id][self.LOOTBOX]
 
+    def increment_lootbox_quantity(self, user_id: str, lootbox) -> None:
+        """
+        Increments the quantity of the lootbox specified in the trainer's
+        inventory
+        """
+        self.data[user_id][self.LOOTBOX][lootbox] += 1
+
     def get_daily_tokens(self, user_id: str) -> int:
         """
         Gets the list of daily tokens that the trainer has
         """
         return self.data[user_id][self.DAILY_TOKENS]
-
-    def set_pokemon_inventory(self, user_id: str, pkmn_name: str, quantity: int) -> None:
-        """
-        Sets the quantity of a specific trainer's pokemon
-        within their inventory
-        """
-        self.data[user_id][self.PINVENTORY][pkmn_name] = quantity
 
     def set_last_catch_time(self, user_id: str, time: float) -> None:
         """
@@ -107,3 +131,17 @@ class TrainerDAO(DataDAO):
         self.data[user_id][self.LAST_CATCH_TIME] = 0
         self.data[user_id][self.LAST_DAILY_REDEEMED_TIME] = 0
         self.data[user_id][self.DAILY_TOKENS] = 0
+
+    def get_total_pokemon_caught(self) -> int:
+        """
+        Gets the total amount of pokemon caught across
+        all trainers
+
+        TODO: Load and save to DB total pokemon count?
+        """
+        total_pokemon_caught = 0
+        for trainer in self.data:
+            pinventory = self.data[trainer][self.PINVENTORY]
+            for pkmn in pinventory:
+                total_pokemon_caught += pinventory[pkmn]
+        return total_pokemon_caught
