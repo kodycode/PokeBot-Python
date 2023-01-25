@@ -1,6 +1,5 @@
 from bot_logger import logger
 from classes import Pokemon
-from database import PokeballsDAO, ShinyPokemonRatesDAO
 from modules.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_assets import PokeBotAssets
 from modules.pokebot_rates import PokeBotRates
