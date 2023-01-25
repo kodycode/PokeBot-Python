@@ -5,6 +5,8 @@ import datetime
 
 class EventManager(object):
     def __init__(self, bot):
+        if(self.__initialized): return
+        self.__initialized = True
         self.active_events = {}
         self.events = [
             HappyHourEvent(bot),
@@ -17,6 +19,7 @@ class EventManager(object):
         cls = args[0]
         if not hasattr(cls, 'instance'):
             cls.instance = super(EventManager, cls).__new__(cls)
+            cls.instance.__initialized = False
             return cls.instance
         return cls.instance
 
