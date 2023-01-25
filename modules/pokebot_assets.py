@@ -2,6 +2,8 @@ from bot_logger import logger
 from collections import defaultdict
 from classes import PokeBotModule, Pokemon
 from database import PokeballsDAO
+from modules.legendary_pokemon_service import LegendaryPokemonService
+from modules.ultra_beasts_service import UltraBeastsService
 import glob
 import os
 import random
@@ -14,9 +16,11 @@ class PokeBotAssetsException(Exception):
 
 class PokeBotAssets(PokeBotModule):
     def __init__(self):
+        self.legendary_service = LegendaryPokemonService()
         self.nrml_pokemon = self._load_pokemon_imgs("nrml")
-        self.shiny_pokemon = self._load_pokemon_imgs("shiny")
         self.pokeballs = PokeballsDAO()
+        self.shiny_pokemon = self._load_pokemon_imgs("shiny")
+        self.ultra_service = UltraBeastsService()
 
     def _load_pokemon_imgs(self, pkmn_type: str) -> defaultdict:
         """
@@ -63,10 +67,16 @@ class PokeBotAssets(PokeBotModule):
             else:
                 random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
                 pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
+            is_legendary = \
+                self.legendary_service.is_pokemon_legendary(random_pkmn)
+            is_ultra_beast = \
+                self.ultra_service.is_pokemon_ultra_beast(random_pkmn)
             return Pokemon(
                 name=random_pkmn,
                 img_path=pkmn_img_path,
-                is_shiny=is_shiny
+                is_legendary=is_legendary,
+                is_shiny=is_shiny,
+                is_ultra_beast=is_ultra_beast,
             )
         except Exception as e:
             msg = "Error has occurred in getting random pokemon asset."

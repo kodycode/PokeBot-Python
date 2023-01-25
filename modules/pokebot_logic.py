@@ -1,10 +1,8 @@
 from bot_logger import logger
 from classes import PokeBotModule, Pokemon
-from modules.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_assets import PokeBotAssets
 from modules.pokebot_rates import PokeBotRates
 from modules.trainer_service import TrainerService
-from modules.ultra_beasts_service import UltraBeastsService
 from utils import format_pokemon_name, get_ctx_user_id, get_specific_text_channel
 import discord
 import random
@@ -26,11 +24,9 @@ class PokeBotLogic(PokeBotModule):
     def __init__(self, bot):
         self.assets = PokeBotAssets()
         self.bot = bot
-        self.legendary_service = LegendaryPokemonService()
         self.pokebot_rates = PokeBotRates(bot)
         self.trainer_service = TrainerService(bot, self.pokebot_rates)
         self.total_pokemon_caught = self.trainer_service.get_total_pokemon_caught()
-        self.ultra_beasts_service = UltraBeastsService()
 
     async def catch_pokemon(self, ctx: discord.ext.commands.Context):
         """
@@ -219,11 +215,7 @@ class PokeBotLogic(PokeBotModule):
         """
         try:
             channel = ctx.message.channel
-            is_legendary = \
-                self.legendary_service.is_pokemon_legendary(pkmn.name)
-            is_ultra_beast = \
-                self.ultra_beasts_service.is_pokemon_ultra_beast(pkmn.name)
-            if is_legendary or is_ultra_beast:
+            if pkmn.is_legendary or pkmn.is_ultra_beast:
                 await self._post_catch_to_special_channel(ctx, "special", pkmn, msg)
             if pkmn.is_shiny:
                 await self._post_catch_to_special_channel(ctx, "shiny", pkmn, msg)

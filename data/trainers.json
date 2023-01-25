@@ -2,25 +2,41 @@
   "708060762580451336": {
     "pinventory": {
       "kakuna": 1,
-      "simisear": 1,
-      "deerling": 1,
-      "starly-f": 10,
-      "conkeldurr": 1,
-      "stunky": 1,
-      "pawniard": 1,
-      "sceptile": 1,
-      "chatot": 1,
-      "vespiquen": 1,
-      "nidorina": 1
+      "genesect-burn": 1,
+      "doduo-f": 1,
+      "tangela": 1,
+      "genesect-shock": 2,
+      "pansage": 1,
+      "bronzong": 1,
+      "simipour": 1,
+      "krabby": 1,
+      "yanma": 1,
+      "larvesta": 1,
+      "magneton": 1,
+      "kyogre": 1,
+      "seaking-f": 1,
+      "sudowoodo-f": 1,
+      "riolu": 1,
+      "kecleon": 1,
+      "espeon": 1,
+      "staryu": 1,
+      "rhyperior": 1,
+      "buizel": 1,
+      "munchlax": 1,
+      "buzzwole": 1
     },
-    "last_catch_time": 1674608738.78559,
+    "last_catch_time": 0,
     "last_daily_redeemed_time": 0,
     "lootbox": {
-      "bronze": 0,
-      "silver": 0,
-      "gold": 0,
-      "legendary": 1
+      "bronze": 6,
+      "silver": 3,
+      "gold": 3,
+      "legendary": 2
     },
-    "daily_tokens": 2
+    "daily_tokens": 2,
+    "legendary_pkmn_count": 0,
+    "shiny_pkmn_count": 0,
+    "total_pkmn_count": 1,
+    "ultra_beasts_count": 0
   }
 }

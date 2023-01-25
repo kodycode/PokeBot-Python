@@ -3,6 +3,7 @@ from classes import PokeBotModule
 from database import TrainerDAO
 from discord.ext import commands
 from modules.pokebot_rates import PokeBotRates
+import discord
 import time
 
 

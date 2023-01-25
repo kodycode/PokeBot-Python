@@ -13,6 +13,10 @@ class TrainerDAO(DataDAO):
     LAST_DAILY_REDEEMED_TIME = "last_daily_redeemed_time"
     LOOTBOX = "lootbox"
     DAILY_TOKENS = "daily_tokens"
+    LEGENDARY_PKMN_COUNT = "legendary_pkmn_count"
+    SHINY_PKMN_COUNT = "shiny_pkmn_count"
+    TOTAL_PKMN_COUNT = "total_pkmn_count"
+    ULTRA_BEASTS_COUNT = "ultra_beasts_count"
 
     def __init__(self, filename=TRAINER_JSON_FILE):
         super().__init__(filename)
@@ -131,6 +135,10 @@ class TrainerDAO(DataDAO):
         self.data[user_id][self.LAST_CATCH_TIME] = 0
         self.data[user_id][self.LAST_DAILY_REDEEMED_TIME] = 0
         self.data[user_id][self.DAILY_TOKENS] = 0
+        self.data[user_id][self.LEGENDARY_PKMN_COUNT] = 0
+        self.data[user_id][self.SHINY_PKMN_COUNT] = 0
+        self.data[user_id][self.TOTAL_PKMN_COUNT] = 0
+        self.data[user_id][self.ULTRA_BEASTS_COUNT] = 0
 
     def get_total_pokemon_caught(self) -> int:
         """
@@ -145,3 +153,27 @@ class TrainerDAO(DataDAO):
             for pkmn in pinventory:
                 total_pokemon_caught += pinventory[pkmn]
         return total_pokemon_caught
+
+    def increment_legendary_pkmn_count(self, user_id: str) -> None:
+        """
+        Increments the trainer's count for legendary pokemon
+        """
+        self.data[user_id][self.LEGENDARY_PKMN_COUNT] += 1
+
+    def increment_shiny_pkmn_count(self, user_id: str) -> None:
+        """
+        Increments the trainer's count for shiny pokemon
+        """
+        self.data[user_id][self.SHINY_PKMN_COUNT] += 1
+
+    def increment_total_pkmn_count(self, user_id: str) -> None:
+        """
+        Increments the trainer's count for total pokemon
+        """
+        self.data[user_id][self.TOTAL_PKMN_COUNT] += 1
+
+    def increment_ultra_beasts_count(self, user_id: str) -> None:
+        """
+        Increments the trainer's count for legendary pokemon
+        """
+        self.data[user_id][self.ULTRA_BEASTS_COUNT] += 1
