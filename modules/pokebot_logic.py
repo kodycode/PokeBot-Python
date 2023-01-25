@@ -25,15 +25,13 @@ class PokeBotLogic:
     NRML_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani/"
 
     def __init__(self, bot):
+        self.assets = PokeBotAssets()
         self.bot = bot
         self.legendary_service = LegendaryPokemonService()
         self.pokebot_rates = PokeBotRates(bot)
-        self.pokeballs = PokeballsDAO()
         self.trainer_service = TrainerService(bot, self.pokebot_rates)
-        self.ultra_beasts_service = UltraBeastsService()
         self.total_pokemon_caught = self.trainer_service.get_total_pokemon_caught()
-        self.nrml_pokemon = PokeBotAssets()
-        self.shiny_pokemon = PokeBotAssets(shiny=True)
+        self.ultra_beasts_service = UltraBeastsService()
 
     async def catch_pokemon(self, ctx: discord.ext.commands.Context):
         """
@@ -80,9 +78,9 @@ class PokeBotLogic:
         self.total_pokemon_caught += 1
         is_shiny_pokemon = self._determine_shiny_pokemon()
         if is_shiny_pokemon:
-            pkmn = self.shiny_pokemon.get_random_pokemon_asset()
+            pkmn = self.assets.get_random_pokemon_asset(True)
         else:
-            pkmn = self.nrml_pokemon.get_random_pokemon_asset()
+            pkmn = self.assets.get_random_pokemon_asset()
         return pkmn
 
     def _determine_shiny_pokemon(self) -> bool:
@@ -160,7 +158,7 @@ class PokeBotLogic:
         Posts the pokemon that was caught
         """
         try:
-            random_pokeball = self.pokeballs.get_random_pokeball_emoji()
+            random_pokeball = self.assets.get_random_pokeball_emoji()
             msg = await self._create_catch_message(
                 ctx,
                 pkmn,
@@ -235,4 +233,3 @@ class PokeBotLogic:
             em.set_thumbnail(url=thumbnail)
             em.set_image(url=image)
             await channel.send(embed=em)
-                                            

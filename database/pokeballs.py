@@ -23,5 +23,6 @@ class PokeballsDAO(DataDAO):
         Gets a random pokeball from the list of pokeball emojis
         available
         """
+        if not self.data:
+            return ''
         return random.choice(list(self.data))
-    
