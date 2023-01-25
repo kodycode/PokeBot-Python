@@ -208,9 +208,9 @@ class PokeBotLogic:
         is_ultra_beast = \
             self.ultra_beasts_service.is_pokemon_ultra_beast(pkmn.name)
         if is_legendary or is_ultra_beast:
-            self._post_catch_to_special_channel(ctx, pkmn, msg, "special")
+            await self._post_catch_to_special_channel(ctx, "special", pkmn, msg)
         if pkmn.is_shiny:
-            self._post_catch_to_special_channel(ctx, pkmn, msg, "shiny")
+            await self._post_catch_to_special_channel(ctx, "shiny", pkmn, msg)
         await channel.send(file=discord.File(pkmn.img_path), content=msg)
 
     async def _post_catch_to_special_channel(
@@ -222,7 +222,7 @@ class PokeBotLogic:
         """
         Posts catch to special or certain channels (i.e. shiny, special)
         """
-        formatted_pkmn_name = format_pokemon_name(pkmn.name)
+        formatted_pkmn_name = format_pokemon_name(pkmn.name).lower()
         channel = get_specific_text_channel(ctx, channel_name)
         if channel:
             em = discord.Embed(description=msg, colour=0xFFFFFF)
