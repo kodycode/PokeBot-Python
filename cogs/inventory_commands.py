@@ -2,6 +2,13 @@
 from classes import PokeBotCog
 from discord.ext import commands
 from modules import InventoryLogic
+from modules.pokebot_exceptions import (
+    HigherPageSpecifiedException,
+    HigherReleaseQuantitySpecifiedException,
+    PageQuantityTooLow,
+    ReleaseQuantityTooLow,
+    UnregisteredTrainerException,
+)
 
 
 class InventoryCommands(PokeBotCog):
@@ -29,18 +36,43 @@ class InventoryCommands(PokeBotCog):
         """
         Displays the trainer's pokemon inventory
         """
-        if page < 1:
-            await self.inventory_logic.display_pinventory(ctx, 1)
-        await self.inventory_logic.display_pinventory(ctx, page)
+        try:
+            if page < 1:
+                raise PageQuantityTooLow()
+            await self.inventory_logic.display_pinventory(ctx, page)
+        except HigherPageSpecifiedException as e:
+            await self._post_higher_page_specified_exception_msg(ctx, e)
+        except PageQuantityTooLow:
+            await self._post_page_quantity_too_low_msg(ctx)
+        except UnregisteredTrainerException:
+            await self._post_unregistered_trainer_exception_msg(ctx)
 
-    # @commands.command(name='release', aliases=['r'], pass_context=True)
-    # async def release(self, ctx, pkmn: str, quantity=1):
-    #     """
-    #     Releases a pokemon from your inventory
-
-    #     @param pkmn - pkmn to be released
-    #     """
-    #     await self.cmd_function.release_pokemon(ctx, pkmn, quantity)
+    @commands.command(name='release', aliases=['r'], pass_context=True)
+    async def release(
+        self,
+        ctx: commands.Context,
+        pkmn_name: str=commands.parameter(
+            description="The name of the pokemon"
+        ),
+        quantity=1
+    ):
+        """
+        Releases a pokemon from your inventory
+        """
+        try:
+            if quantity <= 0:
+                raise ReleaseQuantityTooLow()
+            await self.inventory_logic.release_pokemon(
+                ctx,
+                pkmn_name,
+                quantity,
+            )
+            await ctx.send(f"{ctx.message.author.mention} "
+                           f"successfully released {pkmn_name.title()}")
+        except HigherReleaseQuantitySpecifiedException as e:
+            await self._post_higher_quantity_specified_exception_msg(ctx, e)
+        except ReleaseQuantityTooLow as e:
+            await self._post_release_quantity_too_low_msg(ctx, e)
 
     # @commands.command(name='hatch', aliases=['h'], pass_context=True)
     # async def hatch(self, ctx):

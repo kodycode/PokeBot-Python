@@ -2,6 +2,11 @@ from classes import PokeBotModule, Pokemon
 from math import ceil
 from modules.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_assets import PokeBotAssets
+from modules.pokebot_exceptions import (
+    HigherPageSpecifiedException,
+    HigherReleaseQuantitySpecifiedException,
+    UnregisteredTrainerException
+)
 from modules.pokebot_rates import PokeBotRates
 from modules.trainer_service import TrainerService
 from modules.ultra_beasts_service import UltraBeastsService
@@ -268,11 +273,7 @@ class InventoryLogic(PokeBotModule):
             user_id = get_ctx_user_id(ctx)
             valid_user = self.trainer_service.check_existing_trainer(user_id)
             if not valid_user:
-                await ctx.send("Trainer hasn't set off on his journey to "
-                               "catch 'em all yet. (Trainer must catch "
-                               "a pokemon first in order to use this "
-                               "bot command).")
-                return
+                raise UnregisteredTrainerException()
             username = ctx.message.author.name
             pinventory = \
                 await self.trainer_service.get_trainer_inventory(user_id)
@@ -281,9 +282,7 @@ class InventoryLogic(PokeBotModule):
             max_page = \
                 ceil(pinventory_count/20) if pinventory_count != 0 else 1
             if page > max_page:
-                await ctx.send("The page specified is higher than the" \
-                               " max page.")
-                return
+                raise HigherPageSpecifiedException(max_page)
             current_list_of_pkmn_to_display = \
                 await self._slice_pinventory_to_display(pinventory, page, max_page)
             pinventory_msg = await self._build_pinventory_msg_(
@@ -296,6 +295,8 @@ class InventoryLogic(PokeBotModule):
                                description=pinventory_msg,
                                colour=0xff0000)
             await ctx.send(embed=em)
+        except HigherPageSpecifiedException as e:
+            raise
         except Exception as e:
             msg = "Error has occurred in displaying inventory."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)          
@@ -348,3 +349,26 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in building pinventory message."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)  
+
+    async def release_pokemon(
+        self,
+        ctx: discord.ext.commands.Context,
+        pkmn_name: str,
+        quantity: int
+    ) -> None:
+        """
+        Deletes a pokemon from the trainer's inventory
+        """
+        try:
+            user_id = get_ctx_user_id(ctx)
+            pkmn_lowercase = pkmn_name.lower()
+            await self.trainer_service.decrease_pokemon_quantity(
+                user_id,
+                pkmn_lowercase,
+                quantity
+            )
+        except HigherReleaseQuantitySpecifiedException:
+            raise
+        except Exception as e:
+            msg = "Error has occurred in releasing pokemon."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 

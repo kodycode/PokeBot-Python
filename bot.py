@@ -47,12 +47,14 @@ async def on_message(message):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send(content="Please make sure you're entering "
-        "a valid command.")   
+        await ctx.send(content=f"{ctx.message.author.mention},"
+                               " please make sure you're entering"
+                               " a valid command.")   
     elif isinstance(error, commands.errors.BadArgument):
-        await ctx.send(content="Command failed. Please make sure"
-            " you're entering the correct arguments for the "
-            "command.")
+        await ctx.send(content=f"{ctx.message.author.mention},"
+                               "Command failed. Please make sure"
+                               " you're entering the correct arguments"
+                               " for the command.")
     await ctx.send_help(ctx.command)  
 
 

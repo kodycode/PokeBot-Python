@@ -1,14 +1,14 @@
 from classes import PokeBotModule
 from database import TrainerDAO
 from discord.ext import commands
+from modules.pokebot_exceptions import (
+    HigherReleaseQuantitySpecifiedException,
+    TrainerServiceException,
+    UnregisteredTrainerException
+)
 from modules.pokebot_rates import PokeBotRates
-from utils import parse_discord_mention_user_id
 import discord
 import time
-
-
-class TrainerServiceException(Exception):
-    pass
 
 
 class TrainerService(PokeBotModule):
@@ -124,43 +124,33 @@ class TrainerService(PokeBotModule):
 
     async def display_trainer_profile(
         self,
-        ctx: discord.ext.commands.Command,
-        user_mention: str
-    ) -> None:
+        user_obj: discord.User
+    ) -> discord.Embed:
         """
         Gets trainer profile of a trainer specified
         """
         try:
-            user_id = parse_discord_mention_user_id(user_mention)
-            if self.trainer_dao.is_existing_trainer(user_id):
-                # Discord get_user API uses int user_id
-                # Whereas our JSON file keeps it as str
-                user_obj = ctx.bot.get_user(int(user_id))
-                legendary_pkmn_count = \
-                    self.trainer_dao.get_legendary_pkmn_count(user_id)
-                ultra_beasts_count = \
-                    self.trainer_dao.get_ultra_beasts_count(user_id)
-                shiny_pkmn_count = \
-                    self.trainer_dao.get_shiny_pkmn_count(user_id)
-                total_pkmn_count = \
-                    self.trainer_dao.get_total_pkmn_count(user_id)
-                em = discord.Embed()
-                em.set_author(name=user_obj)
-                em.set_thumbnail(url=user_obj.avatar)
-                em.add_field(name="Legendary Pokémon caught",
-                            value=legendary_pkmn_count)
-                em.add_field(name="Ultra Beasts caught",
-                            value=ultra_beasts_count)
-                em.add_field(name="Shiny Pokémon caught︀",
-                            value=shiny_pkmn_count)
-                em.add_field(name="Total Pokémon caught",
-                            value=total_pkmn_count)
-                await ctx.send(embed=em)
-            else:
-                await ctx.send("Trainer hasn't set off on his journey to "
-                               "catch 'em all yet. (Trainer must catch "
-                               "a pokemon first in order to use this "
-                               "bot command).")
+            user_id = str(user_obj.id)
+            if not self.trainer_dao.is_existing_trainer(user_id):
+                raise UnregisteredTrainerException()
+            legendary_pkmn_count = self.trainer_dao.get_legendary_pkmn_count(user_id)
+            ultra_beasts_count = self.trainer_dao.get_ultra_beasts_count(user_id)
+            shiny_pkmn_count = self.trainer_dao.get_shiny_pkmn_count(user_id)
+            total_pkmn_count = self.trainer_dao.get_total_pkmn_count(user_id)
+            em = discord.Embed()
+            em.set_author(name=user_obj)
+            em.set_thumbnail(url=user_obj.avatar)
+            em.add_field(name="Legendary Pokémon caught",
+                        value=legendary_pkmn_count)
+            em.add_field(name="Ultra Beasts caught",
+                        value=ultra_beasts_count)
+            em.add_field(name="Shiny Pokémon caught︀",
+                        value=shiny_pkmn_count)
+            em.add_field(name="Total Pokémon caught",
+                        value=total_pkmn_count)
+            return em
+        except UnregisteredTrainerException:
+            raise
         except Exception as e:
             msg = "Error has occurred in displaying trainer profile. "
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
@@ -173,4 +163,31 @@ class TrainerService(PokeBotModule):
             return self.trainer_dao.get_pokemon_inventory(user_id)
         except Exception as e:
             msg = "Error has occurred in getting trainer inventory."
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+
+    async def decrease_pokemon_quantity(
+        self,
+        user_id: str,
+        pkmn_name: str,
+        quantity: int
+    ) -> None:
+        """
+        Deletes a pokemon from the trainer's inventory
+        """
+        try:
+            pokemon_quantity = \
+                self.trainer_dao.get_pokemon_quantity(user_id, pkmn_name)
+            if quantity > pokemon_quantity:
+                raise HigherReleaseQuantitySpecifiedException(pokemon_quantity)
+            new_pokemon_quantity = pokemon_quantity - quantity
+            self.trainer_dao.set_pokemon_quantity(
+                user_id,
+                pkmn_name,
+                new_pokemon_quantity
+            )
+            self.trainer_dao.save()
+        except HigherReleaseQuantitySpecifiedException:
+            raise
+        except Exception as e:
+            msg = "Error has occurred in deleting pokemon."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)

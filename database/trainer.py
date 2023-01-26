@@ -44,6 +44,8 @@ class TrainerDAO(DataDAO):
         """
         Gets the number of a specific pokemon from the inventory
         """
+        if pkmn_name not in self.data[user_id][self.PINVENTORY]:
+            return 0
         return self.data[user_id][self.PINVENTORY][pkmn_name]
 
     def increment_pokemon_quantity(self, user_id: str, pkmn_name: str) -> None:
@@ -62,7 +64,10 @@ class TrainerDAO(DataDAO):
         Sets the quantity of a specific trainer's pokemon
         within their inventory
         """
-        self.data[user_id][self.PINVENTORY][pkmn_name] = quantity
+        if quantity <= 0:
+            del self.data[user_id][self.PINVENTORY][pkmn_name]
+        else:
+            self.data[user_id][self.PINVENTORY][pkmn_name] = quantity
 
     def get_last_catch_time(self, user_id: str) -> float:
         """
