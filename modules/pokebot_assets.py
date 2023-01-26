@@ -3,15 +3,12 @@ from collections import defaultdict
 from classes import PokeBotModule, Pokemon
 from database import PokeballsDAO
 from modules.legendary_pokemon_service import LegendaryPokemonService
+from modules.pokebot_exceptions import PokeBotAssetsException
 from modules.ultra_beasts_service import UltraBeastsService
 import glob
 import os
 import random
 import re
-
-
-class PokeBotAssetsException(Exception):
-    pass
 
 
 class PokeBotAssets(PokeBotModule):

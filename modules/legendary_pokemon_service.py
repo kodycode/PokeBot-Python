@@ -1,9 +1,6 @@
 from classes import PokeBotModule
 from database import LegendaryPokemonDAO
-
-
-class LegendaryPokemonServiceException(Exception):
-    pass
+from modules.pokebot_exceptions import LegendaryPokemonServiceException
 
 
 class LegendaryPokemonService(PokeBotModule):

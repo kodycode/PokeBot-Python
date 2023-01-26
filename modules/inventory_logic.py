@@ -5,6 +5,7 @@ from modules.pokebot_assets import PokeBotAssets
 from modules.pokebot_exceptions import (
     HigherPageSpecifiedException,
     HigherReleaseQuantitySpecifiedException,
+    InventoryLogicException,
     UnregisteredTrainerException
 )
 from modules.pokebot_rates import PokeBotRates
@@ -14,10 +15,6 @@ from utils import format_pokemon_name, get_ctx_user_id, get_specific_text_channe
 import discord
 import random
 import time
-
-
-class InventoryLogicException(Exception):
-    pass
 
 
 class InventoryLogic(PokeBotModule):

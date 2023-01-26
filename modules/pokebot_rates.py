@@ -1,10 +1,7 @@
 from classes import PokeBotModule
 from database import GeneralRatesDAO, LootboxConfigsDAO, ShinyPokemonRatesDAO
 from events import EventManager
-
-
-class PokeBotRatesException(Exception):
-    pass
+from modules.pokebot_exceptions import PokeBotRatesException
 
 
 class PokeBotRates(PokeBotModule):
