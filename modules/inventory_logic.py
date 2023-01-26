@@ -12,7 +12,7 @@ class PokeBotLogicException(Exception):
     pass
 
 
-class PokeBotLogic(PokeBotModule):
+class InventoryLogic(PokeBotModule):
     """Handles the basic logic of features for PokeBot"""
 
     SHINY_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/shiny/"

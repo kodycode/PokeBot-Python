@@ -2,7 +2,7 @@ from bot_logger import logger
 from classes import PokeBotCog
 from discord import Embed
 from discord.ext import commands
-from modules import PokeBotMiscLogic
+from modules import MiscLogic
 
 
 class MiscCommandsException(Exception):
@@ -13,7 +13,7 @@ class MiscCommands(PokeBotCog):
 
     def __init__(self, bot):
         super().__init__()
-        self.pokebot_misc_logic = PokeBotMiscLogic(bot)
+        self.pokebot_misc_logic = MiscLogic(bot)
 
 
     @commands.command(name='gif', pass_context=True)

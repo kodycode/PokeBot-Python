@@ -1,31 +1,31 @@
 # from cogs.modules.pokemon_functionality import PokemonFunctionality
 from classes import PokeBotCog
 from discord.ext import commands
-from modules import PokeBotLogic
+from modules import InventoryLogic
 
 
 class InventoryCommands(PokeBotCog):
 
     def __init__(self, bot):
         super().__init__()
-        self.logic = PokeBotLogic(bot)
+        self.inventory_logic = InventoryLogic(bot)
 
     @commands.command(name='catch', aliases=['c'], pass_context=True)
     async def catch(self, ctx: commands.Context):
         """
         Catches a random pokemon and gives it to the trainer
         """
-        await self.logic.catch_pokemon(ctx)
+        await self.inventory_logic.catch_pokemon(ctx)
 
-    # @commands.command(name='inventory', aliases=['i'], pass_context=True)
-    # async def pinventory(self, ctx, page_number=0):
-    #     """
-    #     Displays the trainer's pokemon inventory
+    @commands.command(name='inventory', aliases=['i'], pass_context=True)
+    async def pinventory(self, ctx, page_number=0):
+        """
+        Displays the trainer's pokemon inventory
 
-    #     @param ctx - context of the command sent
-    #     @param page_number - page number in inventory
-    #     """
-    #     await self.cmd_function.display_pinventory(ctx, page_number)
+        @param ctx - context of the command sent
+        @param page_number - page number in inventory
+        """
+        await self.cmd_function.display_pinventory(ctx, page_number)
 
     # @commands.command(name='release', aliases=['r'], pass_context=True)
     # async def release(self, ctx, pkmn: str, quantity=1):

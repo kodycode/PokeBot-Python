@@ -4,11 +4,11 @@ from modules.trainer_service import TrainerService
 import discord
 
 
-class PokeBotLogicException(Exception):
+class MiscLogicException(Exception):
     pass
 
 
-class PokeBotMiscLogic(PokeBotModule):
+class MiscLogic(PokeBotModule):
     """Handles the misc logic of features for PokeBot"""
 
     def __init__(self, bot):
