@@ -12,11 +12,11 @@ class TrainerServiceException(Exception):
 
 
 class TrainerService(PokeBotModule):
-    def __init__(self, bot: commands.Bot, rates: PokeBotRates) -> None:
+    def __init__(self, bot: commands.Bot, rates: PokeBotRates):
         self.trainer_dao = TrainerDAO()
         self.rates = rates
 
-    def give_pokemon_to_trainer(self, user_id: str, pkmn_name: str):
+    def give_pokemon_to_trainer(self, user_id: str, pkmn_name: str) -> None:
         """
         Gives the pokemon to the trainer in their inventory
         """
@@ -27,7 +27,18 @@ class TrainerService(PokeBotModule):
             msg = "Error has occurred in creating catch msg."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
 
-    def _check_and_create_new_trainer(self, user_id: str):
+    def check_existing_trainer(self, user_id: str) -> bool:
+        """
+        Checks to see if the trainer profile exists or not
+        """
+        try:
+            return self.trainer_dao.is_existing_trainer(user_id)
+        except Exception as e:
+            msg = "Error has occurred in checking and creating new trainer."
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+
+
+    def _check_and_create_new_trainer(self, user_id: str) -> None:
         """
         Checks to see if the User ID is a new to the list
         of trainers and generates a new trainer object within
@@ -40,7 +51,7 @@ class TrainerService(PokeBotModule):
             msg = "Error has occurred in checking and creating new trainer."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
 
-    def validate_trainer_catch(self, user_id: str):
+    def validate_trainer_catch(self, user_id: str) -> bool:
         """
         Validates whether the trainer is able to catch a
         pokemon or not
@@ -60,7 +71,7 @@ class TrainerService(PokeBotModule):
             msg = "Error has occurred in validating trainer catch."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
 
-    def save_all_trainer_data(self):
+    def save_all_trainer_data(self) -> None:
         """
         Saves all trainer data
         """
@@ -80,7 +91,7 @@ class TrainerService(PokeBotModule):
             msg = "Error has occurred in setting last_catch_time."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
 
-    def give_lootbox_to_trainer(self, user_id: str, lootbox: str):
+    def give_lootbox_to_trainer(self, user_id: str, lootbox: str) -> None:
         """
         Gives a lootbox to the trainer in their inventory
         """
@@ -101,11 +112,21 @@ class TrainerService(PokeBotModule):
             msg = "Error has occurred in getting total pokemon caught."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
 
+    def get_trainer_total_pokemon_caught(self, user_id: str) -> int:
+        """
+        Gets the trainer's total pokemon caught
+        """
+        try:
+            return self.trainer_dao.get_total_pkmn_count(user_id)
+        except Exception as e:
+            msg = "Error has occurred in getting trainer total pokemon."
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+
     async def display_trainer_profile(
         self,
         ctx: discord.ext.commands.Command,
         user_mention: str
-    ):
+    ) -> None:
         """
         Gets trainer profile of a trainer specified
         """
@@ -142,4 +163,14 @@ class TrainerService(PokeBotModule):
                                "bot command).")
         except Exception as e:
             msg = "Error has occurred in displaying trainer profile. "
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+
+    async def get_trainer_inventory(self, user_id: str) -> dict:
+        """
+        Gets the trainer inventory given the user id
+        """
+        try:
+            return self.trainer_dao.get_pokemon_inventory(user_id)
+        except Exception as e:
+            msg = "Error has occurred in getting trainer inventory."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)

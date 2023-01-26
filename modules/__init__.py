@@ -1,7 +1,7 @@
-from modules.pokebot_logic import PokeBotLogic
-from modules.pokebot_misc_logic import PokeBotMiscLogic
+from modules.inventory_logic import InventoryLogic
+from modules.misc_logic import MiscLogic
 
 all = [
-    PokeBotLogic,
-    PokeBotMiscLogic,
+    InventoryLogic,
+    MiscLogic,
 ]

@@ -18,14 +18,20 @@ class InventoryCommands(PokeBotCog):
         await self.inventory_logic.catch_pokemon(ctx)
 
     @commands.command(name='inventory', aliases=['i'], pass_context=True)
-    async def pinventory(self, ctx, page_number=0):
+    async def pinventory(
+        self,
+        ctx: commands.Context,
+        page: int=commands.parameter(
+            description="The @-mention of the user on disord.",
+            default=1
+        )
+    ):
         """
         Displays the trainer's pokemon inventory
-
-        @param ctx - context of the command sent
-        @param page_number - page number in inventory
         """
-        await self.cmd_function.display_pinventory(ctx, page_number)
+        if page < 1:
+            await self.inventory_logic.display_pinventory(ctx, 1)
+        await self.inventory_logic.display_pinventory(ctx, page)
 
     # @commands.command(name='release', aliases=['r'], pass_context=True)
     # async def release(self, ctx, pkmn: str, quantity=1):

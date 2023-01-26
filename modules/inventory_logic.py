@@ -1,14 +1,17 @@
 from classes import PokeBotModule, Pokemon
+from math import ceil
+from modules.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_assets import PokeBotAssets
 from modules.pokebot_rates import PokeBotRates
 from modules.trainer_service import TrainerService
+from modules.ultra_beasts_service import UltraBeastsService
 from utils import format_pokemon_name, get_ctx_user_id, get_specific_text_channel
 import discord
 import random
 import time
 
 
-class PokeBotLogicException(Exception):
+class InventoryLogicException(Exception):
     pass
 
 
@@ -19,13 +22,16 @@ class InventoryLogic(PokeBotModule):
     SHINY_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani-shiny/"
     NRML_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/regular/"
     NRML_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani/"
+    PKMN_PER_PAGE = 20
 
     def __init__(self, bot):
         self.assets = PokeBotAssets()
         self.bot = bot
+        self.legendary_service = LegendaryPokemonService()
         self.pokebot_rates = PokeBotRates(bot)
         self.trainer_service = TrainerService(bot, self.pokebot_rates)
         self.total_pokemon_caught = self.trainer_service.get_total_pokemon_caught()
+        self.ultra_beasts = UltraBeastsService()
 
     async def catch_pokemon(self, ctx: discord.ext.commands.Context):
         """
@@ -61,7 +67,7 @@ class InventoryLogic(PokeBotModule):
                 self.trainer_service.save_all_trainer_data()
         except Exception as e:
             msg = "Error has occurred in catching pokemon."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     def _generate_random_pokemon(self) -> Pokemon:
         """
@@ -79,7 +85,7 @@ class InventoryLogic(PokeBotModule):
             return pkmn
         except Exception as e:
             msg = "Error has occurred in generating pokemon."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     def _determine_shiny_pokemon(self) -> bool:
         """
@@ -92,7 +98,7 @@ class InventoryLogic(PokeBotModule):
             return False
         except Exception as e:
             msg = "Error has occurred in determining shiny pokemon."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     def _generate_lootbox(self, daily=False) -> str:
         """
@@ -128,7 +134,7 @@ class InventoryLogic(PokeBotModule):
             return None
         except Exception as e:
             msg = "Error has occurred in generating lootbox."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     async def _display_total_pokemon_caught(self):
         """
@@ -141,7 +147,7 @@ class InventoryLogic(PokeBotModule):
             await self._update_game_status(total_pokemon_caught)
         except Exception as e:
             msg = "Failed to display total pokemon caught."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     async def _update_game_status(self, total_pkmn_count: int) -> None:
         """
@@ -153,7 +159,7 @@ class InventoryLogic(PokeBotModule):
             await self.bot.change_presence(activity=game_status)
         except Exception as e:
             msg = "Failed to update game status."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     async def _post_pokemon_catch(
         self,
@@ -177,7 +183,7 @@ class InventoryLogic(PokeBotModule):
             await self._post_catch_to_channels(ctx, pkmn, msg)
         except Exception as e:
             msg = "Error has occurred in posting catch."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     async def _create_catch_message(
         self,
@@ -200,7 +206,7 @@ class InventoryLogic(PokeBotModule):
             return msg
         except Exception as e:
             msg = "Error has occurred in creating catch msg."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     async def _post_catch_to_channels(self,
         ctx: discord.ext.commands.Context,
@@ -221,7 +227,7 @@ class InventoryLogic(PokeBotModule):
             await channel.send(file=discord.File(pkmn.img_path), content=msg)
         except Exception as e:
             msg = "Error has occurred in posting catch to channels."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
     async def _post_catch_to_special_channel(
         self,
@@ -248,4 +254,97 @@ class InventoryLogic(PokeBotModule):
                 await channel.send(embed=em)
         except Exception as e:
             msg = "Error has occurred in posting catch to all channels."
-            self.post_error_log_msg(PokeBotLogicException.__name__, msg, e)
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+
+    async def display_pinventory(
+        self,
+        ctx: discord.ext.commands.Context,
+        page: int
+    ):
+        """
+        Creates and displays the trainer's pokemon inventory
+        """
+        try:
+            user_id = get_ctx_user_id(ctx)
+            valid_user = self.trainer_service.check_existing_trainer(user_id)
+            if not valid_user:
+                await ctx.send("Trainer hasn't set off on his journey to "
+                               "catch 'em all yet. (Trainer must catch "
+                               "a pokemon first in order to use this "
+                               "bot command).")
+                return
+            username = ctx.message.author.name
+            pinventory = \
+                await self.trainer_service.get_trainer_inventory(user_id)
+            pinventory_count = \
+                self.trainer_service.get_trainer_total_pokemon_caught(user_id)
+            max_page = \
+                ceil(pinventory_count/20) if pinventory_count != 0 else 1
+            if page > max_page:
+                await ctx.send("The page specified is higher than the" \
+                               " max page.")
+                return
+            current_list_of_pkmn_to_display = \
+                await self._slice_pinventory_to_display(pinventory, page, max_page)
+            pinventory_msg = await self._build_pinventory_msg_(
+                current_list_of_pkmn_to_display,
+                pinventory_count,
+                page,
+                max_page
+            )
+            em = discord.Embed(title="{}'s Inventory".format(username),
+                               description=pinventory_msg,
+                               colour=0xff0000)
+            await ctx.send(embed=em)
+        except Exception as e:
+            msg = "Error has occurred in displaying inventory."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)          
+
+    async def _slice_pinventory_to_display(
+        self,
+        pinventory: dict,
+        page: int,
+        max_page: int
+    ) -> list:
+        """
+        Slices the pokemon inventory to display the number of pokemon to
+        show from the trainer's inventory
+        """
+        try:
+            lowest_pkmn_index = (page-1) * self.PKMN_PER_PAGE
+            highest_pkmn_index = min(max_page*20, max(lowest_pkmn_index,1)*20)
+            sorted_pokemon_inventory = sorted(pinventory.items())
+            return sorted_pokemon_inventory[lowest_pkmn_index:highest_pkmn_index]
+        except Exception as e:
+            msg = "Error has occurred in slicing pinventory."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)  
+
+    async def _build_pinventory_msg_(
+        self,
+        current_list_of_pkmn_to_display: list,
+        pinventory_count: int,
+        page: int,
+        max_page: int
+    ) -> str:
+        """
+        Builds the bot message for the trainer's pokemon inventory display
+        """
+        try:
+            list_of_pkmn_msg = ""
+            for pkmn in current_list_of_pkmn_to_display:
+                pkmn_result = ''
+                is_legendary = \
+                    self.legendary_service.is_pokemon_legendary(pkmn[0])
+                is_ultra_beast = \
+                    self.ultra_beasts.is_pokemon_ultra_beast(pkmn[0])
+                if is_legendary or is_ultra_beast:
+                    pkmn_result = f"**{pkmn[0].title()}** x{pkmn[1]}\n"
+                    list_of_pkmn_msg += pkmn_result
+                else:
+                    list_of_pkmn_msg += f"{pkmn[0].title()} x{pkmn[1]}\n"
+            display_total_hdr = f"__**{pinventory_count}** Pokémon total. " \
+                            f"(Page **{page} of {max_page}**)__\n"
+            return display_total_hdr + list_of_pkmn_msg
+        except Exception as e:
+            msg = "Error has occurred in building pinventory message."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)  
