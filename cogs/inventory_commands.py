@@ -80,8 +80,8 @@ class InventoryCommands(PokeBotCog):
     #     """
     #     await self.cmd_function.display_lootbox_inventory(ctx)
 
-    # @commands.command(name='gift', pass_context=True)
-    # async def gift(self, ctx):
+    # @commands.command(name='claim', pass_context=True)
+    # async def claim(self, ctx):
     #     """
     #     Claims an available gift
     #     """
