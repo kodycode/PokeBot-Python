@@ -40,7 +40,7 @@ class MiscLogic(PokeBotModule):
         self,
         ctx: discord.ext.commands.Command,
         user_mention: str
-    ):
+    ) -> None:
         """
         Displays trainer profile and pokemon caught stats
         """
@@ -49,6 +49,6 @@ class MiscLogic(PokeBotModule):
             # Whereas our JSON file keeps it as str
             user_id = parse_discord_mention_user_id(user_mention)
             user_obj = ctx.bot.get_user(int(user_id))
-            await self.trainer_service.display_trainer_profile(user_obj)
+            return await self.trainer_service.display_trainer_profile(user_obj)
         except UnregisteredTrainerException:
             raise

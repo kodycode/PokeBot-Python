@@ -36,7 +36,7 @@ class MiscCommands(PokeBotCog):
         user_mention: str=commands.parameter(
             description="The @-mention of the user on disord."
         )
-    ):
+    ) -> None:
         """
         Obtains the profile of a trainer specified
         """

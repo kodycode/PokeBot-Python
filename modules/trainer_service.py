@@ -1,4 +1,4 @@
-from classes import PokeBotModule
+from classes import PokeBotModule, Pokemon
 from database import TrainerDAO
 from discord.ext import commands
 from modules.pokebot_exceptions import (
@@ -16,13 +16,18 @@ class TrainerService(PokeBotModule):
         self.trainer_dao = TrainerDAO()
         self.rates = rates
 
-    def give_pokemon_to_trainer(self, user_id: str, pkmn_name: str) -> None:
+    def give_pokemon_to_trainer(self, user_id: str, pkmn: Pokemon) -> None:
         """
         Gives the pokemon to the trainer in their inventory
         """
         try:
             self._check_and_create_new_trainer(user_id)
-            self.trainer_dao.increment_pokemon_quantity(user_id, pkmn_name)
+            self.trainer_dao.increment_pokemon_quantity(user_id, pkmn.name)
+            if pkmn.is_legendary:
+                self.trainer_dao.increment_legendary_pkmn_count(user_id)
+            elif pkmn.is_ultra_beast:
+                self.trainer_dao.increment_ultra_beasts_count(user_id)
+            self.trainer_dao.increment_total_pkmn_count(user_id)
         except Exception as e:
             msg = "Error has occurred in creating catch msg."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)

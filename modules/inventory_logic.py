@@ -35,7 +35,7 @@ class InventoryLogic(PokeBotModule):
         self.total_pokemon_caught = self.trainer_service.get_total_pokemon_caught()
         self.ultra_beasts = UltraBeastsService()
 
-    async def catch_pokemon(self, ctx: discord.ext.commands.Context):
+    async def catch_pokemon(self, ctx: discord.ext.commands.Context) -> None:
         """
         Generates a random pokemon to be caught
         """
@@ -49,7 +49,7 @@ class InventoryLogic(PokeBotModule):
                 random_pkmn = self._generate_random_pokemon()
                 self.trainer_service.give_pokemon_to_trainer(
                     user_id,
-                    random_pkmn.name,
+                    random_pkmn,
                 )
                 self.trainer_service.set_trainer_last_catch_time(
                     user_id,
@@ -138,7 +138,7 @@ class InventoryLogic(PokeBotModule):
             msg = "Error has occurred in generating lootbox."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
-    async def _display_total_pokemon_caught(self):
+    async def _display_total_pokemon_caught(self) -> None:
         """
         Iterates over trainer profiles and gets the total
         number of pokemon caught
@@ -169,7 +169,7 @@ class InventoryLogic(PokeBotModule):
         pkmn: Pokemon,
         catch_condition: str,
         lootbox: str
-    ):
+    ) -> None:
         """
         Posts the pokemon that was caught
         """
