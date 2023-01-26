@@ -51,17 +51,6 @@ class InventoryCommands(PokeBotCog):
     #     """
     #     await self.cmd_function.hatch_egg(ctx)
 
-    # @commands.command(name='fuse', aliases=['f'], pass_context=True)
-    # async def fuse(self, ctx, pkmn, *args):
-    #     """
-    #     Fuses all type-specific forms of a pokemon to get the original
-
-    #     @param pkmn - pokemon to fuse into
-    #     @param args - enter 5 pokemon to fuse to get to the original
-    #                   (valid for only pokemon with over 5 known forms)
-    #     """
-    #     await self.cmd_function.fuse_pokemon(ctx, pkmn, args)
-
     # @commands.command(name='exchange', aliases=['e'], pass_context=True)
     # async def exchange(self, ctx, *args):
     #     """
