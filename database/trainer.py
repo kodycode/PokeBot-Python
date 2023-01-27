@@ -146,6 +146,8 @@ class TrainerDAO(DataDAO):
         self.data[user_id][self.SHINY_PKMN_COUNT] = 0
         self.data[user_id][self.TOTAL_PKMN_COUNT] = 0
         self.data[user_id][self.ULTRA_BEASTS_COUNT] = 0
+        self.data[user_id][self.EGG_COUNT] = 0
+        self.data[user_id][self.EGG_MANAPHY_COUNT] = 0
 
     def get_total_pokemon_caught(self) -> int:
         """
