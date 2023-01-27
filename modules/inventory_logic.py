@@ -266,17 +266,17 @@ class InventoryLogic(PokeBotModule):
             msg = "Error has occurred in posting catch to all channels."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
-    async def display_pinventory(
+    async def build_pinventory_msg(
         self,
         ctx: discord.ext.commands.Context,
         page: int
-    ):
+    ) -> discord.Embed:
         """
         Creates and displays the trainer's pokemon inventory
         """
         try:
             user_id = get_ctx_user_id(ctx)
-            await self._is_existing_user(user_id)
+            self._is_existing_user(user_id)
             username = ctx.message.author.name
             pinventory = \
                 await self.trainer_service.get_trainer_inventory(user_id)
@@ -296,14 +296,14 @@ class InventoryLogic(PokeBotModule):
             em = discord.Embed(title="{}'s Inventory".format(username),
                                description=pinventory_msg,
                                colour=0xff0000)
-            await ctx.send(embed=em)
+            return em
         except HigherPageSpecifiedException as e:
             raise
         except Exception as e:
             msg = "Error has occurred in displaying inventory."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)     
 
-    def _is_existing_user(self, user_id: str):
+    def _is_existing_user(self, user_id: str) -> None:
         """
         Checks if user exists and throws an UnregisteredTrainerException
         if not
@@ -386,7 +386,7 @@ class InventoryLogic(PokeBotModule):
             msg = "Error has occurred in releasing pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
 
-    async def build_eggs_msg(self, ctx: discord.ext.commands.Context):
+    async def build_eggs_msg(self, ctx: discord.ext.commands.Context) -> discord.Embed:
         """
         Builds the message for eggs
         """

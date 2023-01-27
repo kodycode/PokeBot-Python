@@ -43,7 +43,9 @@ class InventoryCommands(PokeBotCog):
         try:
             if page < 1:
                 raise PageQuantityTooLow()
-            await self.inventory_logic.display_pinventory(ctx, page)
+            embed_msg = \
+                await self.inventory_logic.build_pinventory_msg(ctx, page)
+            await ctx.send(embed=embed_msg)
         except HigherPageSpecifiedException as e:
             await self.post_higher_page_specified_exception_msg(ctx, e)
         except PageQuantityTooLow:
