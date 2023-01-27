@@ -7,6 +7,8 @@ from modules.pokebot_exceptions import (
     HigherPageSpecifiedException,
     HigherReleaseQuantitySpecifiedException,
     NoEggCountException,
+    NotEnoughExchangePokemonQuantityException,
+    NotEnoughExchangePokemonSpecifiedException,
     PageQuantityTooLow,
     ReleaseQuantityTooLow,
     UnregisteredTrainerException,
@@ -110,14 +112,24 @@ class InventoryCommands(PokeBotCog):
         except UnregisteredTrainerException:
             await self.post_unregistered_trainer_exception_msg(ctx)
 
-    # @commands.command(name='exchange', aliases=['e'], pass_context=True)
-    # async def exchange(self, ctx, *args):
-    #     """
-    #     Exchanges 5 pokemon for a pokemon with a 5x shiny chance
-
-    #     @param pkmn - pkmn to be released
-    #     """
-    #     await self.cmd_function.exchange_pokemon(ctx, args)
+    @commands.command(name='exchange', pass_context=True)
+    async def exchange(
+        self,
+        ctx:commands.Context,
+        *args: str
+    ) -> None:
+        """
+        Exchanges 5 pokemon for a pokemon with a modified shiny chance
+        rate
+        """
+        try:
+            await self.inventory_logic.exchange_pokemon(ctx, args)
+        except NotEnoughExchangePokemonQuantityException:
+            await self.post_not_enough_exchange_pokemon_quantity_exception()
+        except NotEnoughExchangePokemonSpecifiedException:
+            await self.post_not_enough_exchange_pokemon_specified_exception()
+        except UnregisteredTrainerException:
+            await self.post_unregistered_trainer_exception_msg(ctx)
 
     # @commands.command(name='open', aliases=['o'], pass_context=True)
     # async def open(self, ctx, lootbox: str):

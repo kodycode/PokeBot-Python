@@ -8,12 +8,19 @@ from modules.pokebot_exceptions import (
     HigherReleaseQuantitySpecifiedException,
     InventoryLogicException,
     NoEggCountException,
+    NotEnoughExchangePokemonSpecifiedException,
+    NotEnoughExchangePokemonQuantityException,
     UnregisteredTrainerException
 )
 from modules.pokebot_rates import PokeBotRates
 from modules.trainer_service import TrainerService
 from modules.ultra_beasts_service import UltraBeastsService
-from utils import format_pokemon_name, get_ctx_user_id, get_specific_text_channel
+from utils import (
+    format_pokemon_name,
+    get_ctx_user_id,
+    get_specific_text_channel,
+    is_name_shiny,
+)
 import discord
 import random
 import time
@@ -371,19 +378,40 @@ class InventoryLogic(PokeBotModule):
         Deletes a pokemon from the trainer's inventory
         """
         try:
-            user_id = get_ctx_user_id(ctx)
-            pkmn_lowercase = pkmn_name.lower()
-            await self.trainer_service.decrease_pokemon_quantity(
-                user_id,
-                pkmn_lowercase,
-                quantity
-            )
+            user_id = get_ctx_user_id(ctx, pkmn_name, quantity)
+            self._is_existing_user(user_id)
+            self._process_pokemon_release(user_id, pkmn_name, quantity)
             self.trainer_service.save_all_trainer_data()
             await self._display_total_pokemon_caught()
         except HigherReleaseQuantitySpecifiedException:
             raise
         except Exception as e:
             msg = "Error has occurred in releasing pokemon."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
+
+    async def _process_pokemon_release(
+        self,
+        user_id: str,
+        pkmn_name: str,
+        quantity: int
+    ):
+        """
+        Processes pokemon to release
+        """
+        try:
+            is_shiny = is_name_shiny(pkmn_lowercase)
+            pkmn_lowercase = pkmn_name.lower()
+            pkmn = self.assets.get_pokemon_asset(
+                pkmn_lowercase,
+                is_shiny=is_shiny
+            )
+            await self.trainer_service.decrease_pokemon_quantity(
+                user_id,
+                pkmn,
+                quantity
+            )
+        except Exception as e:
+            msg = "Error has occurred in processing pokemon release"
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
 
     async def build_eggs_msg(self, ctx: discord.ext.commands.Context) -> discord.Embed:
@@ -465,3 +493,74 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in generating specific pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+
+    async def exchange_pokemon(
+        self,
+        ctx: discord.ext.commands.Context,
+        *args: str
+    ) -> discord.Embed:
+        """
+        Exchanges five pokemon for a random pokemon with an applied exchange
+        shiny multiplier
+        """
+        try:
+            if len(args) < 5:
+                raise NotEnoughExchangePokemonSpecifiedException()
+            user_id = get_ctx_user_id(ctx)
+            pkmn_to_release = self._collect_pokemon_to_release(user_id, *args)
+
+            # release pokemon from inventory
+            for pkmn_name in pkmn_to_release.keys():
+                self._process_pokemon_release(
+                    user_id,
+                    pkmn_name,
+                    pkmn_to_release[pkmn_name]
+                )
+
+            random_pkmn = self._generate_random_pokemon()
+            self.trainer_service.give_pokemon_to_trainer(
+                user_id,
+                random_pkmn,
+            )
+            await self._display_total_pokemon_caught()
+            await self._post_pokemon_catch(ctx,
+                                           random_pkmn,
+                                           "exchanged pokemon for",
+                                            None)
+            self.trainer_service.save_all_trainer_data()  
+        except NotEnoughExchangePokemonSpecifiedException:
+            raise
+        except NotEnoughExchangePokemonQuantityException:
+            raise
+        except Exception as e:
+            msg = "Error has occurred in exchanging pokemon."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+
+    def _collect_pokemon_to_release(self, user_id: str, *args: str):
+        """
+        Collects pokemon to release in the form of a dictionary to
+        accommodate for multiple quantities of a pokemon to release
+        at once
+        """
+        try:
+            pokemon_to_release = {}
+            lack_of_pokemon_quantity = []
+            for pkmn_name in args:
+                pkmn_quantity = \
+                    self.trainer_service.get_quantity_of_specified_pokemon(
+                        user_id,
+                        pkmn_name
+                    )
+                if not pkmn_quantity:
+                    lack_of_pokemon_quantity.append(pkmn_name)
+                elif pkmn_name not in pokemon_to_release:
+                    pokemon_to_release[pkmn_name] = 1
+                else:
+                    pokemon_to_release[pkmn_name] += 1
+            if lack_of_pokemon_quantity:
+                raise NotEnoughExchangePokemonQuantityException(
+                    lack_of_pokemon_quantity
+                )
+            return pokemon_to_release
+        except NotEnoughExchangePokemonQuantityException:
+            raise

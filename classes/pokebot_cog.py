@@ -10,7 +10,7 @@ class PokeBotCog(commands.Cog):
         self,
         ctx: commands.Context, 
         e: Exception
-    ):
+    ) -> None:
         """
         Sends the exception message for when catch cooldown
         has not finished
@@ -49,12 +49,38 @@ class PokeBotCog(commands.Cog):
         self,
         ctx: commands.Context,
         e: Exception
-    ):
+    ) -> None:
         """
         Sends the exception message for when theres no eggs to hatch
         """
         await ctx.send(f"{ctx.message.author.mention}," \
                        f" you have no {str(e)} eggs to hatch")
+
+    async def post_not_enough_exchange_pokemon_quantity_exception(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when not enough pokemon
+        exists to exchange 
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " please specify a valid amount of" \
+                       " pokemon to exchange that have enough" \
+                       " quantity to release")
+
+    async def post_not_enough_exchange_pokemon_specified_exception(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when not enough pokemon
+        is specified to exchange
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " please specify five pokemon to exchange")
 
     async def post_page_quantity_too_low_msg(
         self,

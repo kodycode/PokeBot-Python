@@ -177,7 +177,7 @@ class TrainerService(PokeBotModule):
     async def decrease_pokemon_quantity(
         self,
         user_id: str,
-        pkmn_name: str,
+        pkmn: Pokemon,
         quantity: int
     ) -> None:
         """
@@ -185,15 +185,30 @@ class TrainerService(PokeBotModule):
         """
         try:
             pokemon_quantity = \
-                self.trainer_dao.get_pokemon_quantity(user_id, pkmn_name)
+                self.trainer_dao.get_pokemon_quantity(user_id, pkmn.name)
             if quantity > pokemon_quantity:
                 raise HigherReleaseQuantitySpecifiedException(pokemon_quantity)
             new_pokemon_quantity = pokemon_quantity - quantity
             self.trainer_dao.set_pokemon_quantity(
                 user_id,
-                pkmn_name,
+                pkmn.name,
                 new_pokemon_quantity
             )
+            if pkmn.is_legendary:
+                self.trainer_dao.decrease_legendary_pkmn_count(
+                    user_id,
+                    quantity
+                )
+            if pkmn.is_ultra_beast:
+                self.trainer_dao.decrease_ultra_beasts_count(
+                    user_id,
+                    quantity
+                )
+            if pkmn.is_shiny:
+                self.trainer_dao.decrease_shiny_pkmn_count(
+                    user_id,
+                    quantity
+                )
             self.trainer_dao.save()
         except HigherReleaseQuantitySpecifiedException:
             raise
@@ -232,4 +247,15 @@ class TrainerService(PokeBotModule):
             return self.trainer_dao.get_egg_manaphy_count(user_id)
         except Exception as e:
             msg = "Error has occurred in retrieving egg manaphy count."
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+
+    def get_quantity_of_specified_pokemon(self, user_id: str, pkmn_name: str):
+        """
+        Gets the quantity of a specified pokemon that the trainer has
+        """
+        try:
+            return self.trainer_dao.get_pokemon_quantity(user_id, pkmn_name)
+        except Exception as e:
+            msg = ("Error has occurred in getting the quantity of "
+                   "specified pokemon")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)

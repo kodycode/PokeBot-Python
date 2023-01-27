@@ -26,6 +26,14 @@ class NoEggCountException(Exception):
     pass
 
 
+class NotEnoughExchangePokemonQuantityException(Exception):
+    pass
+
+
+class NotEnoughExchangePokemonSpecifiedException(Exception):
+    pass
+
+
 class PageQuantityTooLow(Exception):
     pass
 

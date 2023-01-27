@@ -28,3 +28,10 @@ def parse_discord_mention_user_id(user_mention: str):
     parsed_user_id = re.search(r'\d+', user_mention)
     parsed_user_id = str(parsed_user_id.group(0))
     return parsed_user_id
+
+
+def is_name_shiny(pkmn_name: str) -> str:
+    """
+    Checks to see if the pokemon specified has shiny in it
+    """
+    return pkmn_name.endswith("(Shiny)")

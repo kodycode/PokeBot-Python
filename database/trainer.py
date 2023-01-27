@@ -177,6 +177,16 @@ class TrainerDAO(DataDAO):
         """
         self.data[user_id][self.LEGENDARY_PKMN_COUNT] += 1
 
+    def decrease_legendary_pkmn_count(
+        self,
+        user_id: str,
+        quantity: int
+    ) -> None:
+        """
+        Decreases the legendary pokemon count by a specified amount
+        """
+        self.data[user_id][self.LEGENDARY_PKMN_COUNT] -= quantity
+
     def get_shiny_pkmn_count(self, user_id: str) -> int:
         """
         Gets the shiny pokemon count
@@ -188,6 +198,16 @@ class TrainerDAO(DataDAO):
         Increments the trainer's count for shiny pokemon
         """
         self.data[user_id][self.SHINY_PKMN_COUNT] += 1
+
+    def decrease_shiny_pkmn_count(
+        self,
+        user_id: str,
+        quantity: int
+    ) -> None:
+        """
+        Decreases the shiny pokemon count by a specified amount
+        """
+        self.data[user_id][self.SHINY_PKMN_COUNT] -= quantity
 
     def get_total_pkmn_count(self, user_id: str) -> int:
         """
@@ -201,6 +221,16 @@ class TrainerDAO(DataDAO):
         """
         self.data[user_id][self.TOTAL_PKMN_COUNT] += 1
 
+    def decrease_total_pkmn_count(
+        self,
+        user_id: str,
+        quantity: int
+    ) -> None:
+        """
+        Decreases the total pokemon count by a specified amount
+        """
+        self.data[user_id][self.TOTAL_PKMN_COUNT] -= quantity
+
     def get_ultra_beasts_count(self, user_id: str) -> int:
         """
         Gets the ultra beasts count
@@ -212,6 +242,16 @@ class TrainerDAO(DataDAO):
         Increments the trainer's count for legendary pokemon
         """
         self.data[user_id][self.ULTRA_BEASTS_COUNT] += 1
+
+    def decrease_ultra_beasts_count(
+        self,
+        user_id: str,
+        quantity: int
+    ) -> None:
+        """
+        Decreases the ultra beast count by a specified amount
+        """
+        self.data[user_id][self.ULTRA_BEASTS_COUNT] -= quantity
 
     def get_egg_count(self, user_id: str) -> int:
         """
