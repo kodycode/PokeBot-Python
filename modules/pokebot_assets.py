@@ -58,12 +58,15 @@ class PokeBotAssets(PokeBotModule):
         Gets a random pokemon from the asset folder
         """
         try:
+            is_egg = False
             if is_shiny:
                 random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                 pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
             else:
                 random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
                 pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
+            if random_pkmn == "egg" or random_pkmn == "egg-manaphy":
+                is_egg = True
             is_legendary = \
                 self.legendary_service.is_pokemon_legendary(random_pkmn)
             is_ultra_beast = \
@@ -71,6 +74,7 @@ class PokeBotAssets(PokeBotModule):
             return Pokemon(
                 name=random_pkmn,
                 img_path=pkmn_img_path,
+                is_egg=is_egg,
                 is_legendary=is_legendary,
                 is_shiny=is_shiny,
                 is_ultra_beast=is_ultra_beast,
@@ -88,10 +92,13 @@ class PokeBotAssets(PokeBotModule):
         Gets a specific pokemon from the asset folder
         """
         try:
+            is_egg = False
             if is_shiny:
                 pkmn_img_path = self.shiny_pokemon[pkmn_name][0]
             else:
                 pkmn_img_path = self.nrml_pokemon[pkmn_name][0]
+            if pkmn_name == "egg" or pkmn_name == "egg-manaphy":
+                is_egg = True
             is_legendary = \
                 self.legendary_service.is_pokemon_legendary(pkmn_name)
             is_ultra_beast = \
@@ -99,6 +106,7 @@ class PokeBotAssets(PokeBotModule):
             return Pokemon(
                 name=pkmn_name,
                 img_path=pkmn_img_path,
+                is_egg=is_egg,
                 is_legendary=is_legendary,
                 is_shiny=is_shiny,
                 is_ultra_beast=is_ultra_beast,

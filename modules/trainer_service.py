@@ -22,12 +22,18 @@ class TrainerService(PokeBotModule):
         """
         try:
             self._check_and_create_new_trainer(user_id)
-            self.trainer_dao.increment_pokemon_quantity(user_id, pkmn.name)
-            if pkmn.is_legendary:
-                self.trainer_dao.increment_legendary_pkmn_count(user_id)
-            elif pkmn.is_ultra_beast:
-                self.trainer_dao.increment_ultra_beasts_count(user_id)
-            self.trainer_dao.increment_total_pkmn_count(user_id)
+            if pkmn.is_egg:
+                if pkmn.name == "egg":
+                    self.trainer_dao.increment_egg_count(user_id)
+                elif pkmn.name == "egg-manaphy":
+                    self.trainer_dao.increment_egg_manaphy_count(user_id)
+            else:
+                self.trainer_dao.increment_pokemon_quantity(user_id, pkmn.name)
+                if pkmn.is_legendary:
+                    self.trainer_dao.increment_legendary_pkmn_count(user_id)
+                elif pkmn.is_ultra_beast:
+                    self.trainer_dao.increment_ultra_beasts_count(user_id)
+                self.trainer_dao.increment_total_pkmn_count(user_id)
         except Exception as e:
             msg = "Error has occurred in creating catch msg."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)

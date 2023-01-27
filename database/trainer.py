@@ -75,6 +75,8 @@ class TrainerDAO(DataDAO):
         """
         Gets the last catch time of the trainer
         """
+        if not self.is_existing_trainer(user_id):
+            return 0
         return self.data[user_id][self.LAST_CATCH_TIME]
 
     def get_last_daily_redeemed_time(self, user_id: str) -> float:
@@ -223,11 +225,23 @@ class TrainerDAO(DataDAO):
         """
         return self.data[user_id][self.EGG_MANAPHY_COUNT]
 
+    def increment_egg_count(self, user_id: str) -> None:
+        """
+        Increment trainer's egg count
+        """
+        self.data[user_id][self.EGG_COUNT] += 1
+
     def decrement_egg_count(self, user_id: str) -> None:
         """
         Decrement trainer's egg count
         """
         self.data[user_id][self.EGG_COUNT] -= 1
+
+    def increment_egg_manaphy_count(self, user_id: str) -> None:
+        """
+        Increment trainer's manaphy egg count
+        """
+        self.data[user_id][self.EGG_MANAPHY_COUNT] += 1
 
     def decrement_egg_manaphy_count(self, user_id: str) -> None:
         """

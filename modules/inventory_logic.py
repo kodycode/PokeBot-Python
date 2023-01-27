@@ -65,7 +65,7 @@ class InventoryLogic(PokeBotModule):
                 await self._display_total_pokemon_caught()
                 await self._post_pokemon_catch(ctx,
                                                random_pkmn,
-                                               "catch",
+                                               "caught",
                                                lootbox)
                 self.trainer_service.save_all_trainer_data()
             else:
@@ -435,6 +435,10 @@ class InventoryLogic(PokeBotModule):
                     raise NoEggCountException("regular")
                 pkmn = self._generate_random_pokemon(is_egg=True)
             self.trainer_service.decrement_egg_count(user_id, special_egg)
+            self.trainer_service.give_pokemon_to_trainer(
+                user_id,
+                pkmn,
+            )
             await self._post_pokemon_catch(ctx,
                                            pkmn,
                                            "hatched",
