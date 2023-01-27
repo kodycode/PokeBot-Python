@@ -22,6 +22,10 @@ class MiscLogicException(Exception):
     pass
 
 
+class NoEggCountException(Exception):
+    pass
+
+
 class PageQuantityTooLow(Exception):
     pass
 

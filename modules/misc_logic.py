@@ -14,7 +14,7 @@ class MiscLogic(PokeBotModule):
     """Handles the misc logic of features for PokeBot"""
 
     def __init__(self, bot):
-        self.trainer_service = TrainerService(bot, PokeBotRates(bot))
+        self.trainer_service = TrainerService(PokeBotRates(bot))
 
     async def build_gif_embed(self, pkmn_name: str, shiny: str):
         """

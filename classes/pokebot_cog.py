@@ -18,6 +18,7 @@ class PokeBotCog(commands.Cog):
         await ctx.send(f"{ctx.message.author.mention}," \
                        f" please wait **{str(e)}** second(s) to catch" \
                        " another pokemon")
+
     async def post_higher_quantity_specified_exception_msg(
         self,
         ctx: commands.Context,
@@ -43,6 +44,17 @@ class PokeBotCog(commands.Cog):
         await ctx.send(f"{ctx.message.author.mention}," \
                        " please specify a page number less than the" \
                        f" max page number: **{str(e)}**")
+
+    async def post_no_egg_count_msg(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ):
+        """
+        Sends the exception message for when theres no eggs to hatch
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       f" you have no {str(e)} eggs to hatch")
 
     async def post_page_quantity_too_low_msg(
         self,

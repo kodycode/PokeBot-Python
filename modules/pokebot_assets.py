@@ -78,3 +78,31 @@ class PokeBotAssets(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in getting random pokemon asset."
             self.post_error_log_msg(PokeBotAssetsException.__name__, msg, e)
+
+    def get_pokemon_asset(
+        self,
+        pkmn_name: str,
+        is_shiny: bool=False
+    ) -> Pokemon:
+        """
+        Gets a specific pokemon from the asset folder
+        """
+        try:
+            if is_shiny:
+                pkmn_img_path = self.shiny_pokemon[pkmn_name][0]
+            else:
+                pkmn_img_path = self.nrml_pokemon[pkmn_name][0]
+            is_legendary = \
+                self.legendary_service.is_pokemon_legendary(pkmn_name)
+            is_ultra_beast = \
+                self.ultra_service.is_pokemon_ultra_beast(pkmn_name)
+            return Pokemon(
+                name=pkmn_name,
+                img_path=pkmn_img_path,
+                is_legendary=is_legendary,
+                is_shiny=is_shiny,
+                is_ultra_beast=is_ultra_beast,
+            )
+        except Exception as e:
+            msg = "Error has occurred in getting specified pokemon asset."
+            self.post_error_log_msg(PokeBotAssetsException.__name__, msg, e)

@@ -220,3 +220,15 @@ class TrainerDAO(DataDAO):
         Gets the amount of manaphy eggs that exist with the user
         """
         return self.data[user_id][self.EGG_MANAPHY_COUNT]
+
+    def decrement_egg_count(self, user_id: str) -> None:
+        """
+        Decrement trainer's egg count
+        """
+        self.data[user_id][self.EGG_COUNT] -= 1
+
+    def decrement_egg_manaphy_count(self, user_id: str) -> None:
+        """
+        Decrement trainer's manaphy egg count
+        """
+        self.data[user_id][self.EGG_MANAPHY_COUNT] -= 1

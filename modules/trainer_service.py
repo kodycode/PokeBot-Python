@@ -12,7 +12,7 @@ import time
 
 
 class TrainerService(PokeBotModule):
-    def __init__(self, bot: commands.Bot, rates: PokeBotRates):
+    def __init__(self, rates: PokeBotRates):
         self.trainer_dao = TrainerDAO()
         self.rates = rates
 
@@ -200,9 +200,22 @@ class TrainerService(PokeBotModule):
         Gets the regular egg count for a user
         """
         try:
-            return self.trainer_dao.get_egg_count()
+            return self.trainer_dao.get_egg_count(user_id)
         except Exception as e:
             msg = "Error has occurred in retrieving egg count."
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+
+    def decrement_egg_count(self, user_id: str, special_egg: str) -> None:
+        """
+        Decrements egg count
+        """
+        try:
+            if special_egg == 'm':
+                self.trainer_dao.decrement_egg_manaphy_count(user_id)
+            else:
+                self.trainer_dao.decrement_egg_count(user_id)
+        except Exception as e:
+            msg = "Error has occurred in decreasing egg count."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
 
     def get_egg_manaphy_count(self, user_id: str) -> int:
@@ -210,7 +223,7 @@ class TrainerService(PokeBotModule):
         Gets the regular egg count for a user
         """
         try:
-            return self.trainer_dao.get_egg_manaphy_count()
+            return self.trainer_dao.get_egg_manaphy_count(user_id)
         except Exception as e:
             msg = "Error has occurred in retrieving egg manaphy count."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)

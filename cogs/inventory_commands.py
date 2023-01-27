@@ -6,6 +6,7 @@ from modules.pokebot_exceptions import (
     CatchCooldownIncompleteException,
     HigherPageSpecifiedException,
     HigherReleaseQuantitySpecifiedException,
+    NoEggCountException,
     PageQuantityTooLow,
     ReleaseQuantityTooLow,
     UnregisteredTrainerException,
@@ -92,12 +93,24 @@ class InventoryCommands(PokeBotCog):
         except UnregisteredTrainerException:
             await self.post_unregistered_trainer_exception_msg()
 
-    # @commands.command(name='hatch', aliases=['h'], pass_context=True)
-    # async def hatch(self, ctx: commands.Context):
-    #     """
-    #     Hatches an egg from your inventory
-    #     """
-    #     await self.inventory_logic.hatch_egg(ctx)
+    @commands.command(name='hatch', aliases=['h'], pass_context=True)
+    async def hatch(
+        self,
+        ctx: commands.Context,
+        special_egg: str=commands.parameter(
+            description="Specify 'm' to hatch a manaphy egg if you have one",
+            default=''
+        )
+    ):
+        """
+        Hatches an egg from your inventory
+        """
+        try:
+            await self.inventory_logic.hatch_egg(ctx, special_egg)
+        except NoEggCountException as e:
+            await self.post_no_egg_count_msg(ctx, e)
+        except UnregisteredTrainerException:
+            await self.post_unregistered_trainer_exception_msg(ctx)
 
     # @commands.command(name='exchange', aliases=['e'], pass_context=True)
     # async def exchange(self, ctx, *args):

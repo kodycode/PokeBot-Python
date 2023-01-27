@@ -56,7 +56,11 @@ class PokeBotRates(PokeBotModule):
         applied with any event modifications
         """
         try:
-            return self.shiny_pkmn_rates.get_shiny_pkmn_hatch_multiplier()
+            shiny_pkmn_hatch_multiplier = \
+                self.shiny_pkmn_rates.get_shiny_pkmn_hatch_multiplier()
+            shiny_pkmn_catch_rate = \
+                self.shiny_pkmn_rates.get_shiny_pkmn_catch_rate()
+            return shiny_pkmn_hatch_multiplier * shiny_pkmn_catch_rate
         except Exception as e:
             msg = "Error has occurred getting shiny pkmn hatch multiplier."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)

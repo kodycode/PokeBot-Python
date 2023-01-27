@@ -7,6 +7,7 @@ from modules.pokebot_exceptions import (
     HigherPageSpecifiedException,
     HigherReleaseQuantitySpecifiedException,
     InventoryLogicException,
+    NoEggCountException,
     UnregisteredTrainerException
 )
 from modules.pokebot_rates import PokeBotRates
@@ -32,7 +33,7 @@ class InventoryLogic(PokeBotModule):
         self.bot = bot
         self.legendary_service = LegendaryPokemonService()
         self.pokebot_rates = PokeBotRates(bot)
-        self.trainer_service = TrainerService(bot, self.pokebot_rates)
+        self.trainer_service = TrainerService(self.pokebot_rates)
         self.total_pokemon_caught = self.trainer_service.get_total_pokemon_caught()
         self.ultra_beasts = UltraBeastsService()
 
@@ -76,15 +77,13 @@ class InventoryLogic(PokeBotModule):
             msg = "Error has occurred in catching pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
-    def _generate_random_pokemon(self) -> Pokemon:
+    def _generate_random_pokemon(self, is_egg=False) -> Pokemon:
         """
-        Generates a random pokemon and returns a tuple of the
-        pokemon name, image path, and whether the pokemon is shiny
-        or not
+        Generates a random pokemon and returns a Pokemon object
         """
         try:
             self.total_pokemon_caught += 1
-            is_shiny_pokemon = self._determine_shiny_pokemon()
+            is_shiny_pokemon = self._determine_shiny_pokemon(is_egg)
             if is_shiny_pokemon:
                 pkmn = self.assets.get_random_pokemon_asset(True)
             else:
@@ -94,13 +93,18 @@ class InventoryLogic(PokeBotModule):
             msg = "Error has occurred in generating pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
 
-    def _determine_shiny_pokemon(self) -> bool:
+    def _determine_shiny_pokemon(self, is_egg=False) -> bool:
         """
         Determines the odds of a shiny pokemon 
         """
         try:
+            shiny_catch_rate = -1
             shiny_rng_chance = random.uniform(0, 1)
-            if shiny_rng_chance < self.pokebot_rates.get_shiny_pkmn_catch_rate():
+            if is_egg:
+                shiny_catch_rate = self.pokebot_rates.get_shiny_pkmn_hatch_multiplier()
+            else:
+                shiny_catch_rate = self.pokebot_rates.get_shiny_pkmn_catch_rate()
+            if shiny_rng_chance < shiny_catch_rate:
                 return True
             return False
         except Exception as e:
@@ -375,6 +379,8 @@ class InventoryLogic(PokeBotModule):
                 pkmn_lowercase,
                 quantity
             )
+            self.trainer_service.save_all_trainer_data()
+            await self._display_total_pokemon_caught()
         except HigherReleaseQuantitySpecifiedException:
             raise
         except Exception as e:
@@ -387,7 +393,7 @@ class InventoryLogic(PokeBotModule):
         """
         try:
             user_id = get_ctx_user_id(ctx)
-            await self._is_existing_user(user_id)
+            self._is_existing_user(user_id)
             egg_count = await self.trainer_service.get_egg_count(user_id)
             egg_manaphy_count = \
                 await self.trainer_service.get_egg_manaphy_count(user_id)
@@ -404,3 +410,57 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in building egg message."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
+
+    async def hatch_egg(
+        self,
+        ctx: discord.ext.commands.Context,
+        special_egg: str,
+    ) -> None:
+        """
+        Generates a random pokemon from the egg
+        """
+        try:
+            egg_count = 0
+            user_id = get_ctx_user_id(ctx)
+            self._is_existing_user(user_id)
+            if special_egg == 'm':
+                egg_count = \
+                    self.trainer_service.get_egg_manaphy_count(user_id)
+                if not egg_count:
+                    raise NoEggCountException("manaphy")
+                pkmn = self._generate_pokemon("manaphy", is_egg=True)
+            else:
+                egg_count = \
+                    self.trainer_service.get_egg_count(user_id)
+                if not egg_count:
+                    raise NoEggCountException("regular")
+                pkmn = self._generate_random_pokemon(is_egg=True)
+            self.trainer_service.decrement_egg_count(user_id, special_egg)
+            await self._post_pokemon_catch(ctx,
+                                           pkmn,
+                                           "hatched",
+                                           None)
+            self.trainer_service.save_all_trainer_data()
+        except NoEggCountException:
+            raise
+        except UnregisteredTrainerException:
+            raise
+        except Exception as e:
+            msg = "Error has occurred in hatching egg."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+
+    def _generate_pokemon(self, pkmn_name: str, is_egg=False) -> Pokemon:
+        """
+        Generates a specified pokemon and returns a Pokemon object
+        """
+        try:
+            self.total_pokemon_caught += 1
+            is_shiny_pokemon = self._determine_shiny_pokemon(is_egg)
+            if is_shiny_pokemon:
+                pkmn = self.assets.get_pokemon_asset(pkmn_name, True)
+            else:
+                pkmn = self.assets.get_pokemon_asset(pkmn_name)
+            return pkmn
+        except Exception as e:
+            msg = "Error has occurred in generating specific pokemon."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
