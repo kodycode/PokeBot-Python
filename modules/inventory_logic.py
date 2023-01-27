@@ -423,14 +423,12 @@ class InventoryLogic(PokeBotModule):
             user_id = get_ctx_user_id(ctx)
             self._is_existing_user(user_id)
             if special_egg == 'm':
-                egg_count = \
-                    self.trainer_service.get_egg_manaphy_count(user_id)
+                egg_count = self.trainer_service.get_egg_manaphy_count(user_id)
                 if not egg_count:
                     raise NoEggCountException("manaphy")
                 pkmn = self._generate_pokemon("manaphy", is_egg=True)
             else:
-                egg_count = \
-                    self.trainer_service.get_egg_count(user_id)
+                egg_count = self.trainer_service.get_egg_count(user_id)
                 if not egg_count:
                     raise NoEggCountException("regular")
                 pkmn = self._generate_random_pokemon(is_egg=True)
