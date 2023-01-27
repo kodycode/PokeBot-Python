@@ -22,6 +22,10 @@ class InventoryCommands(PokeBotCog):
         super().__init__()
         self.inventory_logic = InventoryLogic(bot)
 
+    @commands.Cog.listener("on_ready")
+    async def on_ready(self):
+        await self.inventory_logic._display_total_pokemon_caught()
+
     @commands.command(name='catch', aliases=['c'], pass_context=True)
     async def catch(self, ctx: commands.Context):
         """
@@ -31,6 +35,7 @@ class InventoryCommands(PokeBotCog):
             await self.inventory_logic.catch_pokemon(ctx)
         except CatchCooldownIncompleteException as e:
             await self.post_catch_cooldown_incomplete_msg(ctx, e)
+
     @commands.command(name='inventory', aliases=['i'], pass_context=True)
     async def pinventory(
         self,

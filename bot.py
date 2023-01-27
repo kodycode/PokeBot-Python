@@ -1,6 +1,7 @@
 from bot_logger import logger
 from discord import Intents
 from discord.ext import commands
+import asyncio
 import json
 import logging
 
@@ -28,16 +29,6 @@ bot = commands.Bot(command_prefix=config_data["cmd_prefix"],
 
 
 @bot.event
-async def on_ready():
-    try:
-        await bot.load_extension(COG_MANAGER)
-    except Exception as e:
-        error_msg = 'Failed to load cog manager\n{}: {}'.format(type(e).__name__, e)
-        print(error_msg)
-        logger.error(error_msg)
-
-
-@bot.event
 async def on_message(message):
     message.content = message.content.lower()
     if not message.author.bot:
@@ -62,6 +53,7 @@ def main():
     try:
         logger.info('Starting bot..')
         print("Starting bot..")
+        asyncio.run(bot.load_extension(COG_MANAGER))
         bot.run(config_data["token"])
     except Exception as e:
         logging.error('Bot failed to run: {}'.format(str(e)))

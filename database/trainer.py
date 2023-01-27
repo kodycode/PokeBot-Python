@@ -155,14 +155,10 @@ class TrainerDAO(DataDAO):
         """
         Gets the total amount of pokemon caught across
         all trainers
-
-        TODO: Load and save to DB total pokemon count?
         """
         total_pokemon_caught = 0
         for trainer in self.data:
-            pinventory = self.data[trainer][self.PINVENTORY]
-            for pkmn in pinventory:
-                total_pokemon_caught += pinventory[pkmn]
+            total_pokemon_caught += self.data[trainer][self.TOTAL_PKMN_COUNT]
         return total_pokemon_caught
 
     def get_legendary_pkmn_count(self, user_id: str) -> int:
