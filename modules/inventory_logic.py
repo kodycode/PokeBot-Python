@@ -273,9 +273,7 @@ class InventoryLogic(PokeBotModule):
         """
         try:
             user_id = get_ctx_user_id(ctx)
-            valid_user = self.trainer_service.check_existing_trainer(user_id)
-            if not valid_user:
-                raise UnregisteredTrainerException()
+            await self._is_existing_user(user_id)
             username = ctx.message.author.name
             pinventory = \
                 await self.trainer_service.get_trainer_inventory(user_id)
@@ -300,7 +298,16 @@ class InventoryLogic(PokeBotModule):
             raise
         except Exception as e:
             msg = "Error has occurred in displaying inventory."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)          
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)     
+
+    def _is_existing_user(self, user_id: str):
+        """
+        Checks if user exists and throws an UnregisteredTrainerException
+        if not
+        """
+        valid_user = self.trainer_service.check_existing_trainer(user_id)
+        if not valid_user:
+            raise UnregisteredTrainerException()
 
     async def _slice_pinventory_to_display(
         self,
@@ -380,6 +387,7 @@ class InventoryLogic(PokeBotModule):
         """
         try:
             user_id = get_ctx_user_id(ctx)
+            await self._is_existing_user(user_id)
             egg_count = await self.trainer_service.get_egg_count(user_id)
             egg_manaphy_count = \
                 await self.trainer_service.get_egg_manaphy_count(user_id)
@@ -391,6 +399,8 @@ class InventoryLogic(PokeBotModule):
                 value=egg_count+egg_manaphy_count
             )
             return em
+        except UnregisteredTrainerException:
+            raise
         except Exception as e:
             msg = "Error has occurred in building egg message."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
