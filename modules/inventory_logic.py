@@ -42,7 +42,6 @@ class InventoryLogic(PokeBotModule):
         Generates a random pokemon to be caught
         """
         try:
-            catch_condition = "caught"
             current_time = time.time()
             user_id = get_ctx_user_id(ctx)
             seconds_left_to_catch = \
@@ -66,7 +65,7 @@ class InventoryLogic(PokeBotModule):
                 await self._display_total_pokemon_caught()
                 await self._post_pokemon_catch(ctx,
                                                random_pkmn,
-                                               catch_condition,
+                                               "catch",
                                                lootbox)
                 self.trainer_service.save_all_trainer_data()
             else:
@@ -394,12 +393,12 @@ class InventoryLogic(PokeBotModule):
         try:
             user_id = get_ctx_user_id(ctx)
             self._is_existing_user(user_id)
-            egg_count = await self.trainer_service.get_egg_count(user_id)
+            egg_count = self.trainer_service.get_egg_count(user_id)
             egg_manaphy_count = \
-                await self.trainer_service.get_egg_manaphy_count(user_id)
-            em = discord.Embed()
+                self.trainer_service.get_egg_manaphy_count(user_id)
+            em = discord.Embed(title="Egg Count", colour=0xD2B48C)
             em.add_field(name="Regular Egg Count", value=egg_count)
-            em.add_field(name="Manaphy Egg Count", value=egg_count)
+            em.add_field(name="Manaphy Egg Count", value=egg_manaphy_count)
             em.add_field(
                 name="Total Egg Count",
                 value=egg_count+egg_manaphy_count

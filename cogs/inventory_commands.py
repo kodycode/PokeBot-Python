@@ -85,11 +85,7 @@ class InventoryCommands(PokeBotCog):
         """
         try:
             embed_msg = await self.inventory_logic.build_eggs_msg(ctx)
-            await ctx.send(
-                title="Egg Count",
-                embed=embed_msg,
-                colour=0x00FF00
-            )
+            await ctx.send(embed=embed_msg)
         except UnregisteredTrainerException:
             await self.post_unregistered_trainer_exception_msg()
 
