@@ -6,7 +6,19 @@ class PokeBotCog(commands.Cog):
         super().__init__()
         print(f"Added {type(self).__name__} Cog")
 
-    async def _post_higher_quantity_specified_exception_msg(
+    async def post_catch_cooldown_incomplete_msg(
+        self,
+        ctx: commands.Context, 
+        e: Exception
+    ):
+        """
+        Sends the exception message for when catch cooldown
+        has not finished
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       f" please wait **{str(e)}** second(s) to catch" \
+                       " another pokemon")
+    async def post_higher_quantity_specified_exception_msg(
         self,
         ctx: commands.Context,
         e: Exception
@@ -19,7 +31,7 @@ class PokeBotCog(commands.Cog):
                        " please specify a pokemon quantity less than the" \
                        f" max pokemon quantity number: **{str(e)}**")
 
-    async def _post_higher_page_specified_exception_msg(
+    async def post_higher_page_specified_exception_msg(
         self, 
         ctx: commands.Context,
         e: Exception
@@ -32,7 +44,7 @@ class PokeBotCog(commands.Cog):
                        " please specify a page number less than the" \
                        f" max page number: **{str(e)}**")
 
-    async def _post_page_quantity_too_low_msg(
+    async def post_page_quantity_too_low_msg(
         self,
         ctx: commands.Context
     ) -> None:
@@ -44,7 +56,7 @@ class PokeBotCog(commands.Cog):
                        " please specify an inventory page number greater" \
                        " than 0")
 
-    async def _post_release_quantity_too_low_msg(
+    async def post_release_quantity_too_low_msg(
         self,
         ctx: commands.Context
     ) -> None:
@@ -56,7 +68,7 @@ class PokeBotCog(commands.Cog):
                        " please specify a pokemon quantity greater than 0" \
                        " to release")
 
-    async def _post_unregistered_trainer_exception_msg(
+    async def post_unregistered_trainer_exception_msg(
         self, 
         ctx: commands.Context
     ) -> None:

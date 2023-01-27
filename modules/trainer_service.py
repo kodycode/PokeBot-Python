@@ -56,7 +56,7 @@ class TrainerService(PokeBotModule):
             msg = "Error has occurred in checking and creating new trainer."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
 
-    def validate_trainer_catch(self, user_id: str) -> bool:
+    def get_time_left_to_catch(self, user_id: str) -> int:
         """
         Validates whether the trainer is able to catch a
         pokemon or not
@@ -65,15 +65,13 @@ class TrainerService(PokeBotModule):
             current_time = time.time()
             trainer_last_catch_time = \
                 self.trainer_dao.get_last_catch_time(user_id)
-
-            # If time has passed beyond the amount of seconds to wait,
-            # return True
-            time_since_last_catch = current_time - trainer_last_catch_time
-            if time_since_last_catch > self.rates.get_catch_cooldown_seconds():
-                return True
-            return False
+            seconds_passed_since_last_catch = \
+                current_time - trainer_last_catch_time
+            catch_cooldown_seonds = self.rates.get_catch_cooldown_seconds()
+            return int(catch_cooldown_seonds-seconds_passed_since_last_catch)
         except Exception as e:
-            msg = "Error has occurred in validating trainer catch."
+            msg = ("Error has occurred in getting amount of seconds left to"
+                  " catch")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
 
     def save_all_trainer_data(self) -> None:

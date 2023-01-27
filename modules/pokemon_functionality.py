@@ -827,7 +827,7 @@ class PokemonFunctionality:
             await ctx.send(msg)
             return True
 
-    async def _post_unique_channel(self, msg, channel, pkmn, is_shiny):
+    async def post_unique_channel(self, msg, channel, pkmn, is_shiny):
         if channel is not None:
             em = discord.Embed(description=msg,
                                colour=0xFFFFFF)
@@ -846,7 +846,7 @@ class PokemonFunctionality:
             except:
                 pass
 
-    async def _post_pokemon_catch(self, ctx, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny, catch_condition, lootbox):
+    async def post_pokemon_catch(self, ctx, random_pkmn, pkmn_img_path, random_pkmnball, is_shiny, catch_condition, lootbox):
         """
         Posts the pokemon that was caught
         """
@@ -869,7 +869,7 @@ class PokemonFunctionality:
                         if "special" == channel.name:
                             special_channel = self.bot.get_channel(channel.id)
                             break
-                    await self._post_unique_channel(msg,
+                    await self.post_unique_channel(msg,
                                                     special_channel,
                                                     random_pkmn,
                                                     is_shiny)
@@ -883,7 +883,7 @@ class PokemonFunctionality:
                         if "shiny" == channel.name:
                             shiny_channel = self.bot.get_channel(channel.id)
                             break
-                    await self._post_unique_channel(msg,
+                    await self.post_unique_channel(msg,
                                                     shiny_channel,
                                                     base_pkmn,
                                                     is_shiny)
@@ -1012,7 +1012,7 @@ class PokemonFunctionality:
                                                 is_shiny)
                 self._save_trainer_file(self.trainer_data)
                 await self._display_total_pokemon_caught()
-                await self._post_pokemon_catch(ctx,
+                await self.post_pokemon_catch(ctx,
                                                random_pkmn,
                                                pkmn_img_path,
                                                random_pkmnball,
@@ -1104,7 +1104,7 @@ class PokemonFunctionality:
                                             is_shiny)
             self._save_trainer_file(self.trainer_data)
             random_pkmnball = random.choice(list(self.pokeball))
-            await self._post_pokemon_catch(ctx,
+            await self.post_pokemon_catch(ctx,
                                            random_pkmn,
                                            pkmn_img_path,
                                            random_pkmnball,

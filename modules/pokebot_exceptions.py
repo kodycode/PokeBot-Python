@@ -1,3 +1,7 @@
+class CatchCooldownIncompleteException(Exception):
+    pass
+
+
 class HigherPageSpecifiedException(Exception):
     pass
 

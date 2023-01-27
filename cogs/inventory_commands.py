@@ -3,6 +3,7 @@ from classes import PokeBotCog
 from discord.ext import commands
 from modules import InventoryLogic
 from modules.pokebot_exceptions import (
+    CatchCooldownIncompleteException,
     HigherPageSpecifiedException,
     HigherReleaseQuantitySpecifiedException,
     PageQuantityTooLow,
@@ -22,8 +23,10 @@ class InventoryCommands(PokeBotCog):
         """
         Catches a random pokemon and gives it to the trainer
         """
-        await self.inventory_logic.catch_pokemon(ctx)
-
+        try:
+            await self.inventory_logic.catch_pokemon(ctx)
+        except CatchCooldownIncompleteException as e:
+            await self.post_catch_cooldown_incomplete_msg(ctx, e)
     @commands.command(name='inventory', aliases=['i'], pass_context=True)
     async def pinventory(
         self,
@@ -41,11 +44,11 @@ class InventoryCommands(PokeBotCog):
                 raise PageQuantityTooLow()
             await self.inventory_logic.display_pinventory(ctx, page)
         except HigherPageSpecifiedException as e:
-            await self._post_higher_page_specified_exception_msg(ctx, e)
+            await self.post_higher_page_specified_exception_msg(ctx, e)
         except PageQuantityTooLow:
-            await self._post_page_quantity_too_low_msg(ctx)
+            await self.post_page_quantity_too_low_msg(ctx)
         except UnregisteredTrainerException:
-            await self._post_unregistered_trainer_exception_msg(ctx)
+            await self.post_unregistered_trainer_exception_msg(ctx)
 
     @commands.command(name='release', aliases=['r'], pass_context=True)
     async def release(
@@ -70,9 +73,9 @@ class InventoryCommands(PokeBotCog):
             await ctx.send(f"{ctx.message.author.mention} "
                            f"successfully released {pkmn_name.title()}")
         except HigherReleaseQuantitySpecifiedException as e:
-            await self._post_higher_quantity_specified_exception_msg(ctx, e)
+            await self.post_higher_quantity_specified_exception_msg(ctx, e)
         except ReleaseQuantityTooLow as e:
-            await self._post_release_quantity_too_low_msg(ctx, e)
+            await self.post_release_quantity_too_low_msg(ctx, e)
 
     # @commands.command(name='hatch', aliases=['h'], pass_context=True)
     # async def hatch(self, ctx):

@@ -3,6 +3,7 @@ from math import ceil
 from modules.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_assets import PokeBotAssets
 from modules.pokebot_exceptions import (
+    CatchCooldownIncompleteException,
     HigherPageSpecifiedException,
     HigherReleaseQuantitySpecifiedException,
     InventoryLogicException,
@@ -43,9 +44,9 @@ class InventoryLogic(PokeBotModule):
             catch_condition = "caught"
             current_time = time.time()
             user_id = get_ctx_user_id(ctx)
-            is_trainer_catching = \
-                self.trainer_service.validate_trainer_catch(user_id)
-            if is_trainer_catching:
+            seconds_left_to_catch = \
+                self.trainer_service.get_time_left_to_catch(user_id)
+            if seconds_left_to_catch <= 0:
                 random_pkmn = self._generate_random_pokemon()
                 self.trainer_service.give_pokemon_to_trainer(
                     user_id,
@@ -67,6 +68,10 @@ class InventoryLogic(PokeBotModule):
                                                catch_condition,
                                                lootbox)
                 self.trainer_service.save_all_trainer_data()
+            else:
+                raise CatchCooldownIncompleteException(seconds_left_to_catch)
+        except CatchCooldownIncompleteException:
+            raise
         except Exception as e:
             msg = "Error has occurred in catching pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
@@ -274,17 +279,16 @@ class InventoryLogic(PokeBotModule):
             username = ctx.message.author.name
             pinventory = \
                 await self.trainer_service.get_trainer_inventory(user_id)
-            pinventory_count = \
-                self.trainer_service.get_trainer_total_pokemon_caught(user_id)
+            pinventory_key_count = len(pinventory)
             max_page = \
-                ceil(pinventory_count/20) if pinventory_count != 0 else 1
+                ceil(pinventory_key_count/20) if pinventory_key_count != 0 else 1
             if page > max_page:
                 raise HigherPageSpecifiedException(max_page)
             current_list_of_pkmn_to_display = \
                 await self._slice_pinventory_to_display(pinventory, page, max_page)
             pinventory_msg = await self._build_pinventory_msg_(
                 current_list_of_pkmn_to_display,
-                pinventory_count,
+                pinventory_key_count,
                 page,
                 max_page
             )
@@ -320,7 +324,7 @@ class InventoryLogic(PokeBotModule):
     async def _build_pinventory_msg_(
         self,
         current_list_of_pkmn_to_display: list,
-        pinventory_count: int,
+        pinventory_key_count: int,
         page: int,
         max_page: int
     ) -> str:
@@ -340,8 +344,8 @@ class InventoryLogic(PokeBotModule):
                     list_of_pkmn_msg += pkmn_result
                 else:
                     list_of_pkmn_msg += f"{pkmn[0].title()} x{pkmn[1]}\n"
-            display_total_hdr = f"__**{pinventory_count}** Pokémon total. " \
-                            f"(Page **{page} of {max_page}**)__\n"
+            display_total_hdr = (f"__**{pinventory_key_count}** Pokémon total."
+                                 f" (Page **{page} of {max_page}**)__\n")
             return display_total_hdr + list_of_pkmn_msg
         except Exception as e:
             msg = "Error has occurred in building pinventory message."

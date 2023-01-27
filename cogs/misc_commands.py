@@ -47,7 +47,7 @@ class MiscCommands(PokeBotCog):
             )
             await ctx.send(embed=embed_msg)
         except UnregisteredTrainerException:
-            await self._post_unregistered_trainer_exception_msg(ctx)
+            await self.post_unregistered_trainer_exception_msg(ctx)
 
     # @commands.command(name='ranking', pass_context=True)
     # async def ranking(self, ctx, option="t"):
