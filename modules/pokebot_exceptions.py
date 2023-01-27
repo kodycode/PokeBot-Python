@@ -50,12 +50,13 @@ class ReleaseQuantityTooLow(Exception):
     pass
 
 
+class TooManyExchangePokemonSpecifiedException(Exception):
+    pass
+
+
 class TrainerServiceException(Exception):
     pass
 
 
 class UnregisteredTrainerException(Exception):
     pass
-
-
-

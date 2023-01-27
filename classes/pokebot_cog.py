@@ -58,8 +58,7 @@ class PokeBotCog(commands.Cog):
 
     async def post_not_enough_exchange_pokemon_quantity_exception(
         self,
-        ctx: commands.Context,
-        e: Exception
+        ctx: commands.Context
     ) -> None:
         """
         Sends the exception message for when not enough pokemon
@@ -72,8 +71,7 @@ class PokeBotCog(commands.Cog):
 
     async def post_not_enough_exchange_pokemon_specified_exception(
         self,
-        ctx: commands.Context,
-        e: Exception
+        ctx: commands.Context
     ) -> None:
         """
         Sends the exception message for when not enough pokemon
@@ -105,6 +103,17 @@ class PokeBotCog(commands.Cog):
         await ctx.send(f"{ctx.message.author.mention}," \
                        " please specify a pokemon quantity greater than 0" \
                        " to release")
+
+    async def post_too_many_exchange_pokemon_specified_exception(
+        self,
+        ctx: commands.Context
+    ) -> None:
+        """
+        Sends the exception message for when more than the minimum number
+        of pokemon is specified to exchange
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " please specify only 5 pokemon to exchange")
 
     async def post_unregistered_trainer_exception_msg(
         self, 

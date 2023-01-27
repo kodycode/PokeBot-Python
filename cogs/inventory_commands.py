@@ -11,6 +11,7 @@ from modules.pokebot_exceptions import (
     NotEnoughExchangePokemonSpecifiedException,
     PageQuantityTooLow,
     ReleaseQuantityTooLow,
+    TooManyExchangePokemonSpecifiedException,
     UnregisteredTrainerException,
 )
 
@@ -121,13 +122,24 @@ class InventoryCommands(PokeBotCog):
         """
         Exchanges 5 pokemon for a pokemon with a modified shiny chance
         rate
+        
+        Example usage:
+        !exchange pikachu pikachu charizard squirtle bulbasaur
         """
         try:
-            await self.inventory_logic.exchange_pokemon(ctx, args)
+            await self.inventory_logic.exchange_pokemon(ctx, *args)
         except NotEnoughExchangePokemonQuantityException:
-            await self.post_not_enough_exchange_pokemon_quantity_exception()
+            await self.post_not_enough_exchange_pokemon_quantity_exception(
+                ctx
+            )
         except NotEnoughExchangePokemonSpecifiedException:
-            await self.post_not_enough_exchange_pokemon_specified_exception()
+            await self.post_not_enough_exchange_pokemon_specified_exception(
+                ctx
+            )
+        except TooManyExchangePokemonSpecifiedException:
+            await self.post_too_many_exchange_pokemon_specified_exception(
+                ctx
+            )
         except UnregisteredTrainerException:
             await self.post_unregistered_trainer_exception_msg(ctx)
 

@@ -209,6 +209,10 @@ class TrainerService(PokeBotModule):
                     user_id,
                     quantity
                 )
+            self.trainer_dao.decrease_total_pkmn_count(
+                user_id,
+                quantity
+            )
             self.trainer_dao.save()
         except HigherReleaseQuantitySpecifiedException:
             raise

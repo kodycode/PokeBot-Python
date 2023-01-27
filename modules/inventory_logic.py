@@ -10,6 +10,7 @@ from modules.pokebot_exceptions import (
     NoEggCountException,
     NotEnoughExchangePokemonSpecifiedException,
     NotEnoughExchangePokemonQuantityException,
+    TooManyExchangePokemonSpecifiedException,
     UnregisteredTrainerException
 )
 from modules.pokebot_rates import PokeBotRates
@@ -380,7 +381,7 @@ class InventoryLogic(PokeBotModule):
         try:
             user_id = get_ctx_user_id(ctx, pkmn_name, quantity)
             self._is_existing_user(user_id)
-            self._process_pokemon_release(user_id, pkmn_name, quantity)
+            await self._process_pokemon_release(user_id, pkmn_name, quantity)
             self.trainer_service.save_all_trainer_data()
             await self._display_total_pokemon_caught()
         except HigherReleaseQuantitySpecifiedException:
@@ -399,8 +400,8 @@ class InventoryLogic(PokeBotModule):
         Processes pokemon to release
         """
         try:
-            is_shiny = is_name_shiny(pkmn_lowercase)
             pkmn_lowercase = pkmn_name.lower()
+            is_shiny = is_name_shiny(pkmn_lowercase)
             pkmn = self.assets.get_pokemon_asset(
                 pkmn_lowercase,
                 is_shiny=is_shiny
@@ -410,9 +411,8 @@ class InventoryLogic(PokeBotModule):
                 pkmn,
                 quantity
             )
-        except Exception as e:
-            msg = "Error has occurred in processing pokemon release"
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
+        except Exception:
+            raise
 
     async def build_eggs_msg(self, ctx: discord.ext.commands.Context) -> discord.Embed:
         """
@@ -506,12 +506,13 @@ class InventoryLogic(PokeBotModule):
         try:
             if len(args) < 5:
                 raise NotEnoughExchangePokemonSpecifiedException()
+            elif len(args) > 5:
+                raise TooManyExchangePokemonSpecifiedException()
             user_id = get_ctx_user_id(ctx)
             pkmn_to_release = self._collect_pokemon_to_release(user_id, *args)
-
             # release pokemon from inventory
             for pkmn_name in pkmn_to_release.keys():
-                self._process_pokemon_release(
+                await self._process_pokemon_release(
                     user_id,
                     pkmn_name,
                     pkmn_to_release[pkmn_name]
@@ -526,7 +527,7 @@ class InventoryLogic(PokeBotModule):
             await self._post_pokemon_catch(ctx,
                                            random_pkmn,
                                            "exchanged pokemon for",
-                                            None)
+                                           None)
             self.trainer_service.save_all_trainer_data()  
         except NotEnoughExchangePokemonSpecifiedException:
             raise
