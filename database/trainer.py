@@ -8,6 +8,8 @@ class TrainerDAO(DataDAO):
     """
     Accesses, modifies and returns the PokeBot JSON data
     """
+    EGG_COUNT = "egg_count"
+    EGG_MANAPHY_COUNT = "egg_manaphy_count"
     PINVENTORY = "pinventory"
     LAST_CATCH_TIME = "last_catch_time"
     LAST_DAILY_REDEEMED_TIME = "last_daily_redeemed_time"
@@ -206,4 +208,15 @@ class TrainerDAO(DataDAO):
         Increments the trainer's count for legendary pokemon
         """
         self.data[user_id][self.ULTRA_BEASTS_COUNT] += 1
-        
+
+    def get_egg_count(self, user_id: str) -> int:
+        """
+        Gets the amount of eggs that exist with the user
+        """
+        return self.data[user_id][self.EGG_COUNT]
+
+    def get_egg_manaphy_count(self, user_id: str) -> int:
+        """
+        Gets the amount of manaphy eggs that exist with the user
+        """
+        return self.data[user_id][self.EGG_MANAPHY_COUNT]

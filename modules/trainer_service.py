@@ -194,3 +194,23 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in deleting pokemon."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+
+    def get_egg_count(self, user_id: str) -> int:
+        """
+        Gets the regular egg count for a user
+        """
+        try:
+            return self.trainer_dao.get_egg_count()
+        except Exception as e:
+            msg = "Error has occurred in retrieving egg count."
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+
+    def get_egg_manaphy_count(self, user_id: str) -> int:
+        """
+        Gets the regular egg count for a user
+        """
+        try:
+            return self.trainer_dao.get_egg_manaphy_count()
+        except Exception as e:
+            msg = "Error has occurred in retrieving egg manaphy count."
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)

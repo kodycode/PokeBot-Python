@@ -77,14 +77,27 @@ class InventoryCommands(PokeBotCog):
         except ReleaseQuantityTooLow as e:
             await self.post_release_quantity_too_low_msg(ctx, e)
 
+    @commands.command(name='eggs', aliases=['e'], pass_context=True)
+    async def eggs(self, ctx: commands.Context) -> None:
+        """
+        Gets the number of eggs that the trainer has
+        """
+        try:
+            embed_msg = await self.inventory_logic.build_eggs_msg(ctx)
+            await ctx.send(
+                title="Egg Count",
+                embed=embed_msg,
+                colour=0x00FF00
+            )
+        except UnregisteredTrainerException:
+            await self.post_unregistered_trainer_exception_msg()
+
     # @commands.command(name='hatch', aliases=['h'], pass_context=True)
-    # async def hatch(self, ctx):
+    # async def hatch(self, ctx: commands.Context):
     #     """
     #     Hatches an egg from your inventory
-
-    #     @param pkmn - pkmn to be released
     #     """
-    #     await self.cmd_function.hatch_egg(ctx)
+    #     await self.inventory_logic.hatch_egg(ctx)
 
     # @commands.command(name='exchange', aliases=['e'], pass_context=True)
     # async def exchange(self, ctx, *args):

@@ -373,3 +373,24 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in releasing pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
+
+    async def build_eggs_msg(self, ctx: discord.ext.commands.Context):
+        """
+        Builds the message for eggs
+        """
+        try:
+            user_id = get_ctx_user_id(ctx)
+            egg_count = await self.trainer_service.get_egg_count(user_id)
+            egg_manaphy_count = \
+                await self.trainer_service.get_egg_manaphy_count(user_id)
+            em = discord.Embed()
+            em.add_field(name="Regular Egg Count", value=egg_count)
+            em.add_field(name="Manaphy Egg Count", value=egg_count)
+            em.add_field(
+                name="Total Egg Count",
+                value=egg_count+egg_manaphy_count
+            )
+            return em
+        except Exception as e:
+            msg = "Error has occurred in building egg message."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
