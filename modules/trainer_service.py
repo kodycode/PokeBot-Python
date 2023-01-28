@@ -33,10 +33,13 @@ class TrainerService(PokeBotModule):
                     self.trainer_dao.increment_legendary_pkmn_count(user_id)
                 elif pkmn.is_ultra_beast:
                     self.trainer_dao.increment_ultra_beasts_count(user_id)
+                if pkmn.is_shiny:
+                    self.trainer_dao.increment_shiny_pkmn_count(user_id)
                 self.trainer_dao.increment_total_pkmn_count(user_id)
         except Exception as e:
             msg = "Error has occurred in creating catch msg."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def check_existing_trainer(self, user_id: str) -> bool:
         """
@@ -47,6 +50,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in checking and creating new trainer."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
 
     def _check_and_create_new_trainer(self, user_id: str) -> None:
@@ -61,6 +65,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in checking and creating new trainer."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def get_time_left_to_catch(self, user_id: str) -> int:
         """
@@ -79,6 +84,7 @@ class TrainerService(PokeBotModule):
             msg = ("Error has occurred in getting amount of seconds left to"
                   " catch")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def save_all_trainer_data(self) -> None:
         """
@@ -89,6 +95,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in saving all trainer data."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
         
     def set_trainer_last_catch_time(self, user_id: str, time: float) -> None:
         """
@@ -99,6 +106,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in setting last_catch_time."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def give_lootbox_to_trainer(self, user_id: str, lootbox: str) -> None:
         """
@@ -110,6 +118,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in giving lootbox to trainer."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def get_total_pokemon_caught(self) -> int:
         """
@@ -120,6 +129,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in getting total pokemon caught."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def get_trainer_total_pokemon_caught(self, user_id: str) -> int:
         """
@@ -130,6 +140,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in getting trainer total pokemon."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     async def display_trainer_profile(
         self,
@@ -163,6 +174,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in displaying trainer profile. "
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     async def get_trainer_inventory(self, user_id: str) -> dict:
         """
@@ -173,6 +185,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in getting trainer inventory."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     async def decrease_pokemon_quantity(
         self,
@@ -219,6 +232,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in deleting pokemon."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def get_egg_count(self, user_id: str) -> int:
         """
@@ -229,6 +243,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in retrieving egg count."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def decrement_egg_count(self, user_id: str, special_egg: str) -> None:
         """
@@ -242,6 +257,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in decreasing egg count."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def get_egg_manaphy_count(self, user_id: str) -> int:
         """
@@ -252,6 +268,7 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in retrieving egg manaphy count."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
 
     def get_quantity_of_specified_pokemon(self, user_id: str, pkmn_name: str):
         """
@@ -263,3 +280,4 @@ class TrainerService(PokeBotModule):
             msg = ("Error has occurred in getting the quantity of "
                    "specified pokemon")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
