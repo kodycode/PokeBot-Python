@@ -35,12 +35,12 @@ def is_name_shiny(pkmn_name: str) -> str:
     """
     Checks to see if the pokemon specified has shiny in it
     """
-    return pkmn_name.startswith("(Shiny)")
+    return pkmn_name.startswith("(shiny)")
 
 
 def remove_shiny_pokemon_name(pkmn_name: str) -> str:
     """
     Removes the shiny prefix from the pokemon's name
     """
-    shiny_removed_pkmn_name = pkmn_name.replace("(Shiny)", '')
+    shiny_removed_pkmn_name = pkmn_name.replace("(shiny)", '')
     return shiny_removed_pkmn_name

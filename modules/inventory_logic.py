@@ -405,8 +405,9 @@ class InventoryLogic(PokeBotModule):
         try:
             pkmn_lowercase = pkmn_name.lower()
             is_shiny = is_name_shiny(pkmn_lowercase)
+            no_shiny_pkmn_name = remove_shiny_pokemon_name(pkmn_lowercase)
             pkmn = self.assets.get_pokemon_asset(
-                pkmn_lowercase,
+                no_shiny_pkmn_name,
                 is_shiny=is_shiny
             )
             await self.trainer_service.decrease_pokemon_quantity(
@@ -550,17 +551,18 @@ class InventoryLogic(PokeBotModule):
             pokemon_to_release = {}
             lack_of_pokemon_quantity = []
             for pkmn_name in args:
+                pkmn_name_lowercase = pkmn_name.lower()
                 pkmn_quantity = \
                     self.trainer_service.get_quantity_of_specified_pokemon(
                         user_id,
-                        pkmn_name
+                        pkmn_name_lowercase
                     )
                 if not pkmn_quantity:
-                    lack_of_pokemon_quantity.append(pkmn_name)
-                elif pkmn_name not in pokemon_to_release:
-                    pokemon_to_release[pkmn_name] = 1
+                    lack_of_pokemon_quantity.append(pkmn_name_lowercase)
+                elif pkmn_name_lowercase not in pokemon_to_release:
+                    pokemon_to_release[pkmn_name_lowercase] = 1
                 else:
-                    pokemon_to_release[pkmn_name] += 1
+                    pokemon_to_release[pkmn_name_lowercase] += 1
             if lack_of_pokemon_quantity:
                 raise NotEnoughExchangePokemonQuantityException(
                     lack_of_pokemon_quantity

@@ -5,6 +5,7 @@ from database import PokeballsDAO
 from modules.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_exceptions import PokeBotAssetsException
 from modules.ultra_beasts_service import UltraBeastsService
+from utils import remove_shiny_pokemon_name
 import glob
 import os
 import random
@@ -16,7 +17,7 @@ class PokeBotAssets(PokeBotModule):
     Handles all pokemon related assets
     """
 
-    SHINY_PREFIX = "(Shiny)"
+    SHINY_PREFIX = "(shiny)"
 
     def __init__(self):
         self.legendary_service = LegendaryPokemonService()
@@ -48,6 +49,7 @@ class PokeBotAssets(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred loading pokemon images."
             self.post_error_log_msg(PokeBotAssetsException.__name__, msg, e)
+            raise
 
     def get_random_pokeball_emoji(self) -> str:
         """
@@ -58,6 +60,7 @@ class PokeBotAssets(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in getting random pokeball."
             self.post_error_log_msg(PokeBotAssetsException.__name__, msg, e)
+            raise
 
     def get_random_pokemon_asset(self, is_shiny: bool=False) -> Pokemon:
         """
@@ -91,6 +94,7 @@ class PokeBotAssets(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in getting random pokemon asset."
             self.post_error_log_msg(PokeBotAssetsException.__name__, msg, e)
+            raise
 
     def get_pokemon_asset(
         self,
@@ -127,3 +131,4 @@ class PokeBotAssets(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in getting specified pokemon asset."
             self.post_error_log_msg(PokeBotAssetsException.__name__, msg, e)
+            raise
