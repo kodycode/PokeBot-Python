@@ -36,11 +36,11 @@ class MiscLogic(PokeBotModule):
                   "See error.log.")
             logger.error("MiscCommandsException: {}".format(str(e)))
 
-    async def display_trainer_profile(
+    async def build_trainer_profile_msg(
         self,
         ctx: discord.ext.commands.Command,
         user_mention: str
-    ) -> None:
+    ) -> discord.Embed:
         """
         Displays trainer profile and pokemon caught stats
         """

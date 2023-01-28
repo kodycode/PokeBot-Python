@@ -41,23 +41,10 @@ class MiscCommands(PokeBotCog):
         Obtains the profile of a trainer specified
         """
         try:
-            embed_msg = await self.misc_logic.display_trainer_profile(
+            embed_msg = await self.misc_logic.build_trainer_profile_msg(
                 ctx,
                 user_mention
             )
             await ctx.send(embed=embed_msg)
         except UnregisteredTrainerException:
             await self.post_unregistered_trainer_exception_msg(ctx)
-
-    # @commands.command(name='ranking', pass_context=True)
-    # async def ranking(self, ctx, option="t"):
-    #     """
-    #     Displays ranking of all the trainers
-
-    #     @param option - options are:
-    #                     l - legendary
-    #                     s - shiny
-    #                     t - total (default)
-    #                     u - ultra
-    #     """
-    #     await self.cmd_function.display_ranking(ctx, option)
