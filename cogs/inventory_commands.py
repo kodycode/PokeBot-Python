@@ -179,10 +179,3 @@ class InventoryCommands(PokeBotCog):
             await ctx.send(embed=embed_msg)
         except UnregisteredTrainerException:
             await self.post_unregistered_trainer_exception_msg(ctx)
-
-    # @commands.command(name='claim', pass_context=True)
-    # async def claim(self, ctx):
-    #     """
-    #     Claims an available gift
-    #     """
-    #     await self.cmd_function.claim_gift(ctx)
