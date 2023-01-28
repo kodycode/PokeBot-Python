@@ -46,7 +46,7 @@ async def on_command_error(ctx, error):
                                "Command failed. Please make sure"
                                " you're entering the correct arguments"
                                " for the command.")
-    await ctx.send_help(ctx.command)  
+    await ctx.send_help(ctx.command)
 
 
 def main():

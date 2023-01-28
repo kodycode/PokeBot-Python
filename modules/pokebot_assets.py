@@ -12,6 +12,12 @@ import re
 
 
 class PokeBotAssets(PokeBotModule):
+    """
+    Handles all pokemon related assets
+    """
+
+    SHINY_PREFIX = "(Shiny)"
+
     def __init__(self):
         self.legendary_service = LegendaryPokemonService()
         self.nrml_pokemon = self._load_pokemon_imgs("nrml")
@@ -58,10 +64,12 @@ class PokeBotAssets(PokeBotModule):
         Gets a random pokemon from the asset folder
         """
         try:
+            added_shiny_prefix = ''
             is_egg = False
             if is_shiny:
                 random_pkmn = random.choice(list(self.shiny_pokemon.keys()))
                 pkmn_img_path = self.shiny_pokemon[random_pkmn][0]
+                added_shiny_prefix = self.SHINY_PREFIX
             else:
                 random_pkmn = random.choice(list(self.nrml_pokemon.keys()))
                 pkmn_img_path = self.nrml_pokemon[random_pkmn][0]
@@ -71,6 +79,7 @@ class PokeBotAssets(PokeBotModule):
                 self.legendary_service.is_pokemon_legendary(random_pkmn)
             is_ultra_beast = \
                 self.ultra_service.is_pokemon_ultra_beast(random_pkmn)
+            random_pkmn = added_shiny_prefix + random_pkmn
             return Pokemon(
                 name=random_pkmn,
                 img_path=pkmn_img_path,
@@ -92,9 +101,12 @@ class PokeBotAssets(PokeBotModule):
         Gets a specific pokemon from the asset folder
         """
         try:
+            shiny_prefix = ''
             is_egg = False
+            prefix_pkmn_name = ''
             if is_shiny:
                 pkmn_img_path = self.shiny_pokemon[pkmn_name][0]
+                shiny_prefix += self.SHINY_PREFIX
             else:
                 pkmn_img_path = self.nrml_pokemon[pkmn_name][0]
             if pkmn_name == "egg" or pkmn_name == "egg-manaphy":
@@ -103,8 +115,9 @@ class PokeBotAssets(PokeBotModule):
                 self.legendary_service.is_pokemon_legendary(pkmn_name)
             is_ultra_beast = \
                 self.ultra_service.is_pokemon_ultra_beast(pkmn_name)
+            prefix_pkmn_name = shiny_prefix + pkmn_name
             return Pokemon(
-                name=pkmn_name,
+                name=prefix_pkmn_name,
                 img_path=pkmn_img_path,
                 is_egg=is_egg,
                 is_legendary=is_legendary,

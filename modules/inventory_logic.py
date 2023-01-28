@@ -21,6 +21,7 @@ from utils import (
     get_ctx_user_id,
     get_specific_text_channel,
     is_name_shiny,
+    remove_shiny_pokemon_name,
 )
 import discord
 import random
@@ -257,7 +258,9 @@ class InventoryLogic(PokeBotModule):
         Posts catch to special or certain channels (i.e. shiny, special)
         """
         try:
-            formatted_pkmn_name = format_pokemon_name(pkmn.name).lower()
+            shiny_removed_pkmn_name = remove_shiny_pokemon_name(pkmn.name)
+            formatted_pkmn_name = \
+                format_pokemon_name(shiny_removed_pkmn_name).lower()
             channel = get_specific_text_channel(ctx, channel_name)
             if channel:
                 em = discord.Embed(description=msg, colour=0xFFFFFF)
