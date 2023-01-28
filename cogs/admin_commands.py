@@ -8,9 +8,6 @@ class AdminCommands(PokeBotCog):
     def __init__(self, bot):
         super().__init__()
 
-    # def check_if_it_is_me(ctx):
-    #     return ctx.message.author.id == 85309593344815104
-
     # @commands.command(name='give', pass_context=True, hidden=True)
     # @commands.check(check_if_it_is_me)
     # async def give(self, ctx, user_id, pkmn_name, shiny=None):
@@ -45,7 +42,7 @@ class AdminCommands(PokeBotCog):
     # @commands.command(name='giveloot', pass_context=True, hidden=True)
     # async def giveloot(self, ctx, user_id, lootbox):
     #     """
-    #     Deletes a pokemon from the trainer (admin only cmd)
+    #     Gives a trainer a specified lootbox
 
     #     @param ctx - context of the command sent
     #     @param user_id - user to give pokemon to
@@ -58,7 +55,7 @@ class AdminCommands(PokeBotCog):
     # @commands.command(name='deleteloot', pass_context=True, hidden=True)
     # async def deleteloot(self, ctx, user_id, lootbox):
     #     """
-    #     Deletes a pokemon from the trainer (admin only cmd)
+    #     Deletes a lootbox from a trainer's inventory
 
     #     @param ctx - context of the command sent
     #     @param user_id - user to give pokemon to
@@ -67,10 +64,3 @@ class AdminCommands(PokeBotCog):
     #     await self.cmd_function.delete_trainer_lootbox(ctx,
     #                                                    user_id,
     #                                                    lootbox)
-
-    # @commands.command(name='reload', pass_context=True, hidden=True)
-    # async def reload(self, ctx):
-    #     """
-    #     Reloads pokemon data (admin only cmd)
-    #     """
-    #     await self.cmd_function.reload_data(ctx)
