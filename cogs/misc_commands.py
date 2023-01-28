@@ -1,6 +1,6 @@
 from classes import PokeBotCog
 from discord.ext import commands
-from modules import MiscLogic
+from cogs.logic.misc_logic import MiscLogic
 from modules.pokebot_exceptions import UnregisteredTrainerException
 
 

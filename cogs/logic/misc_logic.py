@@ -5,7 +5,7 @@ from modules.pokebot_exceptions import (
     UnregisteredTrainerException
 )
 from modules.pokebot_rates import PokeBotRates
-from modules.trainer_service import TrainerService
+from modules.services.trainer_service import TrainerService
 from utils import parse_discord_mention_user_id, get_ctx_user_id
 import discord
 
@@ -16,7 +16,11 @@ class MiscLogic(PokeBotModule):
     def __init__(self, bot):
         self.trainer_service = TrainerService(PokeBotRates(bot))
 
-    async def build_gif_embed(self, pkmn_name: str, shiny: str):
+    async def build_gif_embed(
+        self,
+        pkmn_name: str,
+        shiny: str
+    ) -> discord.Embed:
         """
         Builds the gif message to display
         """

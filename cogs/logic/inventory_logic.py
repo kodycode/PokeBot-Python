@@ -1,6 +1,6 @@
 from classes import PokeBotModule, Pokemon
 from math import ceil
-from modules.legendary_pokemon_service import LegendaryPokemonService
+from modules.services.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_assets import PokeBotAssets
 from modules.pokebot_exceptions import (
     CatchCooldownIncompleteException,
@@ -15,8 +15,8 @@ from modules.pokebot_exceptions import (
     UnregisteredTrainerException
 )
 from modules.pokebot_rates import PokeBotRates
-from modules.trainer_service import TrainerService
-from modules.ultra_beasts_service import UltraBeastsService
+from modules.services.trainer_service import TrainerService
+from modules.services.ultra_beasts_service import UltraBeastsService
 from utils import (
     format_pokemon_name,
     get_ctx_user_id,

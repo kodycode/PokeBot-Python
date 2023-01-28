@@ -2,9 +2,9 @@ from bot_logger import logger
 from collections import defaultdict
 from classes import PokeBotModule, Pokemon
 from database import PokeballsDAO
-from modules.legendary_pokemon_service import LegendaryPokemonService
+from modules.services.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_exceptions import PokeBotAssetsException
-from modules.ultra_beasts_service import UltraBeastsService
+from modules.services.ultra_beasts_service import UltraBeastsService
 from utils import remove_shiny_pokemon_name
 import copy
 import glob

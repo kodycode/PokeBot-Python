@@ -1,7 +1,7 @@
 # from cogs.modules.pokemon_functionality import PokemonFunctionality
 from classes import PokeBotCog
+from cogs.logic.inventory_logic import InventoryLogic
 from discord.ext import commands
-from modules import InventoryLogic
 from modules.pokebot_exceptions import (
     CatchCooldownIncompleteException,
     HigherPageSpecifiedException,
