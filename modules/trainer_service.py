@@ -294,9 +294,22 @@ class TrainerService(PokeBotModule):
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
 
+    def get_entire_lootbox_inventory(self, user_id: str) -> dict:
+        """
+        Gets the entire lootbox inventory from a trainer
+        """
+        try:
+            return self.trainer_dao.get_lootbox_inventory(user_id)
+        except Exception as e:
+            msg = ("Error has occurred in getting the entire lootbox" \
+                   " inventory of a trainer")
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
+
+
     def get_lootbox_quantity(self, user_id: str, lootbox: str) -> int:
         """
-        Gets the quantity of a specified lootbox from the users inventory
+        Gets the quantity of a specified lootbox from the trainers inventory
         """
         try:
             if lootbox == self.BRONZE:

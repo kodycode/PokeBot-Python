@@ -168,12 +168,17 @@ class InventoryCommands(PokeBotCog):
         except UnregisteredTrainerException:
             await self.post_unregistered_trainer_exception_msg(ctx)
 
-    # @commands.command(name='loot', aliases=['l'], pass_context=True)
-    # async def loot(self, ctx):
-    #     """
-    #     Displays the number of lootboxes the trainer has
-    #     """
-    #     await self.cmd_function.display_lootbox_inventory(ctx)
+    @commands.command(name='loot', aliases=['l'], pass_context=True)
+    async def loot(self, ctx: commands.Context):
+        """
+        Displays the number of lootboxes the trainer has
+        """
+        try:
+            embed_msg = \
+                await self.inventory_logic.display_lootbox_inventory(ctx)
+            await ctx.send(embed=embed_msg)
+        except UnregisteredTrainerException:
+            await self.post_unregistered_trainer_exception_msg(ctx)
 
     # @commands.command(name='claim', pass_context=True)
     # async def claim(self, ctx):

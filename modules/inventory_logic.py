@@ -542,6 +542,7 @@ class InventoryLogic(PokeBotModule):
             elif len(args) > 5:
                 raise TooManyExchangePokemonSpecifiedException()
             user_id = get_ctx_user_id(ctx)
+            self._is_existing_user(user_id)
             pkmn_to_release = self._collect_pokemon_to_release(user_id, *args)
             for pkmn_name in pkmn_to_release.keys():
                 await self._process_pokemon_release(
@@ -683,3 +684,32 @@ class InventoryLogic(PokeBotModule):
         elif lootbox == self.GOLD:
             return ("https://github.com/msikma/pokesprite/blob/master/"
                     "icons/pokeball/ultra.png?raw=true")
+
+    async def display_lootbox_inventory(
+        self,
+        ctx: discord.ext.commands.Context
+    ) -> discord.Embed:
+        """
+        Displays the trainer's lootbox inventory
+        """
+        try:
+            user_id = get_ctx_user_id(ctx)
+            username = ctx.message.author.name
+            self._is_existing_user(user_id)
+            msg = ''
+            lootbox_inventory = \
+                self.trainer_service.get_entire_lootbox_inventory(user_id)
+            for lootbox in lootbox_inventory:
+                msg += (f"**{lootbox.title()}:**"\
+                        f" **{lootbox_inventory[lootbox]}**\n")
+            return discord.Embed(
+                title="{}'s Lootboxes".format(username),
+                description=msg,
+                colour=0xFF9900
+            )
+        except UnregisteredTrainerException:
+            raise
+        except Exception as e:
+            msg = "Error has occurred in displaying lootbox inventory"
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
