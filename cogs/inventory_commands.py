@@ -153,7 +153,9 @@ class InventoryCommands(PokeBotCog):
     async def open(
         self,
         ctx:commands.Context,
-        lootbox: str
+        lootbox: str=commands.parameter(
+            description="Specify either a 'bronze', 'silver', or 'gold' lootbox to open"
+        )
     ):
         """
         Opens a specified lootbox in the inventory
