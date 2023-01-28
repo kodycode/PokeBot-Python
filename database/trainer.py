@@ -8,6 +8,10 @@ class TrainerDAO(DataDAO):
     """
     Accesses, modifies and returns the PokeBot JSON data
     """
+    BRONZE = "bronze"
+    SILVER = "silver"
+    GOLD = "gold"
+
     EGG_COUNT = "egg_count"
     EGG_MANAPHY_COUNT = "egg_manaphy_count"
     PINVENTORY = "pinventory"
@@ -98,6 +102,24 @@ class TrainerDAO(DataDAO):
         """
         self.data[user_id][self.LOOTBOX][lootbox] += 1
 
+    def get_bronze_lootbox_quantity(self, user_id: str) -> dict:
+        """
+        Gets the quantity of bronze lootboxes that the trainer has
+        """
+        return self.data[user_id][self.LOOTBOX][self.BRONZE]
+
+    def get_silver_lootbox_quantity(self, user_id: str) -> dict:
+        """
+        Gets the quantity of silver lootboxes that the trainer has
+        """
+        return self.data[user_id][self.LOOTBOX][self.SILVER]
+
+    def get_gold_lootbox_quantity(self, user_id: str) -> dict:
+        """
+        Gets the quantity of gold lootboxes that the trainer has
+        """
+        return self.data[user_id][self.LOOTBOX][self.GOLD]
+
     def get_daily_tokens(self, user_id: str) -> int:
         """
         Gets the list of daily tokens that the trainer has
@@ -139,7 +161,6 @@ class TrainerDAO(DataDAO):
             "bronze": 0,
             "silver": 0,
             "gold": 0,
-            "legendary": 0,
         }
         self.data[user_id][self.LAST_CATCH_TIME] = 0
         self.data[user_id][self.LAST_DAILY_REDEEMED_TIME] = 0
@@ -235,7 +256,7 @@ class TrainerDAO(DataDAO):
 
     def increment_ultra_beasts_count(self, user_id: str) -> None:
         """
-        Increments the trainer's count for legendary pokemon
+        Increments the trainer's count for ultra beasts
         """
         self.data[user_id][self.ULTRA_BEASTS_COUNT] += 1
 
@@ -284,3 +305,21 @@ class TrainerDAO(DataDAO):
         Decrement trainer's manaphy egg count
         """
         self.data[user_id][self.EGG_MANAPHY_COUNT] -= 1
+
+    def decrement_bronze_lootbox_quantity(self, user_id: str):
+        """
+        Decreases the bronze lootbox quantity of a user by 1
+        """
+        self.data[user_id][self.LOOTBOX][self.BRONZE] -= 1
+    
+    def decrement_silver_lootbox_quantity(self, user_id: str):
+        """
+        Decreases the silver lootbox quantity of a user by 1
+        """
+        self.data[user_id][self.LOOTBOX][self.SILVER] -= 1
+
+    def decrement_gold_lootbox_quantity(self, user_id: str):
+        """
+        Decreases the gold lootbox quantity of a user by 1
+        """
+        self.data[user_id][self.LOOTBOX][self.GOLD] -= 1

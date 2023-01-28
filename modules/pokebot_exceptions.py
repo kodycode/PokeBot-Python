@@ -34,6 +34,10 @@ class NotEnoughExchangePokemonSpecifiedException(Exception):
     pass
 
 
+class NotEnoughLootboxQuantityException(Exception):
+    pass
+
+
 class PageQuantityTooLow(Exception):
     pass
 

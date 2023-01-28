@@ -12,6 +12,12 @@ import time
 
 
 class TrainerService(PokeBotModule):
+
+    # TODO: Put these lootbox names in a const file
+    BRONZE = "bronze"
+    SILVER = "silver"
+    GOLD = "gold"
+
     def __init__(self, rates: PokeBotRates):
         self.trainer_dao = TrainerDAO()
         self.rates = rates
@@ -28,7 +34,10 @@ class TrainerService(PokeBotModule):
                 elif pkmn.name == "egg-manaphy":
                     self.trainer_dao.increment_egg_manaphy_count(user_id)
             else:
-                self.trainer_dao.increment_pokemon_quantity(user_id, pkmn.name)
+                pkmn_name = pkmn.name
+                if pkmn.is_shiny:
+                    pkmn_name = "(shiny)" + pkmn_name
+                self.trainer_dao.increment_pokemon_quantity(user_id, pkmn_name)
                 if pkmn.is_legendary:
                     self.trainer_dao.increment_legendary_pkmn_count(user_id)
                 elif pkmn.is_ultra_beast:
@@ -197,14 +206,17 @@ class TrainerService(PokeBotModule):
         Deletes a pokemon from the trainer's inventory
         """
         try:
+            pkmn_name = pkmn.name
+            if pkmn.is_shiny:
+                pkmn_name = "(shiny)" + pkmn_name
             pokemon_quantity = \
-                self.trainer_dao.get_pokemon_quantity(user_id, pkmn.name)
+                self.trainer_dao.get_pokemon_quantity(user_id, pkmn_name)
             if quantity > pokemon_quantity:
                 raise HigherReleaseQuantitySpecifiedException(pokemon_quantity)
             new_pokemon_quantity = pokemon_quantity - quantity
             self.trainer_dao.set_pokemon_quantity(
                 user_id,
-                pkmn.name,
+                pkmn_name,
                 new_pokemon_quantity
             )
             if pkmn.is_legendary:
@@ -279,5 +291,40 @@ class TrainerService(PokeBotModule):
         except Exception as e:
             msg = ("Error has occurred in getting the quantity of "
                    "specified pokemon")
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
+
+    def get_lootbox_quantity(self, user_id: str, lootbox: str) -> int:
+        """
+        Gets the quantity of a specified lootbox from the users inventory
+        """
+        try:
+            if lootbox == self.BRONZE:
+                return self.trainer_dao.get_bronze_lootbox_quantity(user_id)
+            elif lootbox == self.SILVER:
+                return self.trainer_dao.get_silver_lootbox_quantity(user_id)
+            elif lootbox == self.GOLD:
+                return self.trainer_dao.get_gold_lootbox_quantity(user_id)
+            return 0
+        except Exception as e:
+            msg = ("Error has occurred in getting the quantity of "
+                   "specified lootbox")
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
+
+    def decrement_lootbox_quantity(self, user_id: str, lootbox: str) -> None:
+        """
+        Decreases the lootbox quantity of a specified lootbox by 1
+        """
+        try:
+            if lootbox == self.BRONZE:
+                self.trainer_dao.decrement_bronze_lootbox_quantity(user_id)
+            elif lootbox == self.SILVER:
+                self.trainer_dao.decrement_silver_lootbox_quantity(user_id)
+            elif lootbox == self.GOLD:
+                self.trainer_dao.decrement_gold_lootbox_quantity(user_id)
+        except Exception as e:
+            msg = ("Error has occurred in decrementing the quantity of a"
+                   "specified lootbox")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise

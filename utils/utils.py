@@ -4,8 +4,18 @@ import re
 
 
 def format_pokemon_name(pkmn_name: str) -> str:
+    """
+    Replaces underscore with a space
+    """
     formatted_pkmn_name = pkmn_name.replace('_', ' ')
     return formatted_pkmn_name.title()
+
+
+def format_lootbox_pokemon_name(pkmn_name: str) -> str:
+    """
+    Formats the name for pokemon lootbox display
+    """
+    pkmn_name.title()
 
 
 def get_ctx_user_id(ctx: commands.Context):
@@ -31,7 +41,7 @@ def parse_discord_mention_user_id(user_mention: str):
     return parsed_user_id
 
 
-def is_name_shiny(pkmn_name: str) -> str:
+def is_name_shiny(pkmn_name: str) -> bool:
     """
     Checks to see if the pokemon specified has shiny in it
     """

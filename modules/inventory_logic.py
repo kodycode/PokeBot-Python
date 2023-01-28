@@ -10,6 +10,7 @@ from modules.pokebot_exceptions import (
     NoEggCountException,
     NotEnoughExchangePokemonSpecifiedException,
     NotEnoughExchangePokemonQuantityException,
+    NotEnoughLootboxQuantityException,
     TooManyExchangePokemonSpecifiedException,
     UnregisteredTrainerException
 )
@@ -30,6 +31,10 @@ import time
 
 class InventoryLogic(PokeBotModule):
     """Handles the basic logic of features for PokeBot"""
+
+    BRONZE = "bronze"
+    SILVER = "silver"
+    GOLD = "gold"
 
     SHINY_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/shiny/"
     SHINY_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani-shiny/"
@@ -84,6 +89,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in catching pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     def _generate_random_pokemon(self, is_egg=False) -> Pokemon:
         """
@@ -100,6 +106,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in generating pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     def _determine_shiny_pokemon(self, is_egg=False) -> bool:
         """
@@ -109,7 +116,8 @@ class InventoryLogic(PokeBotModule):
             shiny_catch_rate = -1
             shiny_rng_chance = random.uniform(0, 1)
             if is_egg:
-                shiny_catch_rate = self.pokebot_rates.get_shiny_pkmn_hatch_multiplier()
+                shiny_catch_rate = \
+                    self.pokebot_rates.get_shiny_pkmn_hatch_multiplier()
             else:
                 shiny_catch_rate = self.pokebot_rates.get_shiny_pkmn_catch_rate()
             if shiny_rng_chance < shiny_catch_rate:
@@ -118,6 +126,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in determining shiny pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     def _generate_lootbox(self, daily=False) -> str:
         """
@@ -132,19 +141,13 @@ class InventoryLogic(PokeBotModule):
                     self.pokebot_rates.get_daily_lootbox_silver_rate()
                 lootbox_gold_rate = \
                     self.pokebot_rates.get_daily_lootbox_gold_rate()
-                lootbox_legendary_rate = \
-                    self.pokebot_rates.get_daily_lootbox_legendary_rate()
             else:
                 lootbox_bronze_rate = \
                     self.pokebot_rates.get_lootbox_bronze_rate()
                 lootbox_silver_rate = \
                     self.pokebot_rates.get_lootbox_silver_rate()
                 lootbox_gold_rate = self.pokebot_rates.get_lootbox_gold_rate()
-                lootbox_legendary_rate = \
-                    self.pokebot_rates.get_lootbox_legendary_rate()
-            if lootbox_rng < lootbox_legendary_rate:
-                return "legendary"
-            elif lootbox_rng < lootbox_gold_rate:
+            if lootbox_rng < lootbox_gold_rate:
                 return "gold"
             elif lootbox_rng < lootbox_silver_rate:
                 return "silver"
@@ -154,6 +157,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in generating lootbox."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def _display_total_pokemon_caught(self) -> None:
         """
@@ -167,6 +171,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Failed to display total pokemon caught."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def _update_game_status(self, total_pkmn_count: int) -> None:
         """
@@ -179,6 +184,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Failed to update game status."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def _post_pokemon_catch(
         self,
@@ -191,11 +197,9 @@ class InventoryLogic(PokeBotModule):
         Posts the pokemon that was caught
         """
         try:
-            random_pokeball = self.assets.get_random_pokeball_emoji()
             msg = await self._create_catch_message(
                 ctx,
                 pkmn,
-                random_pokeball,
                 catch_condition,
                 lootbox
             )
@@ -203,12 +207,12 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in posting catch."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def _create_catch_message(
         self,
         ctx: discord.ext.commands.Context, 
-        pkmn: str, 
-        random_pokeball: str, 
+        pkmn: Pokemon, 
         catch_condition: str, 
         lootbox: str
     ):
@@ -216,7 +220,10 @@ class InventoryLogic(PokeBotModule):
         Creates the catch message to display
         """
         try:
+            random_pokeball = self.assets.get_random_pokeball_emoji()
             formatted_pkmn_name = format_pokemon_name(pkmn.name)
+            if pkmn.is_shiny:
+                formatted_pkmn_name = "(Shiny) " + formatted_pkmn_name
             user = "**{}**".format(ctx.message.author.name)
             msg = f"{user} {catch_condition} a "\
                 f"{random_pokeball}**{formatted_pkmn_name}**"
@@ -226,6 +233,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in creating catch msg."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def _post_catch_to_channels(self,
         ctx: discord.ext.commands.Context,
@@ -247,6 +255,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in posting catch to channels."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def _post_catch_to_special_channel(
         self,
@@ -258,24 +267,25 @@ class InventoryLogic(PokeBotModule):
         Posts catch to special or certain channels (i.e. shiny, special)
         """
         try:
-            shiny_removed_pkmn_name = remove_shiny_pokemon_name(pkmn.name)
-            formatted_pkmn_name = \
-                format_pokemon_name(shiny_removed_pkmn_name).lower()
             channel = get_specific_text_channel(ctx, channel_name)
-            if channel:
-                em = discord.Embed(description=msg, colour=0xFFFFFF)
-                if pkmn.is_shiny:
-                    thumbnail = f"{self.SHINY_ICON_URL}{formatted_pkmn_name}.png"
-                    image = f"{self.SHINY_GIF_URL}{formatted_pkmn_name}.gif"
-                else:
-                    thumbnail = f"{self.NRML_ICON_URL}{formatted_pkmn_name}.png"
-                    image = f"{self.NRML_GIF_URL}{formatted_pkmn_name}.gif"
-                em.set_thumbnail(url=thumbnail)
-                em.set_image(url=image)
-                await channel.send(embed=em)
+            if not channel:
+                return
+            formatted_pkmn_name = pkmn.name.lower()
+            em = discord.Embed(description=msg, colour=0xFFFFFF)
+            if pkmn.is_shiny:
+                thumbnail = f"{self.SHINY_ICON_URL}{formatted_pkmn_name}.png"
+                image = f"{self.SHINY_GIF_URL}{formatted_pkmn_name}.gif"
+                formatted_pkmn_name = "(Shiny) " + formatted_pkmn_name
+            else:
+                thumbnail = f"{self.NRML_ICON_URL}{formatted_pkmn_name}.png"
+                image = f"{self.NRML_GIF_URL}{formatted_pkmn_name}.gif"
+            em.set_thumbnail(url=thumbnail)
+            em.set_image(url=image)
+            await channel.send(embed=em)
         except Exception as e:
             msg = "Error has occurred in posting catch to all channels."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def build_pinventory_msg(
         self,
@@ -312,7 +322,8 @@ class InventoryLogic(PokeBotModule):
             raise
         except Exception as e:
             msg = "Error has occurred in displaying inventory."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)     
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise    
 
     def _is_existing_user(self, user_id: str) -> None:
         """
@@ -340,7 +351,8 @@ class InventoryLogic(PokeBotModule):
             return sorted_pokemon_inventory[lowest_pkmn_index:highest_pkmn_index]
         except Exception as e:
             msg = "Error has occurred in slicing pinventory."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)  
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise 
 
     async def _build_pinventory_msg_(
         self,
@@ -370,7 +382,8 @@ class InventoryLogic(PokeBotModule):
             return display_total_hdr + list_of_pkmn_msg
         except Exception as e:
             msg = "Error has occurred in building pinventory message."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)  
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise 
 
     async def release_pokemon(
         self,
@@ -391,7 +404,8 @@ class InventoryLogic(PokeBotModule):
             raise
         except Exception as e:
             msg = "Error has occurred in releasing pokemon."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def _process_pokemon_release(
         self,
@@ -409,13 +423,15 @@ class InventoryLogic(PokeBotModule):
             pkmn = self.assets.get_pokemon_asset(
                 no_shiny_pkmn_name,
                 is_shiny=is_shiny
-            )
+            )   
             await self.trainer_service.decrease_pokemon_quantity(
                 user_id,
                 pkmn,
                 quantity
             )
-        except Exception:
+        except Exception as e:
+            msg = "Error has occurred in processing pokemon release."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
             raise
 
     async def build_eggs_msg(self, ctx: discord.ext.commands.Context) -> discord.Embed:
@@ -440,7 +456,8 @@ class InventoryLogic(PokeBotModule):
             raise
         except Exception as e:
             msg = "Error has occurred in building egg message."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e) 
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def hatch_egg(
         self,
@@ -481,6 +498,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in hatching egg."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     def _generate_pokemon(self, pkmn_name: str, is_egg=False) -> Pokemon:
         """
@@ -497,6 +515,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in generating specific pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     async def exchange_pokemon(
         self,
@@ -514,14 +533,12 @@ class InventoryLogic(PokeBotModule):
                 raise TooManyExchangePokemonSpecifiedException()
             user_id = get_ctx_user_id(ctx)
             pkmn_to_release = self._collect_pokemon_to_release(user_id, *args)
-            # release pokemon from inventory
             for pkmn_name in pkmn_to_release.keys():
                 await self._process_pokemon_release(
                     user_id,
                     pkmn_name,
                     pkmn_to_release[pkmn_name]
                 )
-
             random_pkmn = self._generate_random_pokemon()
             self.trainer_service.give_pokemon_to_trainer(
                 user_id,
@@ -540,6 +557,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in exchanging pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
 
     def _collect_pokemon_to_release(self, user_id: str, *args: str):
         """
@@ -570,3 +588,89 @@ class InventoryLogic(PokeBotModule):
             return pokemon_to_release
         except NotEnoughExchangePokemonQuantityException:
             raise
+
+    async def open_lootbox(
+        self,
+        ctx: discord.ext.commands.Context,
+        lootbox: str
+    ) -> discord.Embed:
+        """
+        Opens a lootbox specified by the user
+        """
+        try:
+            user_id = get_ctx_user_id(ctx)
+            username = ctx.message.author.name
+            self._is_existing_user(user_id)
+            lootbox_quantity = \
+                self.trainer_service.get_lootbox_quantity(user_id, lootbox)
+            if lootbox_quantity < 1:
+                raise NotEnoughLootboxQuantityException(lootbox)
+            self.trainer_service.decrement_lootbox_quantity(user_id, lootbox)
+            lootbox_pkmn_limit = \
+                self.pokebot_rates.get_lootbox_pokemon_limit()
+            lootbox_pkmn_result = []
+            for _ in range(lootbox_pkmn_limit):
+                random_pkmn = self._generate_random_pokemon()
+                self.trainer_service.give_pokemon_to_trainer(
+                    user_id,
+                    random_pkmn
+                )
+                random_pkmn_name = random_pkmn.name.title()
+                if random_pkmn.is_shiny:
+                    random_pkmn_name = "(Shiny)" + random_pkmn_name
+                lootbox_pkmn_result.append(random_pkmn_name)
+            self.trainer_service.save_all_trainer_data()
+            await self._display_total_pokemon_caught()
+            return self._build_lootbox_results_msg(
+                username,
+                lootbox,
+                lootbox_pkmn_result,
+            )
+        except NotEnoughLootboxQuantityException:
+            raise
+        except UnregisteredTrainerException:
+            raise
+        except Exception as e:
+            msg = "Error has occurred in opening lootbox."
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
+
+    def _build_lootbox_results_msg(
+        self,
+        username: str,
+        lootbox: str,
+        lootbox_pkmn_result: list[str],
+    ) -> discord.Embed:
+        """
+        Builds the embedded message for the lootbox results to display in
+        """
+        try:
+            lootbox_thumbnail = self._get_lootbox_thumbnail(lootbox)
+            msg = ("**{}** opened the **{}** lootbox and obtained:\n"
+                   "".format(username, lootbox.title()))
+            for pkmn in lootbox_pkmn_result:
+                msg += f"**{pkmn}**\n"
+            em = discord.Embed(title="Lootbox",
+                            description=msg,
+                            colour=0xFF9900)
+            em.set_thumbnail(url=lootbox_thumbnail)
+            return em
+        except Exception as e:
+            msg = "Error has occurred in building lootbox results message"
+            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
+            raise
+
+    def _get_lootbox_thumbnail(self, lootbox: str):
+        """
+        Determines the lootbox thumbnail based on the lootbox opened
+        """
+        if lootbox == self.BRONZE:
+            return ("https://github.com/msikma/pokesprite/blob/master/"
+                    "icons/pokeball/poke.png?raw=true")
+        elif lootbox == self.SILVER:
+            return ("https://github.com/msikma/pokesprite/blob/master/"
+                    "icons/pokeball/great.png?raw=true")
+        elif lootbox == self.GOLD:
+            return ("https://github.com/msikma/pokesprite/blob/master/"
+                    "icons/pokeball/ultra.png?raw=true")
+                    

@@ -9,6 +9,7 @@ from modules.pokebot_exceptions import (
     NoEggCountException,
     NotEnoughExchangePokemonQuantityException,
     NotEnoughExchangePokemonSpecifiedException,
+    NotEnoughLootboxQuantityException,
     PageQuantityTooLow,
     ReleaseQuantityTooLow,
     TooManyExchangePokemonSpecifiedException,
@@ -148,18 +149,22 @@ class InventoryCommands(PokeBotCog):
         except UnregisteredTrainerException:
             await self.post_unregistered_trainer_exception_msg(ctx)
 
-    # @commands.command(name='open', aliases=['o'], pass_context=True)
-    # async def open(self, ctx, lootbox: str):
-    #     """
-    #     Opens a lootbox in the inventory
-
-    #     @param lootbox - choices are:
-    #                      b - bronze
-    #                      s - silver
-    #                      g - gold
-    #                      l - legendary
-    #     """
-    #     await self.cmd_function.open_lootbox(ctx, lootbox)
+    @commands.command(name='open', aliases=['o'], pass_context=True)
+    async def open(
+        self,
+        ctx:commands.Context,
+        lootbox: str
+    ):
+        """
+        Opens a specified lootbox in the inventory
+        """
+        try:
+            embed_msg = await self.inventory_logic.open_lootbox(ctx, lootbox)
+            await ctx.send(embed=embed_msg)
+        except NotEnoughLootboxQuantityException as e:
+            await self.post_not_enough_lootbox_quantity_exception_msg(ctx, e)
+        except UnregisteredTrainerException:
+            await self.post_unregistered_trainer_exception_msg(ctx)
 
     # @commands.command(name='loot', aliases=['l'], pass_context=True)
     # async def loot(self, ctx):

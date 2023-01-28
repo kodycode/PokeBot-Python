@@ -80,6 +80,19 @@ class PokeBotCog(commands.Cog):
         await ctx.send(f"{ctx.message.author.mention}," \
                        " please specify five pokemon to exchange")
 
+    async def post_not_enough_lootbox_quantity_exception_msg(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when there's no quantity available
+        for a specified lootbox
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " please make sure you have enough" \
+                       f" {str(e)} lootboxes to open")
+
     async def post_page_quantity_too_low_msg(
         self,
         ctx: commands.Context
