@@ -155,8 +155,7 @@ class PokeBotRates(PokeBotModule):
 
     def get_bronze_lootbox_daily_token_price(self) -> int:
         """
-        Gets the daily token shop price to redeem a
-        bronze lootbox
+        Gets the daily token shop price to redeem a bronze lootbox
         """
         try:
             return self.lootbox_rates.get_bronze_lootbox_daily_token_price()
@@ -166,8 +165,7 @@ class PokeBotRates(PokeBotModule):
 
     def get_silver_lootbox_daily_token_price(self) -> int:
         """
-        Gets the daily token shop price to redeem a
-        silver lootbox
+        Gets the daily token shop price to redeem a silver lootbox
         """
         try:
             return self.lootbox_rates.get_silver_lootbox_daily_token_price()
@@ -177,25 +175,12 @@ class PokeBotRates(PokeBotModule):
 
     def get_gold_lootbox_daily_token_price(self) -> int:
         """
-        Gets the daily token shop price to redeem a
-        gold lootbox
+        Gets the daily token shop price to redeem a gold lootbox
         """
         try:
             return self.lootbox_rates.get_gold_lootbox_daily_token_price()
         except Exception as e:
             msg = "Error has occurred getting daily token lootbox gold rate."
-            self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
-
-    def get_legendary_lootbox_daily_token_price(self) -> int:
-        """
-        Gets the daily token shop price to redeem a
-        legendary lootbox
-        """
-        try:
-            return self.lootbox_rates.get_legendary_lootbox_daily_token_price()
-        except Exception as e:
-            msg = "Error has occurred getting daily token lootbox legendary" \
-                  " rate."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
 
     def get_lootbox_bronze_rate(self) -> float:

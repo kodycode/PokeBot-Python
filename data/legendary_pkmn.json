@@ -14,14 +14,9 @@
   "terrakion", "virizion", "tornadus",
   "thundurus", "reshiram", "zekrom",
   "landorus", "kyurem", "keldeo",
-  "meloetta", "genesect", "xerneas",
-  "yveltal", "zygarde", "diancie",
-  "hoopa", "volcanion", "typenull",
-  "silvally", "phione", "tapu_bulu",
+  "meloetta", "genesect", "phione", "tapu_bulu",
   "tapu_koko", "tapu_lele", "tapu_fini",
   "marshadow", "magearna", "necrozma",
   "cosmog", "cosmoem", "solgaleo",
-  "lunala", "xerneas", "yveltal",
-  "zygarde", "diancie", "hoopa",
-  "volcanion"
+  "lunala"
 ]

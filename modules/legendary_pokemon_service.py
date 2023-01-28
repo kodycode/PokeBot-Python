@@ -23,3 +23,19 @@ class LegendaryPokemonService(PokeBotModule):
                 msg, 
                 e
             )
+            raise
+
+    def get_list_of_legendary_pokemon(self) -> list:
+        """
+        Returns the list of legendary pokemon
+        """
+        try:
+            return self.legendary_dao.get_legendary_pokemon()
+        except Exception as e:
+            msg = "Error has occurred in getting list of legendary pokemon"
+            self.post_error_log_msg(
+                LegendaryPokemonServiceException.__name__,
+                msg, 
+                e
+            )
+            raise       

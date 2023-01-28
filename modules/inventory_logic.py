@@ -91,14 +91,23 @@ class InventoryLogic(PokeBotModule):
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
             raise
 
-    def _generate_random_pokemon(self, is_egg=False) -> Pokemon:
+    def _generate_random_pokemon(
+        self,
+        is_egg: bool=False,
+        lootbox: str=''
+    ) -> Pokemon:
         """
         Generates a random pokemon and returns a Pokemon object
         """
         try:
             self.total_pokemon_caught += 1
             is_shiny_pokemon = self._determine_shiny_pokemon(is_egg)
-            if is_shiny_pokemon:
+            if lootbox:
+                pkmn = self.assets.get_lootbox_pokemon_asset(
+                    is_shiny_pokemon,
+                    lootbox
+                )
+            elif is_shiny_pokemon:
                 pkmn = self.assets.get_random_pokemon_asset(True)
             else:
                 pkmn = self.assets.get_random_pokemon_asset()
@@ -119,7 +128,8 @@ class InventoryLogic(PokeBotModule):
                 shiny_catch_rate = \
                     self.pokebot_rates.get_shiny_pkmn_hatch_multiplier()
             else:
-                shiny_catch_rate = self.pokebot_rates.get_shiny_pkmn_catch_rate()
+                shiny_catch_rate = \
+                    self.pokebot_rates.get_shiny_pkmn_catch_rate()
             if shiny_rng_chance < shiny_catch_rate:
                 return True
             return False
@@ -610,7 +620,7 @@ class InventoryLogic(PokeBotModule):
                 self.pokebot_rates.get_lootbox_pokemon_limit()
             lootbox_pkmn_result = []
             for _ in range(lootbox_pkmn_limit):
-                random_pkmn = self._generate_random_pokemon()
+                random_pkmn = self._generate_random_pokemon(lootbox=lootbox)
                 self.trainer_service.give_pokemon_to_trainer(
                     user_id,
                     random_pkmn
@@ -673,4 +683,3 @@ class InventoryLogic(PokeBotModule):
         elif lootbox == self.GOLD:
             return ("https://github.com/msikma/pokesprite/blob/master/"
                     "icons/pokeball/ultra.png?raw=true")
-                    

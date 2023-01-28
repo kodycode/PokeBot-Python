@@ -73,13 +73,6 @@ class LootboxConfigsDAO(ConfigDAO):
         """
         return self.data["gold_lootbox_daily_token_price"]
 
-    def get_legendary_lootbox_daily_token_price(self) -> int:
-        """
-        Gets the daily token shop price to redeem a
-        legendary lootbox
-        """
-        return self.data["legendary_lootbox_daily_token_price"]
-
     def get_lootbox_bronze_rate(self) -> float:
         """
         Gets the max number threshold for a bronze

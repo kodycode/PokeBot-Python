@@ -22,3 +22,18 @@ class UltraBeastsService(PokeBotModule):
             msg = "Error has occurred in deciding if a pokemon " \
                   "was an ultra beast."
             self.post_error_log_msg(UltraBeastsService.__name__, msg, e)
+
+    def get_list_of_ultra_beasts(self) -> list:
+        """
+        Returns the list of ultra beasts
+        """
+        try:
+            return self.ultra_beasts_dao.get_ultra_beasts()
+        except Exception as e:
+            msg = "Error has occurred in getting list of ultra beasts"
+            self.post_error_log_msg(
+                LegendaryPokemonServiceException.__name__,
+                msg, 
+                e
+            )
+            raise
