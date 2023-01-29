@@ -87,6 +87,8 @@ class TrainerDAO(DataDAO):
         """
         Gets the last daily redeemed time of the trainer
         """
+        if user_id not in self.data:
+            return 0
         return self.data[user_id][self.LAST_DAILY_REDEEMED_TIME]
 
     def get_lootbox_inventory(self, user_id: str) -> dict:
@@ -323,3 +325,9 @@ class TrainerDAO(DataDAO):
         Decreases the gold lootbox quantity of a user by 1
         """
         self.data[user_id][self.LOOTBOX][self.GOLD] -= 1
+
+    def increment_daily_tokens(self, user_id: str):
+        """
+        Increments the daily token count of a trainer
+        """
+        self.data[user_id][self.DAILY_TOKENS] += 1

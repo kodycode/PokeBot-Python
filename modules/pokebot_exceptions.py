@@ -2,6 +2,14 @@ class CatchCooldownIncompleteException(Exception):
     pass
 
 
+class DailyCooldownIncompleteException(Exception):
+    pass
+
+
+class DailyLogicException(Exception):
+    pass
+
+
 class HigherPageSpecifiedException(Exception):
     pass
 
@@ -43,6 +51,10 @@ class PageQuantityTooLow(Exception):
 
 
 class PokeBotAssetsException(Exception):
+    pass
+
+
+class PokeBotLootboxException(Exception):
     pass
 
 

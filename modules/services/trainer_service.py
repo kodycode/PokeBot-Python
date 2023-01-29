@@ -341,3 +341,46 @@ class TrainerService(PokeBotModule):
                    "specified lootbox")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
+
+    def get_trainer_last_daily_redeemed_time(self, user_id: str) -> float:
+        """
+        Gets last daily claim time of a trainer
+        """
+        try:
+            return self.trainer_dao.get_last_daily_redeemed_time(user_id)
+        except Exception as e:
+            msg = ("Error has occurred in getting trainer's" \
+                   "last daily claim time")
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
+
+    def set_trainer_last_daily_redeemed_time(
+        self,
+        user_id: str,
+        current_time: float
+    ) -> None:
+        """
+        Sets last daily claim time of a trainer
+        """
+        try:
+            return self.trainer_dao.set_last_daily_redeemed_time(
+                user_id,
+                current_time
+            )
+        except Exception as e:
+            msg = ("Error has occurred in setting trainer's" \
+                   "last daily claim time")
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise
+
+    def increment_trainer_daily_token_count(self, user_id: str) -> None:
+        """
+        Increments daily token count of trainer
+        """
+        try:
+            self.trainer_dao.increment_daily_tokens(user_id)
+        except Exception as e:
+            msg = (f"Error has occurred in incrementing daily token count of" \
+                   " a trainer ({user_id}).")
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise

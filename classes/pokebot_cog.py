@@ -19,6 +19,17 @@ class PokeBotCog(commands.Cog):
                        f" please wait **{str(e)}** second(s) to catch" \
                        " another pokemon")
 
+    async def post_daily_cooldown_incomplete_msg(
+        self,
+        ctx: commands.Context
+    ) -> None:
+        """
+        Sends the exception message for when the daily cooldown
+        hasn't passed yet for the user to claim the daily
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       f" you've already claimed the daily for today")
+
     async def post_higher_quantity_specified_exception_msg(
         self,
         ctx: commands.Context,

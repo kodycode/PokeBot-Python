@@ -14,6 +14,7 @@ from modules.pokebot_exceptions import (
     TooManyExchangePokemonSpecifiedException,
     UnregisteredTrainerException
 )
+from modules.pokebot_lootbox import PokeBotLootbox
 from modules.pokebot_rates import PokeBotRates
 from modules.services.trainer_service import TrainerService
 from modules.services.ultra_beasts_service import UltraBeastsService
@@ -46,8 +47,9 @@ class InventoryLogic(PokeBotModule):
         self.assets = PokeBotAssets()
         self.bot = bot
         self.legendary_service = LegendaryPokemonService()
-        self.pokebot_rates = PokeBotRates(bot)
-        self.trainer_service = TrainerService(self.pokebot_rates)
+        self.rates = PokeBotRates(bot)
+        self.lootbox = PokeBotLootbox(self.rates)
+        self.trainer_service = TrainerService(self.rates)
         self.total_pokemon_caught = self.trainer_service.get_total_pokemon_caught()
         self.ultra_beasts = UltraBeastsService()
 
@@ -70,7 +72,7 @@ class InventoryLogic(PokeBotModule):
                     user_id,
                     current_time
                 )
-                lootbox = self._generate_lootbox()
+                lootbox = self.lootbox.generate_lootbox()
                 if lootbox:
                     self.trainer_service.give_lootbox_to_trainer(
                         user_id,
@@ -125,47 +127,14 @@ class InventoryLogic(PokeBotModule):
             shiny_catch_rate = -1
             shiny_rng_chance = random.uniform(0, 1)
             if is_egg:
-                shiny_catch_rate = \
-                    self.pokebot_rates.get_shiny_pkmn_hatch_multiplier()
+                shiny_catch_rate = self.rates.get_shiny_pkmn_hatch_multiplier()
             else:
-                shiny_catch_rate = \
-                    self.pokebot_rates.get_shiny_pkmn_catch_rate()
+                shiny_catch_rate = self.rates.get_shiny_pkmn_catch_rate()
             if shiny_rng_chance < shiny_catch_rate:
                 return True
             return False
         except Exception as e:
             msg = "Error has occurred in determining shiny pokemon."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise
-
-    def _generate_lootbox(self, daily=False) -> str:
-        """
-        Generates a lootbox with consideration into daily or catch rates
-        """
-        try:
-            lootbox_rng = random.uniform(0, 1)
-            if daily:
-                lootbox_bronze_rate = \
-                    self.pokebot_rates.get_daily_lootbox_bronze_rate()
-                lootbox_silver_rate = \
-                    self.pokebot_rates.get_daily_lootbox_silver_rate()
-                lootbox_gold_rate = \
-                    self.pokebot_rates.get_daily_lootbox_gold_rate()
-            else:
-                lootbox_bronze_rate = \
-                    self.pokebot_rates.get_lootbox_bronze_rate()
-                lootbox_silver_rate = \
-                    self.pokebot_rates.get_lootbox_silver_rate()
-                lootbox_gold_rate = self.pokebot_rates.get_lootbox_gold_rate()
-            if lootbox_rng < lootbox_gold_rate:
-                return "gold"
-            elif lootbox_rng < lootbox_silver_rate:
-                return "silver"
-            elif lootbox_rng < lootbox_bronze_rate:
-                return "bronze"
-            return None
-        except Exception as e:
-            msg = "Error has occurred in generating lootbox."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
             raise
 
@@ -618,7 +587,7 @@ class InventoryLogic(PokeBotModule):
                 raise NotEnoughLootboxQuantityException(lootbox)
             self.trainer_service.decrement_lootbox_quantity(user_id, lootbox)
             lootbox_pkmn_limit = \
-                self.pokebot_rates.get_lootbox_pokemon_limit()
+                self.rates.get_lootbox_pokemon_limit()
             lootbox_pkmn_result = []
             for _ in range(lootbox_pkmn_limit):
                 random_pkmn = self._generate_random_pokemon(lootbox=lootbox)
