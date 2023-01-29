@@ -384,3 +384,15 @@ class TrainerService(PokeBotModule):
                    " a trainer ({user_id}).")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
+
+    def get_daily_tokens(self, user_id: str) -> int:
+        """
+        Get the daily token amount of the trainer
+        """
+        try:
+            return self.trainer_dao.get_daily_tokens(user_id)
+        except Exception as e:
+            msg = (f"Error has occurred in getting the daily token count of" \
+                   " a trainer ({user_id}).")
+            self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
+            raise

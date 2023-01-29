@@ -126,6 +126,8 @@ class TrainerDAO(DataDAO):
         """
         Gets the list of daily tokens that the trainer has
         """
+        if user_id not in self.data:
+            return 0
         return self.data[user_id][self.DAILY_TOKENS]
 
     def set_last_catch_time(self, user_id: str, time: float) -> None:

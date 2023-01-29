@@ -24,12 +24,13 @@ class DailyCommands(PokeBotCog):
         except DailyCooldownIncompleteException:
             await self.post_daily_cooldown_incomplete_msg(ctx)
 
-    # @commands.command(name='tokens', pass_context=True)
-    # async def tokens(self, ctx):
-    #     """
-    #     Displays the number of daily tokens the user has
-    #     """
-    #     await self.cmd_function.display_daily_tokens(ctx)
+    @commands.command(name='tokens', pass_context=True)
+    async def tokens(self, ctx: commands.Context):
+        """
+        Displays the number of daily tokens the user has
+        """
+        msg = self.daily_logic.build_daily_tokens_msg(ctx)
+        await ctx.send(msg)
 
     # @commands.command(name='shop', pass_context=True)
     # async def shop(self, ctx, option: str, item_num=None):

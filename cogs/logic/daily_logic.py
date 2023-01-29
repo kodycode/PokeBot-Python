@@ -83,3 +83,23 @@ class DailyLogic(PokeBotModule):
                    "claim ({user_id}).")
             self.post_error_log_msg(DailyLogicException.__name__, msg, e)
             raise
+
+    def build_daily_tokens_msg(
+        self,
+        ctx: discord.ext.commands.Context
+    ) -> str:
+        """
+        Builds the message to tell the user how many daily tokens they have
+        """
+        try:
+            user_id = get_ctx_user_id(ctx)
+            daily_tokens = self.trainer_service.get_daily_tokens(user_id)
+            em = discord.Embed()
+            msg = (f"{ctx.message.author.mention}, you have **{daily_tokens}**"
+                   " daily tokens")
+            return msg
+        except Exception as e:
+            msg = ("Error has occurred in building message for displaying"
+                   f" the users daily tokens ({user_id}).")
+            self.post_error_log_msg(DailyLogicException.__name__, msg, e)
+            raise
