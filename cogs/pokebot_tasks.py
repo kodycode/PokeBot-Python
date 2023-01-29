@@ -1,6 +1,7 @@
 from classes import PokeBotCog
 from discord.ext import commands, tasks
 from events import EventManager
+from modules.pokebot_status import PokeBotStatus
 import asyncio
 
 
@@ -10,7 +11,12 @@ class PokeBotTasks(PokeBotCog):
         super().__init__()
         self.bot = bot
         self.event_manager = EventManager(bot)
+        self.status = PokeBotStatus(bot)
         self._process_all_event_activation_times.start()
+
+    @commands.Cog.listener("on_ready")
+    async def on_ready(self):
+        await self.status.display_total_pokemon_caught()
 
     @tasks.loop(seconds=60.0)
     async def _process_all_event_activation_times(self):

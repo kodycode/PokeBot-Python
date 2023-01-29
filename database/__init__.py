@@ -1,3 +1,4 @@
+from database.daily import DailyShopDAO
 from database.events import EventsDAO
 from database.general_rates import GeneralRatesDAO
 from database.gift import GiftDAO
@@ -10,6 +11,7 @@ from database.ultra_beasts import UltraBeastsDAO
 
 
 __all__ = [
+    DailyShopDAO,
     EventsDAO,
     GeneralRatesDAO,
     GiftDAO,

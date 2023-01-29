@@ -1,0 +1,21 @@
+{
+    "daily_redemption_reset_hour": 0,
+    "daily_shop_menu": {
+        "bronze": {
+            "price": 3,
+            "description": "Bronze Lootbox"
+        },
+        "silver": {
+            "price": 6,
+            "description": "Silver Lootbox"
+        },
+        "gold": {
+            "price": 12,
+            "description": "Gold Lootbox"
+        },
+        "shiny": {
+            "price": 50,
+            "description": "Random Shiny Pokemon"
+        }
+    }
+}

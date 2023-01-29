@@ -56,6 +56,20 @@ class PokeBotCog(commands.Cog):
                        " please specify a page number less than the" \
                        f" max page number: **{str(e)}**")
 
+    async def post_improper_daily_shop_item_number_exception_msg(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when an improper daily shop item
+        is given (less than zero or higher than the number of available)
+        daily shop items
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " please specify an item from the daily shop menu" \
+                       f" from **1** to **{str(e)}**")
+
     async def post_no_egg_count_msg(
         self,
         ctx: commands.Context,
@@ -67,7 +81,19 @@ class PokeBotCog(commands.Cog):
         await ctx.send(f"{ctx.message.author.mention}," \
                        f" you have no {str(e)} eggs to hatch")
 
-    async def post_not_enough_exchange_pokemon_quantity_exception(
+    async def post_not_enough_daily_shop_tokens_exception_msg(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when not the trainer doesn't
+        have enough daily shop tokens to spend on a daily shop item
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       f" you need **{str(e)}** daily tokens to buy this item")
+
+    async def post_not_enough_exchange_pokemon_quantity_exception_msg(
         self,
         ctx: commands.Context
     ) -> None:
@@ -128,7 +154,7 @@ class PokeBotCog(commands.Cog):
                        " please specify a pokemon quantity greater than 0" \
                        " to release")
 
-    async def post_too_many_exchange_pokemon_specified_exception(
+    async def post_too_many_exchange_pokemon_specified_exception_msg(
         self,
         ctx: commands.Context
     ) -> None:

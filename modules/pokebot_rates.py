@@ -1,5 +1,5 @@
 from classes import PokeBotModule
-from database import GeneralRatesDAO, LootboxConfigsDAO, ShinyPokemonRatesDAO
+from database import DailyShopDAO, GeneralRatesDAO, LootboxConfigsDAO, ShinyPokemonRatesDAO
 from events import EventManager
 from modules.pokebot_exceptions import PokeBotRatesException
 
@@ -11,6 +11,7 @@ class PokeBotRates(PokeBotModule):
 
     def __init__(self, bot):
         self.event_manager = EventManager(bot)
+        self.daily_shop_rates = DailyShopDAO()
         self.general_rates = GeneralRatesDAO()
         self.lootbox_rates = LootboxConfigsDAO()
         self.shiny_pkmn_rates = ShinyPokemonRatesDAO()
@@ -21,9 +22,19 @@ class PokeBotRates(PokeBotModule):
         any event modifications
         """
         try:
-            return self.general_rates.get_daily_redemption_reset_hour()
+            return self.daily_shop_rates.get_daily_redemption_reset_hour()
         except Exception as e:
             msg = "Error has occurred getting daily redemption hour."
+            self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
+
+    def get_daily_shop_menu(self) -> dict:
+        """
+        Gets the daily shop menu
+        """
+        try:
+            return self.daily_shop_rates.get_daily_shop_menu()
+        except Exception as e:
+            msg = "Error has occurred getting daily shop menu."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
 
     def get_catch_cooldown_seconds(self) -> int:

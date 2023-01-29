@@ -14,8 +14,9 @@ from modules.pokebot_exceptions import (
     TooManyExchangePokemonSpecifiedException,
     UnregisteredTrainerException
 )
-from modules.pokebot_lootbox import PokeBotLootbox
+from modules.pokebot_generator import PokeBotGenerator
 from modules.pokebot_rates import PokeBotRates
+from modules.pokebot_status import PokeBotStatus
 from modules.services.trainer_service import TrainerService
 from modules.services.ultra_beasts_service import UltraBeastsService
 from utils import (
@@ -26,7 +27,6 @@ from utils import (
     remove_shiny_pokemon_name,
 )
 import discord
-import random
 import time
 
 
@@ -48,9 +48,9 @@ class InventoryLogic(PokeBotModule):
         self.bot = bot
         self.legendary_service = LegendaryPokemonService()
         self.rates = PokeBotRates(bot)
-        self.lootbox = PokeBotLootbox(self.rates)
+        self.status = PokeBotStatus(bot)
+        self.generator = PokeBotGenerator(self.assets, self.rates)
         self.trainer_service = TrainerService(self.rates)
-        self.total_pokemon_caught = self.trainer_service.get_total_pokemon_caught()
         self.ultra_beasts = UltraBeastsService()
 
     async def catch_pokemon(self, ctx: discord.ext.commands.Context) -> None:
@@ -63,7 +63,7 @@ class InventoryLogic(PokeBotModule):
             seconds_left_to_catch = \
                 self.trainer_service.get_time_left_to_catch(user_id)
             if seconds_left_to_catch <= 0:
-                random_pkmn = self._generate_random_pokemon()
+                random_pkmn = self.generator.generate_random_pokemon()
                 self.trainer_service.give_pokemon_to_trainer(
                     user_id,
                     random_pkmn,
@@ -72,13 +72,14 @@ class InventoryLogic(PokeBotModule):
                     user_id,
                     current_time
                 )
-                lootbox = self.lootbox.generate_lootbox()
+                lootbox = self.generator.generate_lootbox()
                 if lootbox:
                     self.trainer_service.give_lootbox_to_trainer(
                         user_id,
                         lootbox,
                     )
-                await self._display_total_pokemon_caught()
+                self.status.increase_total_pkmn_count(1)
+                await self.status.display_total_pokemon_caught()
                 await self._post_pokemon_catch(ctx,
                                                random_pkmn,
                                                "caught",
@@ -90,78 +91,6 @@ class InventoryLogic(PokeBotModule):
             raise
         except Exception as e:
             msg = "Error has occurred in catching pokemon."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise
-
-    def _generate_random_pokemon(
-        self,
-        is_egg: bool=False,
-        lootbox: str=''
-    ) -> Pokemon:
-        """
-        Generates a random pokemon and returns a Pokemon object
-        """
-        try:
-            self.total_pokemon_caught += 1
-            is_shiny_pokemon = self._determine_shiny_pokemon(is_egg)
-            if lootbox:
-                pkmn = self.assets.get_lootbox_pokemon_asset(
-                    is_shiny_pokemon,
-                    lootbox
-                )
-            elif is_shiny_pokemon:
-                pkmn = self.assets.get_random_pokemon_asset(True)
-            else:
-                pkmn = self.assets.get_random_pokemon_asset()
-            return pkmn
-        except Exception as e:
-            msg = "Error has occurred in generating pokemon."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise
-
-    def _determine_shiny_pokemon(self, is_egg=False) -> bool:
-        """
-        Determines the odds of a shiny pokemon 
-        """
-        try:
-            shiny_catch_rate = -1
-            shiny_rng_chance = random.uniform(0, 1)
-            if is_egg:
-                shiny_catch_rate = self.rates.get_shiny_pkmn_hatch_multiplier()
-            else:
-                shiny_catch_rate = self.rates.get_shiny_pkmn_catch_rate()
-            if shiny_rng_chance < shiny_catch_rate:
-                return True
-            return False
-        except Exception as e:
-            msg = "Error has occurred in determining shiny pokemon."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise
-
-    async def _display_total_pokemon_caught(self) -> None:
-        """
-        Iterates over trainer profiles and gets the total
-        number of pokemon caught
-        """
-        try:
-            total_pokemon_caught = \
-                self.trainer_service.get_total_pokemon_caught()
-            await self._update_game_status(total_pokemon_caught)
-        except Exception as e:
-            msg = "Failed to display total pokemon caught."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise
-
-    async def _update_game_status(self, total_pkmn_count: int) -> None:
-        """
-        Updates the game status of the bot
-        """
-        try:
-            game_status = discord.Game(name="{} Pokémon caught"
-                                            "".format(total_pkmn_count))
-            await self.bot.change_presence(activity=game_status)
-        except Exception as e:
-            msg = "Failed to update game status."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
             raise
 
@@ -378,7 +307,8 @@ class InventoryLogic(PokeBotModule):
             self._is_existing_user(user_id)
             await self._process_pokemon_release(user_id, pkmn_name, quantity)
             self.trainer_service.save_all_trainer_data()
-            await self._display_total_pokemon_caught()
+            self.status.decrease_total_pkmn_count(1)
+            await self.status.display_total_pokemon_caught()
         except HigherReleaseQuantitySpecifiedException:
             raise
         except Exception as e:
@@ -454,17 +384,19 @@ class InventoryLogic(PokeBotModule):
                 egg_count = self.trainer_service.get_egg_manaphy_count(user_id)
                 if not egg_count:
                     raise NoEggCountException("manaphy")
-                pkmn = self._generate_pokemon("manaphy", is_egg=True)
+                pkmn = self.generator.generate_pokemon("manaphy", is_egg=True)
             else:
                 egg_count = self.trainer_service.get_egg_count(user_id)
                 if not egg_count:
                     raise NoEggCountException("regular")
-                pkmn = self._generate_random_pokemon(is_egg=True)
+                pkmn = self.generator.generate_random_pokemon(is_egg=True)
             self.trainer_service.decrement_egg_count(user_id, special_egg)
             self.trainer_service.give_pokemon_to_trainer(
                 user_id,
                 pkmn,
             )
+            self.status.increase_total_pkmn_count(1)
+            await self.status.display_total_pokemon_caught()
             await self._post_pokemon_catch(ctx,
                                            pkmn,
                                            "hatched",
@@ -476,23 +408,6 @@ class InventoryLogic(PokeBotModule):
             raise
         except Exception as e:
             msg = "Error has occurred in hatching egg."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise
-
-    def _generate_pokemon(self, pkmn_name: str, is_egg=False) -> Pokemon:
-        """
-        Generates a specified pokemon and returns a Pokemon object
-        """
-        try:
-            self.total_pokemon_caught += 1
-            is_shiny_pokemon = self._determine_shiny_pokemon(is_egg)
-            if is_shiny_pokemon:
-                pkmn = self.assets.get_pokemon_asset(pkmn_name, True)
-            else:
-                pkmn = self.assets.get_pokemon_asset(pkmn_name)
-            return pkmn
-        except Exception as e:
-            msg = "Error has occurred in generating specific pokemon."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
             raise
 
@@ -519,12 +434,13 @@ class InventoryLogic(PokeBotModule):
                     pkmn_name,
                     pkmn_to_release[pkmn_name]
                 )
-            random_pkmn = self._generate_random_pokemon()
+            random_pkmn = self.generator.generate_random_pokemon()
             self.trainer_service.give_pokemon_to_trainer(
                 user_id,
                 random_pkmn,
             )
-            await self._display_total_pokemon_caught()
+            self.status.decrease_total_pkmn_count(4)
+            await self.status.display_total_pokemon_caught()
             await self._post_pokemon_catch(ctx,
                                            random_pkmn,
                                            "exchanged pokemon for",
@@ -590,7 +506,9 @@ class InventoryLogic(PokeBotModule):
                 self.rates.get_lootbox_pokemon_limit()
             lootbox_pkmn_result = []
             for _ in range(lootbox_pkmn_limit):
-                random_pkmn = self._generate_random_pokemon(lootbox=lootbox)
+                random_pkmn = self.generator.generate_random_pokemon(
+                    lootbox=lootbox
+                )
                 self.trainer_service.give_pokemon_to_trainer(
                     user_id,
                     random_pkmn
@@ -600,7 +518,8 @@ class InventoryLogic(PokeBotModule):
                     random_pkmn_name = "(Shiny)" + random_pkmn_name
                 lootbox_pkmn_result.append(random_pkmn_name)
             self.trainer_service.save_all_trainer_data()
-            await self._display_total_pokemon_caught()
+            self.status.increase_total_pkmn_count(lootbox_pkmn_limit)
+            await self.status.display_total_pokemon_caught()
             return self._build_lootbox_results_msg(
                 username,
                 lootbox,

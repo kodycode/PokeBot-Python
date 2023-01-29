@@ -23,10 +23,6 @@ class InventoryCommands(PokeBotCog):
         super().__init__()
         self.inventory_logic = InventoryLogic(bot)
 
-    @commands.Cog.listener("on_ready")
-    async def on_ready(self):
-        await self.inventory_logic._display_total_pokemon_caught()
-
     @commands.command(name='catch', aliases=['c'], pass_context=True)
     async def catch(self, ctx: commands.Context):
         """
@@ -135,7 +131,7 @@ class InventoryCommands(PokeBotCog):
         try:
             await self.inventory_logic.exchange_pokemon(ctx, *args)
         except NotEnoughExchangePokemonQuantityException:
-            await self.post_not_enough_exchange_pokemon_quantity_exception(
+            await self.post_not_enough_exchange_pokemon_quantity_exception_msg(
                 ctx
             )
         except NotEnoughExchangePokemonSpecifiedException:
@@ -143,7 +139,7 @@ class InventoryCommands(PokeBotCog):
                 ctx
             )
         except TooManyExchangePokemonSpecifiedException:
-            await self.post_too_many_exchange_pokemon_specified_exception(
+            await self.post_too_many_exchange_pokemon_specified_exception_msg(
                 ctx
             )
         except UnregisteredTrainerException:

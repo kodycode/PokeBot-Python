@@ -18,6 +18,10 @@ class HigherReleaseQuantitySpecifiedException(Exception):
     pass
 
 
+class ImproperDailyShopItemNumberException(Exception):
+    pass
+
+
 class InventoryLogicException(Exception):
     pass
 
@@ -31,6 +35,10 @@ class MiscLogicException(Exception):
 
 
 class NoEggCountException(Exception):
+    pass
+
+
+class NotEnoughDailyShopTokensException(Exception):
     pass
 
 
@@ -54,11 +62,15 @@ class PokeBotAssetsException(Exception):
     pass
 
 
-class PokeBotLootboxException(Exception):
+class PokeBotGeneratorException(Exception):
     pass
 
 
 class PokeBotRatesException(Exception):
+    pass
+
+
+class PokeBotStatusException(Exception):
     pass
 
 
