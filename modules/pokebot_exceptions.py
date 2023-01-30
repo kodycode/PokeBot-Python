@@ -54,6 +54,14 @@ class NotEnoughLootboxQuantityException(Exception):
     pass
 
 
+class NotEnoughRerollsException(Exception):
+    pass
+
+
+class NightVendorLogicException(Exception):
+    pass
+
+
 class PageQuantityTooLow(Exception):
     pass
 
@@ -71,6 +79,10 @@ class PokeBotRatesException(Exception):
 
 
 class PokeBotStatusException(Exception):
+    pass
+
+
+class ReleasePokemonException(Exception):
     pass
 
 

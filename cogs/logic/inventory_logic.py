@@ -1,4 +1,5 @@
 from classes import PokeBotModule, Pokemon
+from cogs.logic.actions.release_pokemon import ReleasePokemonAction
 from math import ceil
 from modules.services.legendary_pokemon_service import LegendaryPokemonService
 from modules.pokebot_assets import PokeBotAssets
@@ -22,9 +23,7 @@ from modules.services.ultra_beasts_service import UltraBeastsService
 from utils import (
     format_pokemon_name,
     get_ctx_user_id,
-    get_specific_text_channel,
-    is_name_shiny,
-    remove_shiny_pokemon_name,
+    get_specific_text_channel
 )
 import discord
 import time
@@ -36,6 +35,13 @@ class InventoryLogic(PokeBotModule):
     BRONZE = "bronze"
     SILVER = "silver"
     GOLD = "gold"
+
+    POKEBALL_ICON_URL = ("https://github.com/msikma/pokesprite/blob/master/"
+                         "icons/pokeball/poke.png?raw=true")
+    GREATBALL_ICON_URL = ("https://github.com/msikma/pokesprite/blob/master/"
+                          "icons/pokeball/great.png?raw=true")
+    ULTRABALL_ICON_URL = ("https://github.com/msikma/pokesprite/blob/master/"
+                          "icons/pokeball/ultra.png?raw=true")
 
     SHINY_ICON_URL = "https://raw.githubusercontent.com/msikma/pokesprite/master/icons/pokemon/shiny/"
     SHINY_GIF_URL = "https://play.pokemonshowdown.com/sprites/xyani-shiny/"
@@ -52,6 +58,11 @@ class InventoryLogic(PokeBotModule):
         self.generator = PokeBotGenerator(self.assets, self.rates)
         self.trainer_service = TrainerService(self.rates)
         self.ultra_beasts = UltraBeastsService()
+        self.release_pokemon_action = ReleasePokemonAction(
+            self.assets,
+            self.status,
+            self.trainer_service
+        )
 
     async def catch_pokemon(self, ctx: discord.ext.commands.Context) -> None:
         """
@@ -305,41 +316,15 @@ class InventoryLogic(PokeBotModule):
         try:
             user_id = get_ctx_user_id(ctx, pkmn_name, quantity)
             self._is_existing_user(user_id)
-            await self._process_pokemon_release(user_id, pkmn_name, quantity)
-            self.trainer_service.save_all_trainer_data()
-            self.status.decrease_total_pkmn_count(1)
-            await self.status.display_total_pokemon_caught()
+            self.release_pokemon_action.release_pokemon(
+                user_id,
+                pkmn_name,
+                quantity
+            )
         except HigherReleaseQuantitySpecifiedException:
             raise
         except Exception as e:
             msg = "Error has occurred in releasing pokemon."
-            self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise
-
-    async def _process_pokemon_release(
-        self,
-        user_id: str,
-        pkmn_name: str,
-        quantity: int
-    ):
-        """
-        Processes pokemon to release
-        """
-        try:
-            pkmn_lowercase = pkmn_name.lower()
-            is_shiny = is_name_shiny(pkmn_lowercase)
-            no_shiny_pkmn_name = remove_shiny_pokemon_name(pkmn_lowercase)
-            pkmn = self.assets.get_pokemon_asset(
-                no_shiny_pkmn_name,
-                is_shiny=is_shiny
-            )   
-            await self.trainer_service.decrease_pokemon_quantity(
-                user_id,
-                pkmn,
-                quantity
-            )
-        except Exception as e:
-            msg = "Error has occurred in processing pokemon release."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
             raise
 
@@ -564,14 +549,11 @@ class InventoryLogic(PokeBotModule):
         Determines the lootbox thumbnail based on the lootbox opened
         """
         if lootbox == self.BRONZE:
-            return ("https://github.com/msikma/pokesprite/blob/master/"
-                    "icons/pokeball/poke.png?raw=true")
+            return self.POKEBALL_ICON_URL
         elif lootbox == self.SILVER:
-            return ("https://github.com/msikma/pokesprite/blob/master/"
-                    "icons/pokeball/great.png?raw=true")
+            return self.GREATBALL_ICON_URL
         elif lootbox == self.GOLD:
-            return ("https://github.com/msikma/pokesprite/blob/master/"
-                    "icons/pokeball/ultra.png?raw=true")
+            return self.ULTRABALL_ICON_URL
 
     async def display_lootbox_inventory(
         self,

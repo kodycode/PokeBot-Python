@@ -15,6 +15,7 @@ class PokeBotGenerator(PokeBotModule):
         self,
         is_shiny: bool=False,
         is_egg: bool=False,
+        is_night_vendor_generated: bool=False,
         lootbox: str=''
     ) -> Pokemon:
         """
@@ -23,30 +24,39 @@ class PokeBotGenerator(PokeBotModule):
         try:
             is_shiny_pokemon = is_shiny
             if not is_shiny:
-                is_shiny_pokemon = self._determine_shiny_pokemon(is_egg)
+                is_shiny_pokemon = self._determine_shiny_pokemon(
+                    is_egg,
+                    is_night_vendor_generated
+                )
             if lootbox:
                 pkmn = self.assets.get_lootbox_pokemon_asset(
                     is_shiny_pokemon,
                     lootbox
                 )
-            elif is_shiny_pokemon:
-                pkmn = self.assets.get_random_pokemon_asset(is_shiny=True)
             else:
-                pkmn = self.assets.get_random_pokemon_asset()
+                pkmn = self.assets.get_random_pokemon_asset(
+                    is_shiny=is_shiny_pokemon
+                )
             return pkmn
         except Exception as e:
             msg = "Error has occurred in generating pokemon."
             self.post_error_log_msg(PokeBotGeneratorException.__name__, msg, e)
             raise
 
-    def _determine_shiny_pokemon(self, is_egg=False) -> bool:
+    def _determine_shiny_pokemon(
+        self,
+        is_egg: bool,
+        is_night_vendor_generated: bool
+    ) -> bool:
         """
         Determines the odds of a shiny pokemon 
         """
         try:
             shiny_catch_rate = -1
             shiny_rng_chance = random.uniform(0, 1)
-            if is_egg:
+            if is_night_vendor_generated:
+                shiny_catch_rate = self.rates.get_shiny_pkmn_night_vendor_rate()
+            elif is_egg:
                 shiny_catch_rate = self.rates.get_shiny_pkmn_hatch_multiplier()
             else:
                 shiny_catch_rate = self.rates.get_shiny_pkmn_catch_rate()

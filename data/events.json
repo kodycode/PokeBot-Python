@@ -4,15 +4,13 @@
         "event_start_hour": 20,
         "event_end_hour": 21,
         "catch_cooldown_modifier": 2,
-        "shiny_catch_rate_modifier": 3
+        "shiny_rate_modifier": 3
     },
     "night_vendor_event": {
         "event": true,
         "event_start_hour": 21,
         "event_end_hour": 3,
-        "shiny_roll_rate_modifier": 50,
-        "trade_limit": 1,
-        "reroll_count": 5,
-        "num_pkmn_to_trade": 10
+        "shiny_roll_rate_modifier": 500,
+        "reroll_count": 5
     }
 }

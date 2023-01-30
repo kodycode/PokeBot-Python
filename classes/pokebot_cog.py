@@ -130,6 +130,17 @@ class PokeBotCog(commands.Cog):
                        " please make sure you have enough" \
                        f" {str(e)} lootboxes to open")
 
+    async def post_not_enough_reroll_exception_msg(
+        self,
+        ctx: commands.Context
+    ) -> None:
+        """
+        Sends the exception message for when the user doesn't have enough
+        rerolls
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " you've used up all your re-rolls.")
+
     async def post_page_quantity_too_low_msg(
         self,
         ctx: commands.Context

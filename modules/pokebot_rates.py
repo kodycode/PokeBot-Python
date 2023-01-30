@@ -44,7 +44,7 @@ class PokeBotRates(PokeBotModule):
         """
         try:
             return self.general_rates.get_catch_cooldown_seconds() \
-                * self.event_manager.get_event_catch_cooldown_modifier()
+                * self.event_manager.get_current_event_catch_cooldown_modifier()
         except Exception as e:
             msg = "Error has occurred getting catch cooldown seconds."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
@@ -56,9 +56,20 @@ class PokeBotRates(PokeBotModule):
         """
         try:
             return self.shiny_pkmn_rates.get_shiny_pkmn_catch_rate() \
-                * self.event_manager.get_event_shiny_catch_rate_modifier()
+                * self.event_manager.get_current_event_shiny_rate_modifier()
         except Exception as e:
             msg = "Error has occurred getting shiny pkmn catch rate."
+            self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
+
+    def get_shiny_pkmn_night_vendor_rate(self) -> int:
+        """
+        Gets the shiny pokemon spawn rate from a night vendor
+        """
+        try:
+            return self.shiny_pkmn_rates.get_shiny_pkmn_catch_rate() \
+                * self.event_manager.get_night_vendor_shiny_roll_rate_modifier()
+        except Exception as e:
+            msg = "Error has occurred getting shiny pkmn night vendor rate."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
 
     def get_shiny_pkmn_hatch_multiplier(self) -> int:

@@ -15,7 +15,7 @@ class HappyHourEvent(PokeBotEvent):
                 "hour, the catch cooldown has "
                 "been cut in half, and the shiny rate is {}x higher. "
                 "Good luck @everyone!**"
-                "".format(self.event_data["shiny_catch_rate_modifier"]))
+                "".format(self.event_data["shiny_rate_modifier"]))
             await self._send_event_start_msg(msg)
 
     async def deactivate(self):

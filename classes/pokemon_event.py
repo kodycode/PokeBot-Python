@@ -18,7 +18,7 @@ class PokeBotEvent(ABC):
         self.is_active = False
         self.event_data = {}
         self.catch_cooldown_modifier = 1
-        self.shiny_catch_rate_modifier = 1
+        self.shiny_rate_modifier = 1
         self._load_event_data(event_key)
         print(f"Loaded {type(self).__name__}")
 
@@ -29,7 +29,7 @@ class PokeBotEvent(ABC):
         try:
             self.event_data = EventsDAO().get_event(event_key)
             self.catch_cooldown_modifier = self.event_data.get("catch_cooldown_modifier", 1.0)
-            self.shiny_catch_rate_modifier = self.event_data.get("shiny_catch_rate_modifier", 1.0)
+            self.shiny_rate_modifier = self.event_data.get("shiny_rate_modifier", 1.0)
         except Exception as e:
             print("ERROR - Exception: {}".format(str(e)))
             logger.error("Exception: {}".format(str(e)))
@@ -61,6 +61,12 @@ class PokeBotEvent(ABC):
                            description=msg,
                            colour=0xFF0000)
         await pokemon_channel_obj.send(embed=em)
+
+    def get_active_state(self) -> bool:
+        """
+        Returns event's active state
+        """
+        return self.is_active
 
     async def process_event_activation_time(self, hour: int) -> None:
         """

@@ -7,19 +7,20 @@
       "(shiny)torterra": 1,
       "(shiny)typhlosion": 1,
       "(shiny)gurdurr": 1,
-      "(shiny)chansey": 1
+      "(shiny)chansey": 1,
+      "cherrim": 1
     },
     "lootbox": {
       "bronze": 4,
       "silver": 2,
       "gold": 4
     },
-    "last_catch_time": 1674898115.665649,
+    "last_catch_time": 1675038916.130424,
     "last_daily_redeemed_time": 1674977429.758234,
     "daily_tokens": 99642,
     "legendary_pkmn_count": 0,
     "shiny_pkmn_count": 6,
-    "total_pkmn_count": 7,
+    "total_pkmn_count": 8,
     "ultra_beasts_count": 0,
     "egg_count": 0,
     "egg_manaphy_count": 0
