@@ -130,11 +130,12 @@ class DailyLogic(PokeBotModule):
             for item in self.daily_shop_menu:
                 item_price = self.daily_shop_menu[item][self.ITEM_PRICE]
                 item_description = self.daily_shop_menu[item][self.ITEM_DESCRIPTION]
-                menu_items += (f"[{item_count}] - {item_description}"
-                               f" **{item_price}** tokens)\n")
+                menu_items += (f"[{item_count}] - **{item_description}**"
+                               f" - **{item_price}** tokens\n")
                 item_count += 1
             em = discord.Embed(title="Daily Token Shop",
-                               description=menu_items)
+                               description=menu_items,
+                               colour=0xFFFF00)
             return em
         except Exception:
             msg = "Error has occurred in getting daily shop info"
