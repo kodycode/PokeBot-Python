@@ -1,10 +1,11 @@
+from classes import PokeBotModule
 from modules.pokebot_exceptions import PokeBotStatusException
 from modules.pokebot_rates import PokeBotRates
 from modules.services import TrainerService
 import discord
 
 
-class PokeBotStatus:
+class PokeBotStatus(PokeBotModule):
     def __init__(self, bot):
         if(self.__initialized): return
         self.__initialized = True
