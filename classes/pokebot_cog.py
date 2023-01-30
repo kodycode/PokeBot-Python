@@ -141,6 +141,17 @@ class PokeBotCog(commands.Cog):
         await ctx.send(f"{ctx.message.author.mention}," \
                        " you've used up all your re-rolls.")
 
+    async def post_night_vendor_sale_already_made_exception_msg(
+        self,
+        ctx: commands.Context
+    ) -> None:
+        """
+        Sends the exception message for when a trainer has already
+        traded with the night vendor
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " you've already traded with the night vendor.")
+
     async def post_page_quantity_too_low_msg(
         self,
         ctx: commands.Context
@@ -175,6 +186,19 @@ class PokeBotCog(commands.Cog):
         """
         await ctx.send(f"{ctx.message.author.mention}," \
                        " please specify only 5 pokemon to exchange")
+
+    async def post_unavailable_pokemon_to_trade_exception_msg(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when the trainer doesn't have the
+        pokemon required to trade the night vendor
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       f" you're missing a **{str(e).title()}**" \
+                       " to trade the night vendor with")
 
     async def post_unregistered_trainer_exception_msg(
         self, 

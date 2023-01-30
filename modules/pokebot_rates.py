@@ -66,8 +66,9 @@ class PokeBotRates(PokeBotModule):
         Gets the shiny pokemon spawn rate from a night vendor
         """
         try:
+            nv_event = self.event_manager.get_event_by_key("night_vendor")
             return self.shiny_pkmn_rates.get_shiny_pkmn_catch_rate() \
-                * self.event_manager.get_night_vendor_shiny_roll_rate_modifier()
+                * nv_event.get_shiny_roll_rate_modifier()
         except Exception as e:
             msg = "Error has occurred getting shiny pkmn night vendor rate."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)

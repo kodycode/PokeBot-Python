@@ -62,6 +62,10 @@ class NightVendorLogicException(Exception):
     pass
 
 
+class NightVendorSaleAlreadyMadeException(Exception):
+    pass
+
+
 class PageQuantityTooLow(Exception):
     pass
 
@@ -95,6 +99,10 @@ class TooManyExchangePokemonSpecifiedException(Exception):
 
 
 class TrainerServiceException(Exception):
+    pass
+
+
+class UnavailablePokemonToTradeException(Exception):
     pass
 
 

@@ -69,6 +69,4 @@ class ReleasePokemonAction(PokeBotModule):
                 quantity
             )
         except Exception as e:
-            msg = "Error has occurred in processing pokemon release."
-            self.post_error_log_msg(ReleasePokemonException.__name__, msg, e)
             raise

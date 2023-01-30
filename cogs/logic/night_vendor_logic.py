@@ -4,7 +4,9 @@ from events.night_vendor_event import NightVendorEvent
 from modules.pokebot_exceptions import (
     HigherReleaseQuantitySpecifiedException,
     NightVendorLogicException,
+    NightVendorSaleAlreadyMadeException,
     NotEnoughRerollsException,
+    UnavailablePokemonToTradeException
 )
 from modules.pokebot_assets import PokeBotAssets
 from modules.pokebot_generator import PokeBotGenerator
@@ -40,6 +42,8 @@ class NightVendorLogic(PokeBotModule):
         """
         try:
             user_id = get_ctx_user_id(ctx)
+            if self.event.check_user_traded(user_id):
+                raise NightVendorSaleAlreadyMadeException()
             if not self.event.check_user_has_offer(user_id):
                 self.event.create_or_update_roll_count(user_id)
                 self._create_night_vendor_offer(user_id)
@@ -56,8 +60,14 @@ class NightVendorLogic(PokeBotModule):
             msg = (f"{ctx.message.author.mention},"
                    " the **Night Vendor**"
                    " wants to trade their **{}** for a **{}**"
-                   "".format(night_vendor_pkmn, night_vendor_price))
+                   "".format(
+                    night_vendor_pkmn.title(),
+                    night_vendor_price.title()
+                    )
+                )
             return msg
+        except NightVendorSaleAlreadyMadeException:
+            raise
         except Exception as e:
             msg = "Error has occurred in building night vendor offer msg."
             self.post_error_log_msg(NightVendorLogicException.__name__, msg, e)
@@ -94,22 +104,26 @@ class NightVendorLogic(PokeBotModule):
         """
         try:
             user_id = get_ctx_user_id(ctx)
+            if self.event.check_user_traded(user_id):
+                raise NightVendorSaleAlreadyMadeException()
             roll_count = self.event.get_trainer_roll_count(user_id)
             if roll_count < 1:
                 raise NotEnoughRerollsException()
             self.event.create_or_update_roll_count(user_id)
             self._create_night_vendor_offer(user_id)
+        except NightVendorSaleAlreadyMadeException:
+            raise
         except NotEnoughRerollsException:
             raise
         except Exception as e:
-            msg = "Error has occurred in building night vendor offer msg."
+            msg = "Error has occurred in rerolling night vendor offer msg."
             self.post_error_log_msg(NightVendorLogicException.__name__, msg, e)
             raise
 
-    def trade_night_vendor(
+    async def trade_night_vendor(
         self,
         ctx: discord.ext.commands.Context
-    ) -> discord.Embed:
+    ) -> str:
         """
         Trades and the night vendor
         """
@@ -118,6 +132,8 @@ class NightVendorLogic(PokeBotModule):
             if not self.event.check_user_has_offer(user_id):
                 self.event.create_or_update_roll_count(user_id)
                 self._create_night_vendor_offer(user_id)
+            if self.event.check_user_traded(user_id):
+                raise NightVendorSaleAlreadyMadeException()
             night_vendor_pkmn_name = self.event.get_night_vendor_offered_pokemon(
                 user_id
             )
@@ -129,20 +145,36 @@ class NightVendorLogic(PokeBotModule):
             night_vendor_price = self.event.get_night_vendor_requested_pokemon(
                 user_id
             )
-            self.release_pokemon_action.release_pokemon(
-                user_id,
-                night_vendor_price,
-                1
-            )
+            try:
+                await self.release_pokemon_action.release_pokemon(
+                    user_id,
+                    night_vendor_price,
+                    1
+                )
+            except HigherReleaseQuantitySpecifiedException:
+                raise UnavailablePokemonToTradeException(
+                    night_vendor_price
+                )
             self.trainer_service.give_pokemon_to_trainer(
                 user_id,
                 night_vendor_pkmn
             )
+            self.trainer_service.save_all_trainer_data()
             self.event.update_night_vendor_sales(user_id)
-        except HigherReleaseQuantitySpecifiedException:
+            formatted_offered_pkmn_name = night_vendor_pkmn.name.title()
+            if is_night_vendor_pkmn_shiny:
+                formatted_offered_pkmn_name = \
+                    "(Shiny) " + formatted_offered_pkmn_name
+            formatted_price_pkmn_name = night_vendor_price.title()
+            msg = (f"{ctx.message.author.mention} traded a"
+                   f" **{formatted_offered_pkmn_name}** for a"
+                   f" **{formatted_price_pkmn_name}**!")
+            return msg
+        except NightVendorSaleAlreadyMadeException:
+            raise
+        except UnavailablePokemonToTradeException:
             raise
         except Exception as e:
-            msg = "Error has occurred in building night vendor offer msg."
+            msg = "Error has occurred in trading with the night vendor."
             self.post_error_log_msg(NightVendorLogicException.__name__, msg, e)
             raise
-

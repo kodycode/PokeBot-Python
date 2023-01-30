@@ -4,7 +4,9 @@ from discord.ext import commands
 from events import EventManager
 from modules.pokebot_exceptions import (
     HigherReleaseQuantitySpecifiedException,
-    NotEnoughRerollsException
+    NightVendorSaleAlreadyMadeException,
+    NotEnoughRerollsException,
+    UnavailablePokemonToTradeException
 )
 
 
@@ -32,18 +34,22 @@ class NightVendorCommands(PokeBotCog):
         """
         Posts the message specifying that the night vendor is away
         """
-        await ctx.send("Night Vendor is currently away.")
+        await ctx.send(f"{ctx.message.author.mention},"
+                       " the Night Vendor is currently away.")
 
     @commands.command(name='nv', pass_context=True)
     async def nv(self, ctx: commands.Context) -> None:
         """
         Displays what the night vendor wants to trade
         """
-        if self._is_event_active():
-            msg = self.nv.build_night_vendor_offer_msg(ctx)
-            await ctx.send(msg)
-        else:
-            await self._post_night_vendor_inactive_msg()
+        try:
+            if self._is_event_active():
+                msg = self.nv.build_night_vendor_offer_msg(ctx)
+                await ctx.send(msg)
+            else:
+                await self._post_night_vendor_inactive_msg(ctx)
+        except NightVendorSaleAlreadyMadeException:
+            await self.post_night_vendor_sale_already_made_exception_msg(ctx)
 
     @commands.command(name='nvroll', pass_context=True)
     async def nvroll(self, ctx: commands.Context) -> None:
@@ -56,7 +62,9 @@ class NightVendorCommands(PokeBotCog):
                 msg = self.nv.build_night_vendor_offer_msg(ctx)
                 await ctx.send(msg)
             else:
-                await self._post_night_vendor_inactive_msg()
+                await self._post_night_vendor_inactive_msg(ctx)
+        except NightVendorSaleAlreadyMadeException:
+            await self.post_night_vendor_sale_already_made_exception_msg(ctx)
         except NotEnoughRerollsException:
             await self.post_not_enough_reroll_exception_msg(ctx)
 
@@ -67,8 +75,13 @@ class NightVendorCommands(PokeBotCog):
         """
         try:
             if self._is_event_active():
-                self.nv.trade_night_vendor(ctx)
+                msg = await self.nv.trade_night_vendor(ctx)
+                await ctx.send(msg)
             else:
-                await self._post_night_vendor_inactive_msg()
+                await self._post_night_vendor_inactive_msg(ctx)
         except HigherReleaseQuantitySpecifiedException:
-            await self.post_higher_quantity_specified_exception_msg()
+            await self.post_higher_quantity_specified_exception_msg(ctx)
+        except NightVendorSaleAlreadyMadeException:
+            await self.post_night_vendor_sale_already_made_exception_msg(ctx)
+        except UnavailablePokemonToTradeException as e:
+            await self.post_unavailable_pokemon_to_trade_exception_msg(ctx, e)

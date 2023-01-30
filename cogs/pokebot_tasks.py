@@ -12,10 +12,10 @@ class PokeBotTasks(PokeBotCog):
         self.bot = bot
         self.event_manager = EventManager(bot)
         self.status = PokeBotStatus(bot)
-        self._process_all_event_activation_times.start()
 
     @commands.Cog.listener("on_ready")
     async def on_ready(self):
+        self._process_all_event_activation_times.start()
         await self.status.display_total_pokemon_caught()
 
     @tasks.loop(seconds=60.0)

@@ -314,9 +314,9 @@ class InventoryLogic(PokeBotModule):
         Deletes a pokemon from the trainer's inventory
         """
         try:
-            user_id = get_ctx_user_id(ctx, pkmn_name, quantity)
+            user_id = get_ctx_user_id(ctx)
             self._is_existing_user(user_id)
-            self.release_pokemon_action.release_pokemon(
+            await self.release_pokemon_action.release_pokemon(
                 user_id,
                 pkmn_name,
                 quantity

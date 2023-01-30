@@ -28,16 +28,25 @@ class NightVendorEvent(PokeBotEvent):
         Deactivates night vendor event
         """
         self.night_vendor = False
+        self.roll_counts.clear()
+        self.offers.clear()
+        self.sales.clear()
         msg = ("**The night vendor has vanished.**")
         await self._send_event_end_msg(msg)
 
     def check_user_has_offer(self, user_id: str) -> bool:
         """
-        Checks if the user has an offer from the night vendor
+        Checks if the trainer has an offer from the night vendor
         """
         if user_id in self.offers:
             return True
         return False
+
+    def check_user_traded(self, user_id: str):
+        """
+        Checks if the trainer has already made a trade
+        """
+        return user_id in self.sales
 
     def get_reroll_count(self) -> int:
         """
@@ -76,6 +85,8 @@ class NightVendorEvent(PokeBotEvent):
         """
         Gets the roll count of a trainer
         """
+        if user_id not in self.roll_counts:
+            return self.get_reroll_count() + 1
         return self.roll_counts[user_id]
 
     def update_night_vendor_offer(
@@ -103,8 +114,8 @@ class NightVendorEvent(PokeBotEvent):
         Creates or updates the count of rolls for a trainer
         """
         if user_id not in self.roll_counts:
-            self.roll_counts = self.event.get_reroll_count()
+            self.roll_counts[user_id] = self.get_reroll_count()
         else:
-            self.roll_counts -= 1
+            self.roll_counts[user_id] -= 1
 
 
