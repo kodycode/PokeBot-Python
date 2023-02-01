@@ -8,8 +8,8 @@
     },
     "night_vendor_event": {
         "event": true,
-        "event_start_hour": 2,
-        "event_end_hour": 5,
+        "event_start_hour": 21,
+        "event_end_hour": 3,
         "shiny_roll_rate_modifier": 500,
         "reroll_count": 5
     }
