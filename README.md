@@ -12,6 +12,8 @@ Made with Python 3.9 and the [Python Discord API Wrapper](https://github.com/Rap
 
 This bot focuses on the catching aspect that was developed by the original [PokéBot](https://discordbots.org/bot/330488924449275916?utm_source=widget). While it contains the similar style of catching pokemon from the original, I've added more tweaks of my own. You can hatch and exchange pokemon, and even get lootboxes containing pokemon. You can also customize the bot to have events.
 
+To see info on the bot configs, see the [config page](https://github.com/kodycode/PokeBot-Python/wiki/Config).
+
 To read more on the bot's features, see the [command page](https://github.com/kodycode/PokeBot-Python/wiki/Command-Page).
 
 For information on current events, see the [event page](https://github.com/kodycode/PokeBot-Python/wiki/Events).
