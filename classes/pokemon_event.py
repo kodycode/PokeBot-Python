@@ -68,11 +68,19 @@ class PokeBotEvent(ABC):
         """
         return self.is_active
 
+    def is_event_enabled(self) -> bool:
+        """
+        Returns whether the event is enabled or not
+        """
+        return self.event_data["is_event_enabled"]
+
     async def process_event_activation_time(self, hour: int) -> None:
         """
         Checks across all events to see if it's time to
         activate or deactivate
         """
+        # TODO: Setup event activation to occur while in between start
+        # and end hour
         if not self.is_active:
             if hour == self.event_data["event_start_hour"]:
                 await self.activate()

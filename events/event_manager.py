@@ -58,8 +58,9 @@ class EventManager(object):
         hour = int(datetime.datetime.now().hour)
         for event_key in self.events:
             event = self.events[event_key]
-            await event.process_event_activation_time(hour)
-            await self._set_event_side_effects(event)
+            if event.is_event_enabled():
+                await event.process_event_activation_time(hour)
+                await self._set_event_side_effects(event)
 
     async def _set_event_side_effects(self, event) -> None:
         """

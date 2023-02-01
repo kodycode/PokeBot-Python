@@ -1,14 +1,14 @@
 {
     "happy_hour_event": {
-        "event": true,
-        "event_start_hour": 20,
+        "is_event_enabled": true,
+        "event_start_hour": 1,
         "event_end_hour": 21,
         "catch_cooldown_modifier": 2,
         "shiny_rate_modifier": 3
     },
     "night_vendor_event": {
-        "event": true,
-        "event_start_hour": 21,
+        "is_event_enabled": true,
+        "event_start_hour": 1,
         "event_end_hour": 3,
         "shiny_roll_rate_modifier": 500,
         "reroll_count": 5
