@@ -37,6 +37,9 @@ async def on_message(message):
 
 @bot.event
 async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.MissingRole):
+        # Don't want to reveal admin cmds to regular users
+        return
     if isinstance(error, commands.errors.MissingRequiredArgument):
         await ctx.send(content=f"{ctx.message.author.mention},"
                                " please make sure you're entering"

@@ -54,3 +54,13 @@ def remove_shiny_pokemon_name(pkmn_name: str) -> str:
     """
     shiny_removed_pkmn_name = pkmn_name.replace("(shiny)", '')
     return shiny_removed_pkmn_name
+
+
+def format_shiny_pokemon_name(pkmn_name: str) -> str:
+    """
+    Removes the shiny prefix from the pokemon's name and then
+    places (Shiny) back in front of it
+    """
+    shiny_removed_pkmn_name = pkmn_name.replace("(shiny)", '')
+    formatted_shiny_pkmn_name = "(Shiny) " + shiny_removed_pkmn_name
+    return formatted_shiny_pkmn_name

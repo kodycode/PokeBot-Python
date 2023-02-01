@@ -6,6 +6,19 @@ class PokeBotCog(commands.Cog):
         super().__init__()
         print(f"Added {type(self).__name__} Cog")
 
+    async def post_pokemon_does_not_exist_exception_msg(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when a given pokemon
+        does not exist
+        """
+        await ctx.send(f"{ctx.message.author.mention}, "\
+                       f" the Pokemon '**{str(e)}**' does not"
+                       " exist. Please specify a valid pokemon name.")
+
     async def post_catch_cooldown_incomplete_msg(
         self,
         ctx: commands.Context, 
@@ -40,8 +53,9 @@ class PokeBotCog(commands.Cog):
         specified over the max quantity of a pokemon to release
         """
         await ctx.send(f"{ctx.message.author.mention}," \
-                       " please specify a pokemon quantity less than the" \
-                       f" max pokemon quantity number: **{str(e)}**")
+                       " please specify a pokemon quantity less than or" \
+                       f" equal to the max pokemon quantity number:"
+                       f" **{str(e)}**")
 
     async def post_higher_page_specified_exception_msg(
         self, 
@@ -69,6 +83,19 @@ class PokeBotCog(commands.Cog):
         await ctx.send(f"{ctx.message.author.mention}," \
                        " please specify an item from the daily shop menu" \
                        f" from **1** to **{str(e)}**")
+
+    async def post_lootbox_does_not_exist(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when a non-existing lootbox name is
+        being given to a trainer
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " please specify a valid lootbox to give"
+                       f" (**{str(e)}** does not exist)")
 
     async def post_no_egg_count_msg(
         self,
@@ -129,6 +156,19 @@ class PokeBotCog(commands.Cog):
         await ctx.send(f"{ctx.message.author.mention}," \
                        " please make sure you have enough" \
                        f" {str(e)} lootboxes to open")
+
+    async def post_not_enough_lootbox_quantity_admin_exception_msg(
+        self,
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for when there's no quantity available
+        for a specified lootbox for a given trainer
+        """
+        await ctx.send(f"{ctx.message.author.mention}," \
+                       " please make sure the trainer has enough" \
+                       f" {str(e)} lootboxes")
 
     async def post_not_enough_reroll_exception_msg(
         self,
@@ -209,6 +249,21 @@ class PokeBotCog(commands.Cog):
         """
         await ctx.send(f"{ctx.message.author.mention}," 
                        " hasn't set off on his journey to"
+                       " catch 'em all yet. (Trainer must catch"
+                       " a pokemon first in order to use this"
+                       " bot command)"
+        )
+    
+    async def post_unregistered_trainer_admin_exception_msg(
+        self, 
+        ctx: commands.Context,
+        e: Exception
+    ) -> None:
+        """
+        Sends the exception message for an unregistered trainer (admin)
+        """
+        await ctx.send(f"{ctx.message.author.mention}, " 
+                       f" <@{str(e)}> hasn't set off on his journey to"
                        " catch 'em all yet. (Trainer must catch"
                        " a pokemon first in order to use this"
                        " bot command)"

@@ -3,7 +3,10 @@ from collections import defaultdict
 from classes import PokeBotModule, Pokemon
 from database import PokeballsDAO
 from modules.services.legendary_pokemon_service import LegendaryPokemonService
-from modules.pokebot_exceptions import PokeBotAssetsException
+from modules.pokebot_exceptions import (
+    PokeBotAssetsException,
+    PokemonDoesNotExistException
+)
 from modules.services.ultra_beasts_service import UltraBeastsService
 from utils import remove_shiny_pokemon_name
 import copy
@@ -200,6 +203,8 @@ class PokeBotAssets(PokeBotModule):
                 is_shiny=is_shiny,
                 is_ultra_beast=is_ultra_beast,
             )
+        except KeyError:
+            raise PokemonDoesNotExistException(pkmn_name)
         except Exception as e:
             msg = "Error has occurred in getting specified pokemon asset."
             self.post_error_log_msg(PokeBotAssetsException.__name__, msg, e)

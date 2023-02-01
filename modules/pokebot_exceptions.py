@@ -1,3 +1,7 @@
+class AdminLogicException(Exception):
+    pass
+
+
 class CatchCooldownIncompleteException(Exception):
     pass
 
@@ -27,6 +31,10 @@ class InventoryLogicException(Exception):
 
 
 class LegendaryPokemonServiceException(Exception):
+    pass
+
+
+class LootboxDoesNotExistException(Exception):
     pass
 
 
@@ -83,6 +91,10 @@ class PokeBotRatesException(Exception):
 
 
 class PokeBotStatusException(Exception):
+    pass
+
+
+class PokemonDoesNotExistException(Exception):
     pass
 
 
