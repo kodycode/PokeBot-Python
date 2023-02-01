@@ -3,6 +3,7 @@ from classes import DataDAO
 
 GIFT_JSON_NAME = "gift.json"
 
+
 class GiftDAO(DataDAO):
     """
     Gets the available gifts to receive

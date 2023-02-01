@@ -3,6 +3,7 @@ from classes import DataDAO
 
 ULTRA_BEASTS_FILE = "ultra_beasts.json"
 
+
 class UltraBeastsDAO(DataDAO):
     """
     Accesses the list of known ultra beasts

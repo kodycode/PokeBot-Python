@@ -315,7 +315,7 @@ class TrainerDAO(DataDAO):
         Decreases the bronze lootbox quantity of a user by 1
         """
         self.data[user_id][self.LOOTBOX][self.BRONZE] -= 1
-    
+
     def decrement_silver_lootbox_quantity(self, user_id: str):
         """
         Decreases the silver lootbox quantity of a user by 1

@@ -23,7 +23,7 @@ class LootboxConfigsDAO(ConfigDAO):
         opening can provide to the trainer
         """
         return self.data["lootbox_pokemon_limit"]
-    
+
     def get_daily_lootbox_bronze_rate(self) -> float:
         """
         Gets the max number threshold for a bronze
