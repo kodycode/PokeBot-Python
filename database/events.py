@@ -9,11 +9,15 @@ class EventsDAO(DataDAO):
     Gets the list of events that are available
     """
     def __init__(self, filename=EVENTS_JSON_NAME):
+        if (self.__initialized):
+            return
+        self.__initialized = True
         super().__init__(filename)
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(EventsDAO, cls).__new__(cls)
+            cls.__initialized = False
             return cls.instance
         return cls.instance
 

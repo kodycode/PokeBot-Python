@@ -9,11 +9,15 @@ class LootboxConfigsDAO(ConfigDAO):
     Gets the configs for lootboxes
     """
     def __init__(self, filename=LOOTBOX_CONFIG_NAME):
+        if (self.__initialized):
+            return
+        self.__initialized = True
         super().__init__(filename)
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(LootboxConfigsDAO, cls).__new__(cls)
+            cls.__initialized = False
             return cls.instance
         return cls.instance
 

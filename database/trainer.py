@@ -25,11 +25,15 @@ class TrainerDAO(DataDAO):
     ULTRA_BEASTS_COUNT = "ultra_beasts_count"
 
     def __init__(self, filename=TRAINER_JSON_FILE):
+        if (self.__initialized):
+            return
+        self.__initialized = True
         super().__init__(filename)
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(TrainerDAO, cls).__new__(cls)
+            cls.__initialized = False
             return cls.instance
         return cls.instance
 
