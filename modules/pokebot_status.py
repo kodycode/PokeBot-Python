@@ -29,7 +29,7 @@ class PokeBotStatus(PokeBotModule):
         Increments the total pokemon count
         """
         try:
-            self.total_pkmn_count += 1
+            self.total_pkmn_count += quantity
         except Exception as e:
             msg = "Failed to increment total pokemon count."
             self.post_error_log_msg(PokeBotStatusException.__name__, msg, e)
