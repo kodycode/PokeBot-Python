@@ -110,17 +110,6 @@ class PokeBotRates(PokeBotModule):
             msg = "Error has occurred getting shiny pkmn lootbox multiplier."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
 
-    def get_random_shiny_daily_token_price(self) -> int:
-        """
-        Gets the daily token shop price to redeem a
-        random shiny pokemon applied with any event modifications
-        """
-        try:
-            return self.shiny_pkmn_rates.get_random_shiny_daily_token_price()
-        except Exception as e:
-            msg = "Error has occurred getting random shiny daily token price."
-            self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
-
     def get_lootbox_pokemon_limit(self) -> int:
         """
         Gets the number of pokemon that a lootbox
