@@ -1,8 +1,4 @@
 {
 	"cmd_prefix": "!",
-	"token": "",
-	"admin_list": [
-		"TODO: Use role based admin",
-		"enter user id's here of who you want to be an admin"
-	]
+	"token": ""
 }
