@@ -176,36 +176,6 @@ class PokeBotRates(PokeBotModule):
             msg = "Error has occurred getting daily lootbox legendary rate."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
 
-    def get_bronze_lootbox_daily_token_price(self) -> int:
-        """
-        Gets the daily token shop price to redeem a bronze lootbox
-        """
-        try:
-            return self.lootbox_rates.get_bronze_lootbox_daily_token_price()
-        except Exception as e:
-            msg = "Error has occurred getting daily token lootbox bronze rate."
-            self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
-
-    def get_silver_lootbox_daily_token_price(self) -> int:
-        """
-        Gets the daily token shop price to redeem a silver lootbox
-        """
-        try:
-            return self.lootbox_rates.get_silver_lootbox_daily_token_price()
-        except Exception as e:
-            msg = "Error has occurred getting daily token lootbox silver rate."
-            self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
-
-    def get_gold_lootbox_daily_token_price(self) -> int:
-        """
-        Gets the daily token shop price to redeem a gold lootbox
-        """
-        try:
-            return self.lootbox_rates.get_gold_lootbox_daily_token_price()
-        except Exception as e:
-            msg = "Error has occurred getting daily token lootbox gold rate."
-            self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
-
     def get_lootbox_bronze_rate(self) -> float:
         """
         Gets the max number threshold for a bronze
