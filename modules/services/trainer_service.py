@@ -1,6 +1,5 @@
 from classes import PokeBotModule, Pokemon
 from database import TrainerDAO
-from discord.ext import commands
 from modules.pokebot_exceptions import (
     HigherReleaseQuantitySpecifiedException,
     TrainerServiceException,
@@ -61,7 +60,6 @@ class TrainerService(PokeBotModule):
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
 
-
     def _check_and_create_new_trainer(self, user_id: str) -> None:
         """
         Checks to see if the User ID is a new to the list
@@ -87,11 +85,11 @@ class TrainerService(PokeBotModule):
                 self.trainer_dao.get_last_catch_time(user_id)
             seconds_passed_since_last_catch = \
                 current_time - trainer_last_catch_time
-            catch_cooldown_seonds = self.rates.get_catch_cooldown_seconds()
-            return int(catch_cooldown_seonds-seconds_passed_since_last_catch)
+            catch_cooldown_seconds = self.rates.get_catch_cooldown_seconds()
+            return int(catch_cooldown_seconds-seconds_passed_since_last_catch)
         except Exception as e:
             msg = ("Error has occurred in getting amount of seconds left to"
-                  " catch")
+                   " catch")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
 
@@ -105,7 +103,7 @@ class TrainerService(PokeBotModule):
             msg = "Error has occurred in saving all trainer data."
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
-        
+
     def set_trainer_last_catch_time(self, user_id: str, time: float) -> None:
         """
         Sets the last catch time of the trainer
@@ -170,13 +168,13 @@ class TrainerService(PokeBotModule):
             em.set_author(name=user_obj)
             em.set_thumbnail(url=user_obj.avatar)
             em.add_field(name="Legendary Pokémon caught",
-                        value=legendary_pkmn_count)
+                         value=legendary_pkmn_count)
             em.add_field(name="Ultra Beasts caught",
-                        value=ultra_beasts_count)
-            em.add_field(name="Shiny Pokémon caught︀",
-                        value=shiny_pkmn_count)
+                         value=ultra_beasts_count)
+            em.add_field(name="Shiny Pokémon caught",
+                         value=shiny_pkmn_count)
             em.add_field(name="Total Pokémon caught",
-                        value=total_pkmn_count)
+                         value=total_pkmn_count)
             return em
         except UnregisteredTrainerException:
             raise
@@ -301,11 +299,10 @@ class TrainerService(PokeBotModule):
         try:
             return self.trainer_dao.get_lootbox_inventory(user_id)
         except Exception as e:
-            msg = ("Error has occurred in getting the entire lootbox" \
+            msg = ("Error has occurred in getting the entire lootbox"
                    " inventory of a trainer")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
-
 
     def get_lootbox_quantity(self, user_id: str, lootbox: str) -> int:
         """
@@ -349,7 +346,7 @@ class TrainerService(PokeBotModule):
         try:
             return self.trainer_dao.get_last_daily_redeemed_time(user_id)
         except Exception as e:
-            msg = ("Error has occurred in getting trainer's" \
+            msg = ("Error has occurred in getting trainer's"
                    "last daily claim time")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
@@ -368,7 +365,7 @@ class TrainerService(PokeBotModule):
                 current_time
             )
         except Exception as e:
-            msg = ("Error has occurred in setting trainer's" \
+            msg = ("Error has occurred in setting trainer's"
                    "last daily claim time")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
@@ -380,8 +377,8 @@ class TrainerService(PokeBotModule):
         try:
             self.trainer_dao.increment_daily_tokens(user_id)
         except Exception as e:
-            msg = (f"Error has occurred in incrementing daily token count of" \
-                   " a trainer ({user_id}).")
+            msg = ("Error has occurred in incrementing daily token count of"
+                   f" a trainer ({user_id}).")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
 
@@ -392,8 +389,8 @@ class TrainerService(PokeBotModule):
         try:
             return self.trainer_dao.get_daily_tokens(user_id)
         except Exception as e:
-            msg = (f"Error has occurred in getting the daily token count of" \
-                   " a trainer ({user_id}).")
+            msg = ("Error has occurred in getting the daily token count of"
+                   f" a trainer ({user_id}).")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise
 
@@ -404,6 +401,6 @@ class TrainerService(PokeBotModule):
         try:
             return self.trainer_dao.set_daily_tokens(user_id, daily_tokens)
         except Exception as e:
-            msg = (f"Error has occurred in decreasing daily tokens")
+            msg = ("Error has occurred in decreasing daily tokens")
             self.post_error_log_msg(TrainerServiceException.__name__, msg, e)
             raise

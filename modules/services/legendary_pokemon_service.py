@@ -20,7 +20,7 @@ class LegendaryPokemonService(PokeBotModule):
                   "was a legendary pokemon."
             self.post_error_log_msg(
                 LegendaryPokemonServiceException.__name__,
-                msg, 
+                msg,
                 e
             )
             raise
@@ -35,7 +35,7 @@ class LegendaryPokemonService(PokeBotModule):
             msg = "Error has occurred in getting list of legendary pokemon"
             self.post_error_log_msg(
                 LegendaryPokemonServiceException.__name__,
-                msg, 
+                msg,
                 e
             )
-            raise       
+            raise

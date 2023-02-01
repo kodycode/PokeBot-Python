@@ -1,4 +1,3 @@
-from bot_logger import logger
 from collections import defaultdict
 from classes import PokeBotModule, Pokemon
 from database import PokeballsDAO
@@ -8,8 +7,6 @@ from modules.pokebot_exceptions import (
     PokemonDoesNotExistException
 )
 from modules.services.ultra_beasts_service import UltraBeastsService
-from utils import remove_shiny_pokemon_name
-import copy
 import glob
 import os
 import random
@@ -144,7 +141,7 @@ class PokeBotAssets(PokeBotModule):
             self.post_error_log_msg(PokeBotAssetsException.__name__, msg, e)
             raise
 
-    def get_random_pokemon_asset(self, is_shiny: bool=False) -> Pokemon:
+    def get_random_pokemon_asset(self, is_shiny: bool = False) -> Pokemon:
         """
         Gets a random pokemon from the asset folder
         """
@@ -178,7 +175,7 @@ class PokeBotAssets(PokeBotModule):
     def get_pokemon_asset(
         self,
         pkmn_name: str,
-        is_shiny: bool=False
+        is_shiny: bool = False
     ) -> Pokemon:
         """
         Gets a specific pokemon from the asset folder

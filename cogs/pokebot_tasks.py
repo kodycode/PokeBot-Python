@@ -2,7 +2,6 @@ from classes import PokeBotCog
 from discord.ext import commands, tasks
 from events import EventManager
 from modules.pokebot_status import PokeBotStatus
-import asyncio
 
 
 class PokeBotTasks(PokeBotCog):

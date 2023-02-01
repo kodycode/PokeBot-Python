@@ -22,14 +22,14 @@ class AdminCommands(PokeBotCog):
     @commands.has_role('PokeBot Admin')
     async def give(
         self,
-        ctx: commands.Context, 
-        user_id: int=commands.parameter(
+        ctx: commands.Context,
+        user_id: int = commands.parameter(
             description="ID of the trainer to give a pokemon too"
         ),
-        pkmn_name: str=commands.parameter(
+        pkmn_name: str = commands.parameter(
             description="Name of the pokemon to delete"
         ),
-        shiny: str=commands.parameter(
+        shiny: str = commands.parameter(
             description="Specify 's' or not to give a shiny pokemon",
             default=''
         )
@@ -60,10 +60,10 @@ class AdminCommands(PokeBotCog):
     async def delete(
         self,
         ctx: commands.Context,
-        user_id: int=commands.parameter(
+        user_id: int = commands.parameter(
             description="ID of the trainer to give a pokemon too"
         ),
-        pkmn_name: str=commands.parameter(
+        pkmn_name: str = commands.parameter(
             description=("Name of the pokemon to delete i.e. "
                          "'pikachu', '(shiny)pikachu'")
         )
@@ -80,8 +80,8 @@ class AdminCommands(PokeBotCog):
                 formatted_pkmn_name = format_shiny_pokemon_name(pkmn_name)
             else:
                 formatted_pkmn_name = formatted_pkmn_name.title()
-            await ctx.send(f"{ctx.message.author.mention} deleted a" \
-                           f" **{formatted_pkmn_name}** from trainer" \
+            await ctx.send(f"{ctx.message.author.mention} deleted a"
+                           f" **{formatted_pkmn_name}** from trainer"
                            f" <@{str_user_id}>")
         except UnregisteredTrainerException as e:
             await self.post_unregistered_trainer_admin_exception_msg(ctx, e)
@@ -95,10 +95,10 @@ class AdminCommands(PokeBotCog):
     async def giveloot(
         self,
         ctx: commands.Context,
-        user_id: int=commands.parameter(
+        user_id: int = commands.parameter(
             description="ID of the trainer to give a pokemon too"
         ),
-        lootbox: str=commands.parameter(
+        lootbox: str = commands.parameter(
             description="Specify either 'bronze', 'silver' or 'gold' lootbox"
         )
     ) -> None:
@@ -110,8 +110,8 @@ class AdminCommands(PokeBotCog):
             formatted_lootbox = lootbox.lower()
             await self.admin_logic.give_lootbox(str_user_id,
                                                 formatted_lootbox)
-            await ctx.send(f"{ctx.message.author.mention} gave a" \
-                           f" **{formatted_lootbox.title()}** lootbox" \
+            await ctx.send(f"{ctx.message.author.mention} gave a"
+                           f" **{formatted_lootbox.title()}** lootbox"
                            f" to trainer <@{str_user_id}>")
         except LootboxDoesNotExistException as e:
             await self.post_lootbox_does_not_exist(ctx, e)
@@ -121,10 +121,10 @@ class AdminCommands(PokeBotCog):
     async def deleteloot(
         self,
         ctx: commands.Context,
-        user_id: int=commands.parameter(
+        user_id: int = commands.parameter(
             description="ID of the trainer to give a pokemon too"
         ),
-        lootbox: str=commands.parameter(
+        lootbox: str = commands.parameter(
             description="Specify either 'bronze', 'silver' or 'gold' lootbox"
         )
     ) -> None:
@@ -135,9 +135,9 @@ class AdminCommands(PokeBotCog):
             str_user_id = str(user_id)
             formatted_lootbox = lootbox.lower()
             await self.admin_logic.delete_lootbox(str_user_id,
-                                                formatted_lootbox)
-            await ctx.send(f"{ctx.message.author.mention} deleted a" \
-                           f" **{formatted_lootbox.title()}** lootbox from" \
+                                                  formatted_lootbox)
+            await ctx.send(f"{ctx.message.author.mention} deleted a"
+                           f" **{formatted_lootbox.title()}** lootbox from"
                            f" trainer <@{str_user_id}>")
         except UnregisteredTrainerException as e:
             await self.post_unregistered_trainer_admin_exception_msg(ctx, e)

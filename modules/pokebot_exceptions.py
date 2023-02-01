@@ -114,6 +114,10 @@ class TrainerServiceException(Exception):
     pass
 
 
+class UltraBeastsServiceException(Exception):
+    pass
+
+
 class UnavailablePokemonToTradeException(Exception):
     pass
 

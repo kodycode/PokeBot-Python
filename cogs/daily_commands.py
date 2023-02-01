@@ -51,7 +51,7 @@ class DailyCommands(PokeBotCog):
     async def buy(
         self,
         ctx: commands.Context,
-        item_num: int=commands.parameter(
+        item_num: int = commands.parameter(
             description="Number to select which shop item to buy"
         )
     ) -> None:

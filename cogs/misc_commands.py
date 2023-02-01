@@ -10,15 +10,14 @@ class MiscCommands(PokeBotCog):
         super().__init__()
         self.misc_logic = MiscLogic(bot)
 
-
     @commands.command(name='gif', pass_context=True)
     async def gif(
         self,
         ctx,
-        pkmn_name: str=commands.parameter(
+        pkmn_name: str = commands.parameter(
             description="The pokemon name to look up."
         ),
-        shiny: str=commands.parameter(
+        shiny: str = commands.parameter(
             description="Specify 'shiny' or not to look up shiny gif",
             default=None
         )
@@ -31,9 +30,9 @@ class MiscCommands(PokeBotCog):
 
     @commands.command(name='profile', pass_context=True)
     async def profile(
-        self, 
-        ctx: commands.Context, 
-        user_mention: str=commands.parameter(
+        self,
+        ctx: commands.Context,
+        user_mention: str = commands.parameter(
             description="The @-mention of the user on disord."
         )
     ) -> None:

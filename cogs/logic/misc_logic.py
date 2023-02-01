@@ -6,7 +6,7 @@ from modules.pokebot_exceptions import (
 )
 from modules.pokebot_rates import PokeBotRates
 from modules.services.trainer_service import TrainerService
-from utils import parse_discord_mention_user_id, get_ctx_user_id
+from utils import parse_discord_mention_user_id
 import discord
 
 

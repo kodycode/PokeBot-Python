@@ -36,7 +36,7 @@ class DailyLogic(PokeBotModule):
         self.generator = PokeBotGenerator(self.assets, self.rates)
         self.trainer_service = TrainerService(self.rates)
         self.daily_shop_menu = self.rates.get_daily_shop_menu()
-    
+
     def claim_daily(
         self,
         ctx: discord.ext.commands.Context
@@ -79,7 +79,9 @@ class DailyLogic(PokeBotModule):
         try:
             # get user daily time
             trainer_last_daily_redeemed_time = \
-                self.trainer_service.get_trainer_last_daily_redeemed_time(user_id)
+                self.trainer_service.get_trainer_last_daily_redeemed_time(
+                    user_id
+                )
             datetime_last_daily_redeemed_time = datetime.datetime.fromtimestamp(
                 trainer_last_daily_redeemed_time
             )
@@ -94,8 +96,8 @@ class DailyLogic(PokeBotModule):
                 return True
             return False
         except Exception as e:
-            msg = (f"Error has occurred in checking user daily "
-                   "claim ({user_id}).")
+            msg = ("Error has occurred in checking user daily "
+                   f"claim ({user_id}).")
             self.post_error_log_msg(DailyLogicException.__name__, msg, e)
             raise
 
@@ -137,7 +139,7 @@ class DailyLogic(PokeBotModule):
                                description=menu_items,
                                colour=0xFFFF00)
             return em
-        except Exception:
+        except Exception as e:
             msg = "Error has occurred in getting daily shop info"
             self.post_error_log_msg(DailyLogicException.__name__, msg, e)
             raise
@@ -176,7 +178,7 @@ class DailyLogic(PokeBotModule):
                     daily_shop_item_key
                 )
             self.trainer_service.save_all_trainer_data()
-            msg = (f"{ctx.message.author.mention} purchased a" \
+            msg = (f"{ctx.message.author.mention} purchased a"
                    f" **{item_description.title()}** from"
                    " the daily shop.")
             return msg
@@ -184,7 +186,7 @@ class DailyLogic(PokeBotModule):
             raise
         except NotEnoughDailyShopTokensException:
             raise
-        except Exception:
+        except Exception as e:
             msg = "Error has occurred in buying daily shop item"
             self.post_error_log_msg(DailyLogicException.__name__, msg, e)
             raise

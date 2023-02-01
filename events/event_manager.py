@@ -10,7 +10,8 @@ class EventManager(object):
     NIGHT_VENDOR_KEY = "night_vendor"
 
     def __init__(self, bot):
-        if(self.__initialized): return
+        if (self.__initialized):
+            return
         self.__initialized = True
         self.active_events = {}
         self.events = {

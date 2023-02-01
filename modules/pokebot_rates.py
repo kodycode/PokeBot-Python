@@ -131,7 +131,7 @@ class PokeBotRates(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred getting lootbox pokemon limit."
             self.post_error_log_msg(PokeBotRatesException.__name__, msg, e)
-    
+
     def get_daily_lootbox_bronze_rate(self) -> float:
         """
         Gets the max number threshold for a bronze

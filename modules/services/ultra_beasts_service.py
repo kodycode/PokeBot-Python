@@ -1,9 +1,6 @@
 from classes import PokeBotModule
 from database import UltraBeastsDAO
-
-
-class UltraBeastsService(Exception):
-    pass
+from modules.pokebot_exceptions import UltraBeastsServiceException
 
 
 class UltraBeastsService(PokeBotModule):
@@ -21,7 +18,7 @@ class UltraBeastsService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in deciding if a pokemon " \
                   "was an ultra beast."
-            self.post_error_log_msg(UltraBeastsService.__name__, msg, e)
+            self.post_error_log_msg(UltraBeastsServiceException.__name__, msg, e)
 
     def get_list_of_ultra_beasts(self) -> list:
         """
@@ -32,8 +29,8 @@ class UltraBeastsService(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in getting list of ultra beasts"
             self.post_error_log_msg(
-                LegendaryPokemonServiceException.__name__,
-                msg, 
+                UltraBeastsServiceException.__name__,
+                msg,
                 e
             )
             raise

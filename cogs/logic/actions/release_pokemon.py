@@ -62,11 +62,11 @@ class ReleasePokemonAction(PokeBotModule):
             pkmn = self.assets.get_pokemon_asset(
                 no_shiny_pkmn_name,
                 is_shiny=is_shiny
-            )   
+            )
             await self.trainer_service.decrease_pokemon_quantity(
                 user_id,
                 pkmn,
                 quantity
             )
-        except Exception as e:
+        except Exception:
             raise

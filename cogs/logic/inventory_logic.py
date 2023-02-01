@@ -130,9 +130,9 @@ class InventoryLogic(PokeBotModule):
 
     async def _create_catch_message(
         self,
-        ctx: discord.ext.commands.Context, 
-        pkmn: Pokemon, 
-        catch_condition: str, 
+        ctx: discord.ext.commands.Context,
+        pkmn: Pokemon,
+        catch_condition: str,
         lootbox: str
     ):
         """
@@ -154,7 +154,8 @@ class InventoryLogic(PokeBotModule):
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
             raise
 
-    async def _post_catch_to_channels(self,
+    async def _post_catch_to_channels(
+        self,
         ctx: discord.ext.commands.Context,
         pkmn: Pokemon,
         msg: str
@@ -181,7 +182,8 @@ class InventoryLogic(PokeBotModule):
         ctx: discord.ext.commands.Command,
         channel_name: str,
         pkmn: Pokemon,
-        msg: str):
+        msg: str
+    ):
         """
         Posts catch to special or certain channels (i.e. shiny, special)
         """
@@ -237,12 +239,12 @@ class InventoryLogic(PokeBotModule):
                                description=pinventory_msg,
                                colour=0xff0000)
             return em
-        except HigherPageSpecifiedException as e:
+        except HigherPageSpecifiedException:
             raise
         except Exception as e:
             msg = "Error has occurred in displaying inventory."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise    
+            raise
 
     def _is_existing_user(self, user_id: str) -> None:
         """
@@ -265,13 +267,13 @@ class InventoryLogic(PokeBotModule):
         """
         try:
             lowest_pkmn_index = (page-1) * self.PKMN_PER_PAGE
-            highest_pkmn_index = min(max_page*20, max(lowest_pkmn_index,1)*20)
+            highest_pkmn_index = min(max_page*20, max(lowest_pkmn_index, 1)*20)
             sorted_pokemon_inventory = sorted(pinventory.items())
             return sorted_pokemon_inventory[lowest_pkmn_index:highest_pkmn_index]
         except Exception as e:
             msg = "Error has occurred in slicing pinventory."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise 
+            raise
 
     async def _build_pinventory_msg_(
         self,
@@ -302,7 +304,7 @@ class InventoryLogic(PokeBotModule):
         except Exception as e:
             msg = "Error has occurred in building pinventory message."
             self.post_error_log_msg(InventoryLogicException.__name__, msg, e)
-            raise 
+            raise
 
     async def release_pokemon(
         self,
@@ -430,7 +432,7 @@ class InventoryLogic(PokeBotModule):
                                            random_pkmn,
                                            "exchanged pokemon for",
                                            None)
-            self.trainer_service.save_all_trainer_data()  
+            self.trainer_service.save_all_trainer_data()
         except NotEnoughExchangePokemonSpecifiedException:
             raise
         except NotEnoughExchangePokemonQuantityException:
@@ -535,8 +537,8 @@ class InventoryLogic(PokeBotModule):
             for pkmn in lootbox_pkmn_result:
                 msg += f"**{pkmn}**\n"
             em = discord.Embed(title="Lootbox",
-                            description=msg,
-                            colour=0xFF9900)
+                               description=msg,
+                               colour=0xFF9900)
             em.set_thumbnail(url=lootbox_thumbnail)
             return em
         except Exception as e:
@@ -570,7 +572,7 @@ class InventoryLogic(PokeBotModule):
             lootbox_inventory = \
                 self.trainer_service.get_entire_lootbox_inventory(user_id)
             for lootbox in lootbox_inventory:
-                msg += (f"**{lootbox.title()}:**"\
+                msg += (f"**{lootbox.title()}:**"
                         f" **{lootbox_inventory[lootbox]}**\n")
             return discord.Embed(
                 title="{}'s Lootboxes".format(username),

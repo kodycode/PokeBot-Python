@@ -13,10 +13,10 @@ class PokeBotGenerator(PokeBotModule):
 
     def generate_random_pokemon(
         self,
-        is_shiny: bool=False,
-        is_egg: bool=False,
-        is_night_vendor_generated: bool=False,
-        lootbox: str=''
+        is_shiny: bool = False,
+        is_egg: bool = False,
+        is_night_vendor_generated: bool = False,
+        lootbox: str = ''
     ) -> Pokemon:
         """
         Generates a random pokemon and returns a Pokemon object
@@ -49,7 +49,7 @@ class PokeBotGenerator(PokeBotModule):
         is_night_vendor_generated: bool
     ) -> bool:
         """
-        Determines the odds of a shiny pokemon 
+        Determines the odds of a shiny pokemon
         """
         try:
             shiny_catch_rate = -1
@@ -115,4 +115,3 @@ class PokeBotGenerator(PokeBotModule):
             msg = "Error has occurred in generating lootbox."
             self.post_error_log_msg(PokeBotGeneratorException.__name__, msg, e)
             raise
-

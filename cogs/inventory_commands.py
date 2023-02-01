@@ -37,8 +37,8 @@ class InventoryCommands(PokeBotCog):
     async def pinventory(
         self,
         ctx: commands.Context,
-        page: int=commands.parameter(
-            description="The @-mention of the user on disord.",
+        page: int = commands.parameter(
+            description="The @-mention of the user on discord.",
             default=1
         )
     ):
@@ -62,7 +62,7 @@ class InventoryCommands(PokeBotCog):
     async def release(
         self,
         ctx: commands.Context,
-        pkmn_name: str=commands.parameter(
+        pkmn_name: str = commands.parameter(
             description="The name of the pokemon"
         ),
         quantity=1
@@ -100,7 +100,7 @@ class InventoryCommands(PokeBotCog):
     async def hatch(
         self,
         ctx: commands.Context,
-        special_egg: str=commands.parameter(
+        special_egg: str = commands.parameter(
             description="Specify 'm' to hatch a manaphy egg if you have one",
             default=''
         )
@@ -118,13 +118,13 @@ class InventoryCommands(PokeBotCog):
     @commands.command(name='exchange', pass_context=True)
     async def exchange(
         self,
-        ctx:commands.Context,
+        ctx: commands.Context,
         *args: str
     ) -> None:
         """
         Exchanges 5 pokemon for a pokemon with a modified shiny chance
         rate
-        
+
         Example usage:
         !exchange pikachu pikachu charizard squirtle bulbasaur
         """
@@ -148,8 +148,8 @@ class InventoryCommands(PokeBotCog):
     @commands.command(name='open', aliases=['o'], pass_context=True)
     async def open(
         self,
-        ctx:commands.Context,
-        lootbox: str=commands.parameter(
+        ctx: commands.Context,
+        lootbox: str = commands.parameter(
             description="Specify either a 'bronze', 'silver', or 'gold' lootbox to open"
         )
     ):

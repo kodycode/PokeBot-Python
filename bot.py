@@ -24,8 +24,8 @@ intents = Intents(
     reactions=True
 )
 bot = commands.Bot(command_prefix=config_data["cmd_prefix"],
-    description="Renedition of PokeBot",
-    intents=intents)
+                   description="Renedition of PokeBot",
+                   intents=intents)
 
 
 @bot.event
@@ -43,7 +43,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.MissingRequiredArgument):
         await ctx.send(content=f"{ctx.message.author.mention},"
                                " please make sure you're entering"
-                               " a valid command.")   
+                               " a valid command.")
     elif isinstance(error, commands.errors.BadArgument):
         await ctx.send(content=f"{ctx.message.author.mention},"
                                "Command failed. Please make sure"

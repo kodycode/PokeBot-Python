@@ -1,5 +1,4 @@
 from classes import PokeBotEvent
-from collections import defaultdict
 
 
 class NightVendorEvent(PokeBotEvent):
@@ -16,11 +15,11 @@ class NightVendorEvent(PokeBotEvent):
         if not self.is_active:
             self.is_active = True
             msg = ("**The Night Vendor has arrived! Use the `{0}vendor i` "
-                "command for info on what's he's trading. If you're "
-                "interested in the trade, type `{0}vendor t` to make. "
-                "the trade. If you don't like the roll, type `{0}vendor r` "
-                "to re-roll what the vendor has for sale.**"
-                "".format(self.bot.command_prefix))
+                   "command for info on what's he's trading. If you're "
+                   "interested in the trade, type `{0}vendor t` to make. "
+                   "the trade. If you don't like the roll, type `{0}vendor r` "
+                   "to re-roll what the vendor has for sale.**"
+                   "".format(self.bot.command_prefix))
             await self._send_event_start_msg(msg)
 
     async def deactivate(self):
@@ -117,5 +116,3 @@ class NightVendorEvent(PokeBotEvent):
             self.roll_counts[user_id] = self.get_reroll_count()
         else:
             self.roll_counts[user_id] -= 1
-
-

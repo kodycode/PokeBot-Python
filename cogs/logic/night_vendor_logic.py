@@ -63,8 +63,7 @@ class NightVendorLogic(PokeBotModule):
                    "".format(
                     night_vendor_pkmn.title(),
                     night_vendor_price.title()
-                    )
-                )
+                    ))
             return msg
         except NightVendorSaleAlreadyMadeException:
             raise
@@ -72,7 +71,7 @@ class NightVendorLogic(PokeBotModule):
             msg = "Error has occurred in building night vendor offer msg."
             self.post_error_log_msg(NightVendorLogicException.__name__, msg, e)
             raise
-    
+
     def _create_night_vendor_offer(self, user_id: str):
         """
         Creates an offer from the night vendor to trade
@@ -94,7 +93,7 @@ class NightVendorLogic(PokeBotModule):
             msg = "Error has occurred in creating night vendor offer."
             self.post_error_log_msg(NightVendorLogicException.__name__, msg, e)
             raise
-        
+
     def reroll_night_vendor_offer(
         self,
         ctx: discord.ext.commands.Context

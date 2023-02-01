@@ -7,7 +7,8 @@ import discord
 
 class PokeBotStatus(PokeBotModule):
     def __init__(self, bot):
-        if(self.__initialized): return
+        if (self.__initialized):
+            return
         self.__initialized = True
         self.bot = bot
         self.rates = PokeBotRates(bot)
@@ -50,8 +51,8 @@ class PokeBotStatus(PokeBotModule):
         Updates the bot status display with a pokemon count given
         """
         try:
-            game_status = discord.Game(name=f"{self.total_pkmn_count}" \
-                                             " Pokémon caught")
+            game_status = discord.Game(name=f"{self.total_pkmn_count}"
+                                            " Pokémon caught")
             await self.bot.change_presence(activity=game_status)
         except Exception as e:
             msg = "Failed to display total pokemon caught."
