@@ -1,0 +1,14 @@
+{
+    "lootbox_pokemon_limit": 3,
+	"daily_lootbox_bronze_rate": 1,
+	"daily_lootbox_silver_rate": 0.5,
+	"daily_lootbox_gold_rate": 0.25,
+	"daily_lootbox_legendary_rate": 0.1,
+	"bronze_lootbox_daily_token_price": 3,
+	"silver_lootbox_daily_token_price": 6,
+	"gold_lootbox_daily_token_price": 9,
+	"lootbox_bronze_rate": 0.1,
+	"lootbox_silver_rate": 0.05,
+	"lootbox_gold_rate": 0.025,
+	"lootbox_legendary_rate": 0.01
+}

@@ -12,7 +12,7 @@ For information on events, see the [event page](https://github.com/kodycode/Poke
 
 To setup the bot,
 
-1. Enter your discord bot token into the `token` field of settings/config.json
+1. Enter your discord bot token into the `token` field of bot_config.json
 
 2. Run the bot with `python bot.py` or `python3 bot.py`
 

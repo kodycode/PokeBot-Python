@@ -1,0 +1,7 @@
+{
+    "shiny_pkmn_catch_rate": 0.0002,
+	"shiny_hatch_multiplier": 6,
+	"shiny_exchange_multiplier": 5,
+    "shiny_lootbox_multiplier": 4,
+    "random_shiny_daily_token_price": 50
+}
