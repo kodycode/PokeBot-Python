@@ -1,11 +1,3 @@
-# **NOTE: NOT TAKING ANY FEATURE REQUESTS OR REQUESTS FOR ADDITIONAL MECHANICS**
-
-I made this bot 5 years ago (Jan 2018) for me and a couple of friends. We no longer use this bot, hence this project is now just used as a means to exercise my current coding knowledge and as a means to learn. It was in a rough shape from when I started years ago, and as of 01/01/2023, I'm releasing an updated version with an improved codebase. There may be questionable design choices, such as the use of JSON files as storage, but from when I started 5 years ago, I didn't need a more advanced storage to use between 3 other friends and I as performance was never affected by how often these files were read/written. Later down the line I might implement the use of one, and I've setup the scenario to do so with the existance of the DAO files underneath `database/`, but no guarantee given my time and interest with the project.
-
-That being said, **this bot is meant to be used within a small discord server and may have its performance impacted in bigger server(s). While I'm not taking anymore feature requests, I am taking any bugs and issues that occur with the bot**. I don't have a lot of time, though should I have any, I may investigate these bugs and put up a fix for them.
-
-------------
-
 # Description
 
 Made with Python 3.9 and the [Python Discord API Wrapper](https://github.com/Rapptz/discord.py) while pertaining to Flake8 standards with <120 characters per line of code.
